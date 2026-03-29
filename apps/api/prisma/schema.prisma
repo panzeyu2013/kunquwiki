@@ -1,0 +1,488 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EntityType {
+  work
+  person
+  troupe
+  venue
+  event
+  city
+  article
+  role
+  lineage
+  topic
+}
+
+enum PublishStatus {
+  draft
+  published
+  archived
+  pending_review
+}
+
+enum EventStatus {
+  announced
+  scheduled
+  completed
+  cancelled
+  postponed
+}
+
+enum ReviewStatus {
+  pending
+  approved
+  rejected
+}
+
+enum UserStatus {
+  active
+  suspended
+  pending
+}
+
+enum UserRole {
+  visitor
+  bot
+  editor
+  reviewer
+  admin
+}
+
+enum AssetType {
+  image
+  video
+  audio
+  document
+}
+
+enum ProposalStatus {
+  pending
+  approved
+  rejected
+}
+
+model User {
+  id              String           @id @default(cuid())
+  username        String           @unique
+  displayName     String
+  email           String           @unique
+  passwordHash    String
+  status          UserStatus       @default(active)
+  roles           UserRole[]       @default([editor])
+  reputation      Int              @default(0)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  createdEntities Entity[]         @relation("EntityCreatedBy")
+  updatedEntities Entity[]         @relation("EntityUpdatedBy")
+  revisions       EntityRevision[] @relation("RevisionEditor")
+  reviewedChanges EntityRevision[] @relation("RevisionReviewer")
+  proposals       EditProposal[]   @relation("ProposalAuthor")
+  reviewedProposals EditProposal[] @relation("ProposalReviewer")
+  auditLogs       AuditLog[]
+  discussionPosts DiscussionPost[]
+  discussionThreads DiscussionThread[]
+}
+
+model Entity {
+  id             String             @id @default(cuid())
+  entityType     EntityType
+  slug           String             @unique
+  title          String
+  subtitle       String?
+  status         PublishStatus      @default(draft)
+  visibility     String             @default("public")
+  coverImageId   String?
+  createdById    String
+  updatedById    String
+  publishedAt    DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  createdBy      User               @relation("EntityCreatedBy", fields: [createdById], references: [id])
+  updatedBy      User               @relation("EntityUpdatedBy", fields: [updatedById], references: [id])
+  aliases        EntityAlias[]
+  content        EntityContent?
+  revisions      EntityRevision[]
+  work           Work?
+  person         Person?
+  troupe         Troupe?
+  venue          Venue?
+  event          Event?
+  city           City?
+  article        Article?
+  roleRecord     Role?
+  lineage        Lineage?
+  topic          Topic?
+  sourceRefs     EntitySourceRef[]
+  proposalRefs   EditProposal[]
+  searchIndex    SearchIndex?
+  outgoingRelations EntityRelation[] @relation("EntityRelationFrom")
+  incomingRelations EntityRelation[] @relation("EntityRelationTo")
+  discussionThreads DiscussionThread[]
+}
+
+model City {
+  entityId    String   @id
+  province    String
+  entity      Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  bornPeople  Person[] @relation("PersonBirthCity")
+  troupes     Troupe[]
+  venues      Venue[]
+  events      Event[]
+}
+
+model EntityAlias {
+  id        String   @id @default(cuid())
+  entityId  String
+  alias     String
+  aliasType String
+  isPrimary Boolean  @default(false)
+  entity    Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model EntityContent {
+  id           String   @id @default(cuid())
+  entityId      String   @unique
+  bodyMarkdown  String
+  infoboxJson   Json?
+  tocJson       Json?
+  updatedAt     DateTime @updatedAt
+  entity        Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model EntityRevision {
+  id                String       @id @default(cuid())
+  entityId          String
+  revisionNo        Int
+  title             String
+  bodyMarkdown      String?
+  structuredDataJson Json?
+  editSummary       String
+  reviewStatus      ReviewStatus @default(pending)
+  editorId          String
+  reviewerId        String?
+  reviewedAt        DateTime?
+  createdAt         DateTime     @default(now())
+  entity            Entity       @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  editor            User         @relation("RevisionEditor", fields: [editorId], references: [id])
+  reviewer          User?        @relation("RevisionReviewer", fields: [reviewerId], references: [id])
+
+  @@unique([entityId, revisionNo])
+}
+
+model Work {
+  entityId        String   @id
+  workType        String
+  parentWorkId    String?
+  originalAuthor  String?
+  dynastyPeriod   String?
+  genreNote       String?
+  synopsis        String
+  plot            String
+  durationMinutes Int?
+  firstKnownDate  String?
+  isKunquCore     Boolean  @default(true)
+  entity          Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  eventProgramItems EventProgramItem[]
+}
+
+model Person {
+  entityId        String   @id
+  personTypeNote  String?
+  gender          String?
+  birthDate       DateTime?
+  deathDate       DateTime?
+  hometown        String?
+  birthCityEntityId String?
+  bio             String
+  isLiving        Boolean  @default(true)
+  entity          Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  birthCity       City?    @relation("PersonBirthCity", fields: [birthCityEntityId], references: [entityId])
+  identities      PersonIdentity[]
+  troupeMemberships PersonTroupeMembership[]
+  eventParticipants EventParticipant[]
+  performanceCasts PerformanceCast[]
+}
+
+model Troupe {
+  entityId        String   @id
+  troupeType      String
+  foundedDate     DateTime?
+  dissolvedDate   DateTime?
+  cityEntityId    String?
+  city            String?
+  region          String?
+  description     String
+  officialWebsite String?
+  entity          Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  cityRecord      City?    @relation(fields: [cityEntityId], references: [entityId])
+  memberships     PersonTroupeMembership[]
+  leadEvents      Event[]  @relation("EventLeadTroupe")
+  eventParticipants EventParticipant[]
+}
+
+model Venue {
+  entityId    String   @id
+  venueType   String
+  country     String   @default("中国")
+  cityEntityId String?
+  region      String
+  city        String
+  address     String
+  latitude    Decimal?
+  longitude   Decimal?
+  capacity    Int?
+  description String?
+  entity      Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  cityRecord  City?    @relation(fields: [cityEntityId], references: [entityId])
+  events      Event[]
+}
+
+model Event {
+  entityId        String      @id
+  eventType       String
+  businessStatus  EventStatus
+  startAt         DateTime
+  endAt           DateTime?
+  timezone        String      @default("Asia/Shanghai")
+  cityEntityId    String?
+  venueEntityId   String?
+  troupeEntityId  String?
+  organizerText   String?
+  ticketUrl       String?
+  durationText    String?
+  ticketStatus    String?
+  noteText        String?
+  posterImageId   String?
+  lastVerifiedAt  DateTime?
+  entity          Entity      @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  city            City?       @relation(fields: [cityEntityId], references: [entityId])
+  venue           Venue?      @relation(fields: [venueEntityId], references: [entityId])
+  troupe          Troupe?     @relation("EventLeadTroupe", fields: [troupeEntityId], references: [entityId])
+  sessions        EventSession[]
+  programItems    EventProgramItem[]
+  participants   EventParticipant[]
+}
+
+model EventSession {
+  id            String      @id @default(cuid())
+  eventEntityId String
+  sessionTitle  String?
+  startAt       DateTime
+  endAt         DateTime?
+  venueEntityId String?
+  status        EventStatus
+  notes         String?
+  event         Event       @relation(fields: [eventEntityId], references: [entityId], onDelete: Cascade)
+}
+
+model Article {
+  entityId        String   @id
+  articleType     String
+  abstract        String?
+  difficultyLevel String?
+  bodySourceType  String?
+  entity          Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model Role {
+  entityId       String   @id
+  workEntityId   String?
+  roleCategory   String?
+  description    String?
+  entity         Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model Lineage {
+  entityId      String   @id
+  lineageType   String
+  description   String
+  entity        Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model Topic {
+  entityId      String   @id
+  topicType     String
+  heroText      String?
+  layoutJson    Json?
+  entity        Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model PersonIdentity {
+  id               String   @id @default(cuid())
+  personEntityId   String
+  identityTerm     String
+  startDate        DateTime?
+  endDate          DateTime?
+  person           Person   @relation(fields: [personEntityId], references: [entityId], onDelete: Cascade)
+}
+
+model PersonTroupeMembership {
+  id              String   @id @default(cuid())
+  personEntityId  String
+  troupeEntityId  String
+  membershipRole  String
+  startDate       DateTime?
+  endDate         DateTime?
+  isCurrent       Boolean  @default(false)
+  person          Person   @relation(fields: [personEntityId], references: [entityId], onDelete: Cascade)
+  troupe          Troupe   @relation(fields: [troupeEntityId], references: [entityId], onDelete: Cascade)
+}
+
+model WorkRole {
+  id           String   @id @default(cuid())
+  workEntityId String
+  roleEntityId String
+  sortOrder    Int      @default(0)
+}
+
+model EventProgramItem {
+  id              String   @id @default(cuid())
+  eventEntityId   String
+  sessionId       String?
+  workEntityId    String?
+  titleOverride   String?
+  sequenceNo      Int
+  durationMinutes Int?
+  notes           String?
+  event           Event    @relation(fields: [eventEntityId], references: [entityId], onDelete: Cascade)
+  work            Work?    @relation(fields: [workEntityId], references: [entityId])
+  casts           PerformanceCast[]
+}
+
+model PerformanceCast {
+  id                 String           @id @default(cuid())
+  eventProgramItemId String
+  roleEntityId       String?
+  personEntityId     String?
+  castNote           String?
+  programItem        EventProgramItem @relation(fields: [eventProgramItemId], references: [id], onDelete: Cascade)
+  person             Person?          @relation(fields: [personEntityId], references: [entityId])
+}
+
+model EventParticipant {
+  id                String   @id @default(cuid())
+  eventEntityId     String
+  sessionId         String?
+  personEntityId    String?
+  troupeEntityId    String?
+  participationRole String
+  creditedAs        String?
+  sortOrder         Int      @default(0)
+  event             Event    @relation(fields: [eventEntityId], references: [entityId], onDelete: Cascade)
+  person            Person?  @relation(fields: [personEntityId], references: [entityId])
+  troupe            Troupe?  @relation(fields: [troupeEntityId], references: [entityId])
+}
+
+model EntityRelation {
+  id             String   @id @default(cuid())
+  fromEntityId   String
+  toEntityId     String
+  relationType   String
+  note           String?
+  sortOrder      Int      @default(0)
+  fromEntity     Entity   @relation("EntityRelationFrom", fields: [fromEntityId], references: [id], onDelete: Cascade)
+  toEntity       Entity   @relation("EntityRelationTo", fields: [toEntityId], references: [id], onDelete: Cascade)
+}
+
+model Source {
+  id               String            @id @default(cuid())
+  sourceType       String
+  title            String
+  publisher        String?
+  author           String?
+  sourceUrl        String?
+  publicationDate  DateTime?
+  reliabilityLevel String
+  archivedUrl      String?
+  notes            String?
+  entityRefs       EntitySourceRef[]
+}
+
+model EntitySourceRef {
+  id           String   @id @default(cuid())
+  entityId      String
+  sourceId      String
+  refNote       String?
+  citationText  String?
+  sortOrder     Int      @default(0)
+  entity        Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  source        Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+}
+
+model MediaAsset {
+  id              String    @id @default(cuid())
+  assetType       AssetType
+  fileUrl         String
+  thumbnailUrl    String?
+  sourceId        String?
+  copyrightStatus String
+  altText         String?
+  uploadedById    String
+  createdAt       DateTime  @default(now())
+}
+
+model EditProposal {
+  id             String         @id @default(cuid())
+  entityId       String
+  proposerId     String
+  proposalType   String
+  payloadJson    Json
+  status         ProposalStatus @default(pending)
+  reviewerId     String?
+  reviewComment  String?
+  createdAt      DateTime       @default(now())
+  reviewedAt     DateTime?
+  entity         Entity         @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  proposer       User           @relation("ProposalAuthor", fields: [proposerId], references: [id])
+  reviewer       User?          @relation("ProposalReviewer", fields: [reviewerId], references: [id])
+}
+
+model DiscussionThread {
+  id          String          @id @default(cuid())
+  entityId    String
+  title       String
+  createdById String
+  status      String          @default("open")
+  createdAt   DateTime        @default(now())
+  entity      Entity          @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  createdBy   User            @relation(fields: [createdById], references: [id])
+  posts       DiscussionPost[]
+}
+
+model DiscussionPost {
+  id         String           @id @default(cuid())
+  threadId    String
+  authorId    String
+  body        String
+  createdAt   DateTime        @default(now())
+  thread      DiscussionThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author      User            @relation(fields: [authorId], references: [id])
+}
+
+model SearchIndex {
+  id          String   @id @default(cuid())
+  entityId     String   @unique
+  entityType   EntityType
+  title        String
+  searchText   String
+  updatedAt    DateTime @updatedAt
+  entity       Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorId      String
+  actionType   String
+  targetType   String
+  targetId     String
+  payloadJson  Json?
+  createdAt    DateTime @default(now())
+  actor        User     @relation(fields: [actorId], references: [id])
+}

@@ -1,0 +1,25 @@
+{
+  "name": "kunquwiki",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @kunquwiki/api & npm run dev --workspace @kunquwiki/web",
+    "build": "npm run build --workspace @kunquwiki/shared && npm run build --workspace @kunquwiki/api && npm run build --workspace @kunquwiki/web",
+    "lint": "npm run lint --workspace @kunquwiki/api && npm run lint --workspace @kunquwiki/web",
+    "test": "npm run build --workspace @kunquwiki/api && node --import tsx --test apps/api/test/*.test.mjs apps/web/test/*.test.ts",
+    "seed": "npm run seed --workspace @kunquwiki/api",
+    "db:generate": "npm run prisma:generate --workspace @kunquwiki/api",
+    "db:push": "npm run db:push --workspace @kunquwiki/api",
+    "db:migrate": "npm run db:migrate --workspace @kunquwiki/api",
+    "db:deploy": "npm run db:deploy --workspace @kunquwiki/api"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/supertest": "^7.2.0",
+    "supertest": "^7.2.2",
+    "tsx": "^4.21.0"
+  }
+}

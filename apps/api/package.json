@@ -1,0 +1,44 @@
+{
+  "name": "@kunquwiki/api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "ts-node src/main.ts",
+    "build": "npm run prisma:generate && rm -rf dist && tsc -p tsconfig.json",
+    "start": "node dist/src/main.js",
+    "test:e2e": "npm run build && node --test test/api.e2e.test.mjs",
+    "prisma:generate": "prisma generate --schema prisma/schema.prisma",
+    "db:push": "prisma db push --schema prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema prisma/schema.prisma",
+    "db:deploy": "prisma migrate deploy --schema prisma/schema.prisma",
+    "seed": "prisma db seed",
+    "lint": "npm run prisma:generate && tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@kunquwiki/shared": "0.0.1",
+    "@nestjs/common": "^10.4.8",
+    "@nestjs/config": "^3.3.0",
+    "@nestjs/core": "^10.4.8",
+    "@nestjs/platform-express": "^10.4.8",
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^2.4.3",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "jsonwebtoken": "^9.0.2",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.4.7",
+    "@nestjs/schematics": "^10.2.3",
+    "@nestjs/testing": "^10.4.8",
+    "@types/node": "^22.10.1",
+    "@types/jsonwebtoken": "^9.0.7",
+    "prisma": "^5.22.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  }
+}
