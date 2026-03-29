@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { createQuickEntityClient, getEditorOptions, getEntityPublic, submitProposal } from "../../lib/api-client";
 import {
   mapArticleTypeLabel,
@@ -204,7 +204,8 @@ function SearchCreateSelect({
   onCreate,
   placeholder,
   createLabel,
-  disabled
+  disabled,
+  className
 }: {
   label: string;
   options: EntityOption[];
@@ -214,6 +215,7 @@ function SearchCreateSelect({
   placeholder: string;
   createLabel: string;
   disabled?: boolean;
+  className?: string;
 }) {
   const [query, setQuery] = useState("");
   const selected = options.find((item) => item.id === value);
@@ -227,7 +229,7 @@ function SearchCreateSelect({
   const showOptions = !disabled && query.trim().length > 0 && query.trim() !== (selected?.title ?? "");
 
   return (
-    <fieldset>
+    <fieldset className={className}>
       <legend>{label}</legend>
       <div className="stack">
         <input value={query} placeholder={placeholder} onChange={(event) => setQuery(event.target.value)} disabled={disabled || creating} />
@@ -282,7 +284,9 @@ function SearchCreateMultiSelect({
   onCreate,
   placeholder,
   createLabel,
-  disabled
+  disabled,
+  className,
+  renderTagMeta
 }: {
   label: string;
   options: EntityOption[];
@@ -293,6 +297,8 @@ function SearchCreateMultiSelect({
   placeholder: string;
   createLabel: string;
   disabled?: boolean;
+  className?: string;
+  renderTagMeta?: (item: EntityOption) => React.ReactNode;
 }) {
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
@@ -318,7 +324,7 @@ function SearchCreateMultiSelect({
     !options.some((item) => item.title === normalizedQuery);
 
   return (
-    <fieldset>
+    <fieldset className={className}>
       <legend>{label}</legend>
       <div className="stack">
         {selectedOptions.length > 0 ? (
@@ -326,6 +332,7 @@ function SearchCreateMultiSelect({
             {selectedOptions.map((item) => (
               <span key={item.id} className="multi-select-tag">
                 <span>{item.title}</span>
+                {renderTagMeta ? renderTagMeta(item) : null}
                 <button
                   type="button"
                   className="tag-remove-button"
@@ -476,6 +483,282 @@ function DraftBadge({ visible }: { visible: boolean }) {
     return null;
   }
   return <span className="warning-pill">新建占位条目，资料待补充</span>;
+}
+
+function formatDateTimeLabel(value: string) {
+  if (!value) {
+    return "未设置";
+  }
+  const [date, time] = value.split("T");
+  if (!date) {
+    return value;
+  }
+  return time ? `${date} ${time}` : date;
+}
+
+function summarizeCollection(items: string[], emptyLabel = "未填写") {
+  const normalized = items.map((item) => item.trim()).filter(Boolean);
+  if (normalized.length === 0) {
+    return emptyLabel;
+  }
+  if (normalized.length === 1) {
+    return normalized[0];
+  }
+  return `${normalized[0]} 等 ${normalized.length} 项`;
+}
+
+function buildIdentitySummary(item: PersonIdentityRow) {
+  const identity = item.identityTerm.trim() || "未填写身份";
+  const period = `${formatDateTimeLabel(item.startDate)} - ${formatDateTimeLabel(item.endDate)}`;
+  return `${identity} · ${period}`;
+}
+
+function buildMembershipSummary(item: TroupeMembershipRow, options: EditorOptions) {
+  const troupeTitle = options.troupes.find((entry) => entry.id === item.troupeEntityId)?.title ?? "未选择院团";
+  const period = item.isCurrent
+    ? `${formatDateTimeLabel(item.startDate)} 起至今`
+    : `${formatDateTimeLabel(item.startDate)} - ${formatDateTimeLabel(item.endDate)}`;
+  return `${troupeTitle} · ${item.membershipRole || "成员"} · ${period}`;
+}
+
+function buildEventSectionSummary(formState: Record<string, unknown>, options: EditorOptions) {
+  const cityTitle = options.cities.find((item) => item.id === formState.cityId)?.title ?? "未选城市";
+  const venueTitle = options.venues.find((item) => item.id === formState.venueEntityId)?.title ?? "未选剧场";
+  const troupeIds = Array.isArray(formState.troupeIds) ? (formState.troupeIds as string[]) : [];
+  const troupeTitles = options.troupes.filter((item) => troupeIds.includes(item.id)).map((item) => item.title);
+  const programCount = Array.isArray(formState.programDetailed) ? (formState.programDetailed as EventProgramItemRow[]).length : 0;
+  return `${formatDateTimeLabel(String(formState.startAt ?? ""))} · ${cityTitle} / ${venueTitle} · ${summarizeCollection(troupeTitles, "未选剧团")} · ${programCount} 个节目`;
+}
+
+function CollapsibleFormSection({
+  title,
+  description,
+  summary,
+  children,
+  defaultExpanded = true,
+  accent = false
+}: {
+  title: string;
+  description: string;
+  summary?: string;
+  children: ReactNode;
+  defaultExpanded?: boolean;
+  accent?: boolean;
+}) {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
+  return (
+    <section className={`form-section collapsible-form-section${accent ? " form-section-accent" : ""}`}>
+      <div className="form-section-toolbar">
+        <div className="editor-section-head">
+          <h3>{title}</h3>
+          <p>{description}</p>
+        </div>
+        <button type="button" className="ghost-button section-toggle-button" onClick={() => setExpanded((current) => !current)}>
+          {expanded ? "收起" : "展开"}
+        </button>
+      </div>
+      {summary ? <p className="section-summary">{summary}</p> : null}
+      {expanded ? <div className="form-section-body">{children}</div> : null}
+    </section>
+  );
+}
+
+function DateTimeField({
+  label,
+  value,
+  onChange,
+  helper,
+  className
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  helper?: string;
+  className?: string;
+}) {
+  return (
+    <label className={`date-time-field${className ? ` ${className}` : ""}`}>
+      <span>{label}</span>
+      <div className="date-time-input-shell">
+        <span className="date-time-prefix">日期时间</span>
+        <input className="date-time-input" type="datetime-local" value={value} onChange={(event) => onChange(event.target.value)} />
+      </div>
+      {helper ? <span className="field-helper">{helper}</span> : null}
+    </label>
+  );
+}
+
+function IdentityRowEditor({
+  item,
+  onUpdate,
+  onRemove
+}: {
+  item: PersonIdentityRow;
+  onUpdate: (updater: (current: PersonIdentityRow) => PersonIdentityRow) => void;
+  onRemove: () => void;
+}) {
+  const [expanded, setExpanded] = useState(!(item.identityTerm || item.startDate || item.endDate));
+
+  return (
+    <section className="structured-card collapsible-structured-card">
+      <div className="structured-card-head structured-card-toolbar">
+        <div className="stack compact-stack">
+          <strong>身份履历</strong>
+          <p className="structured-card-summary">{buildIdentitySummary(item)}</p>
+        </div>
+        <div className="inline-actions">
+          <button type="button" className="ghost-button" onClick={() => setExpanded((current) => !current)}>
+            {expanded ? "收起" : "展开"}
+          </button>
+          <button type="button" className="ghost-button" onClick={onRemove}>
+            删除
+          </button>
+        </div>
+      </div>
+      {expanded ? (
+        <div className="structured-grid">
+          <label>
+            身份
+            <input
+              list="identity-options"
+              value={item.identityTerm}
+              onChange={(event) =>
+                onUpdate((current) => ({
+                  ...current,
+                  identityTerm: event.target.value
+                }))
+              }
+            />
+          </label>
+          <DateTimeField
+            label="开始时间"
+            value={item.startDate}
+            onChange={(value) =>
+              onUpdate((current) => ({
+                ...current,
+                startDate: value
+              }))
+            }
+          />
+          <DateTimeField
+            label="结束时间"
+            value={item.endDate}
+            onChange={(value) =>
+              onUpdate((current) => ({
+                ...current,
+                endDate: value
+              }))
+            }
+          />
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function MembershipRowEditor({
+  item,
+  options,
+  onUpdate,
+  onRemove,
+  onCreateTroupe,
+  isDraftEntity
+}: {
+  item: TroupeMembershipRow;
+  options: EditorOptions;
+  onUpdate: (updater: (current: TroupeMembershipRow) => TroupeMembershipRow) => void;
+  onRemove: () => void;
+  onCreateTroupe: (name: string) => Promise<QuickCreatedOption | void>;
+  isDraftEntity: (id: string) => boolean;
+}) {
+  const [expanded, setExpanded] = useState(!(item.troupeEntityId || item.startDate || item.endDate));
+
+  return (
+    <section className="structured-card collapsible-structured-card">
+      <div className="structured-card-head structured-card-toolbar">
+        <div className="stack compact-stack">
+          <strong>院团履历</strong>
+          <p className="structured-card-summary">{buildMembershipSummary(item, options)}</p>
+        </div>
+        <div className="inline-actions">
+          <button type="button" className="ghost-button" onClick={() => setExpanded((current) => !current)}>
+            {expanded ? "收起" : "展开"}
+          </button>
+          <button type="button" className="ghost-button" onClick={onRemove}>
+            删除
+          </button>
+        </div>
+      </div>
+      {expanded ? (
+        <div className="stack">
+          <SearchCreateSelect
+            className="field-span-full"
+            label="所属院团"
+            options={options.troupes}
+            value={item.troupeEntityId}
+            onChange={(value) =>
+              onUpdate((current) => ({
+                ...current,
+                troupeEntityId: value
+              }))
+            }
+            onCreate={onCreateTroupe}
+            placeholder="搜索已有院团，没有则创建新院团"
+            createLabel="创建新院团："
+          />
+          <DraftBadge visible={Boolean(item.troupeEntityId) && isDraftEntity(item.troupeEntityId)} />
+          <div className="structured-grid">
+            <label>
+              身份/职务
+              <input
+                value={item.membershipRole}
+                onChange={(event) =>
+                  onUpdate((current) => ({
+                    ...current,
+                    membershipRole: event.target.value
+                  }))
+                }
+              />
+            </label>
+            <DateTimeField
+              label="开始时间"
+              value={item.startDate}
+              onChange={(value) =>
+                onUpdate((current) => ({
+                  ...current,
+                  startDate: value
+                }))
+              }
+            />
+            <DateTimeField
+              label="结束时间"
+              value={item.endDate}
+              onChange={(value) =>
+                onUpdate((current) => ({
+                  ...current,
+                  endDate: value
+                }))
+              }
+            />
+          </div>
+          <label className="checkbox-row">
+            <input
+              type="checkbox"
+              checked={item.isCurrent}
+              onChange={(event) =>
+                onUpdate((current) => ({
+                  ...current,
+                  isCurrent: event.target.checked
+                }))
+              }
+            />
+            当前仍在该院团
+          </label>
+        </div>
+      ) : null}
+    </section>
+  );
 }
 
 function EditorSummaryBar({
@@ -1269,154 +1552,159 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
           <p>现在所有可编辑内容都通过结构化表单录入，不再要求用户直接编辑 JSON。</p>
         </div>
 
-        <section className="form-section">
-          <div className="editor-section-head">
-            <h3>基础信息</h3>
-            <p>标题与正文会直接进入条目的公开主内容，所有条目都不再单独维护摘要。</p>
+        <CollapsibleFormSection
+          title="基础信息"
+          description="标题与正文会直接进入条目的公开主内容，所有条目都不再单独维护摘要。"
+          summary={`${title.trim() || "未命名条目"} · 正文 ${bodyLength} 字`}
+        >
+          <div className="form-grid">
+            <label className="field-span-full">
+              标题
+              <input
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                disabled={pending || (activeEntityType === "work" && formState.workType === "excerpt")}
+              />
+            </label>
+            <label className="field-span-full">
+              {bodyLabel}
+              <textarea rows={10} value={body} onChange={(event) => setBody(event.target.value)} disabled={pending} />
+            </label>
           </div>
-          <label>
-            标题
-            <input
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              disabled={pending || (activeEntityType === "work" && formState.workType === "excerpt")}
-            />
-          </label>
-          <label>
-            {bodyLabel}
-            <textarea rows={10} value={body} onChange={(event) => setBody(event.target.value)} disabled={pending} />
-          </label>
-        </section>
+        </CollapsibleFormSection>
 
         {activeEntityType === "work" && options ? (
-          <section className="form-section">
-            <div className="editor-section-head">
-              <h3>剧目资料</h3>
-              <p>覆盖作品表中的关键信息。</p>
-            </div>
-            <label>
-              剧目类型
-              <select value={String(formState.workType ?? "full_play")} onChange={(event) => setField("workType", event.target.value)}>
-                {options.workTypeOptions.map((item) => (
-                  <option key={item} value={item}>
-                    {mapWorkTypeLabel(item)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              原作者
-              <input value={String(formState.originalAuthor ?? "")} onChange={(event) => setField("originalAuthor", event.target.value)} />
-            </label>
-            <label>
-              朝代/时期
-              <input value={String(formState.dynastyPeriod ?? "")} onChange={(event) => setField("dynastyPeriod", event.target.value)} />
-            </label>
-            <label>
-              题材/体裁说明
-              <input value={String(formState.genreNote ?? "")} onChange={(event) => setField("genreNote", event.target.value)} />
-            </label>
-            <label>
-              时长（分钟）
-              <input value={String(formState.durationMinutes ?? "")} onChange={(event) => setField("durationMinutes", event.target.value)} />
-            </label>
-            <label>
-              最早可考时间
-              <input value={String(formState.firstKnownDate ?? "")} onChange={(event) => setField("firstKnownDate", event.target.value)} />
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={Boolean(formState.isKunquCore)}
-                onChange={(event) => setField("isKunquCore", event.target.checked)}
-              />
-              昆曲核心剧目
-            </label>
-            <SearchCreateSelect
-              label="所属母剧目"
-              options={options.fullWorks}
-              value={String(formState.parentWorkId ?? "")}
-              onChange={(value) => setField("parentWorkId", value)}
-              onCreate={(name) => createQuickOption("work", name, "fullWorks", { workType: "full_play" })}
-              placeholder="搜索已有剧目，没有则创建新剧目"
-              createLabel="创建新剧目："
-            />
-            {formState.workType === "excerpt" ? (
+          <CollapsibleFormSection
+            title="剧目资料"
+            description="覆盖作品表中的关键信息。"
+            summary={`${mapWorkTypeLabel(String(formState.workType ?? "full_play"))} · ${String(formState.originalAuthor ?? "").trim() || "原作者未填"} · ${String(formState.durationMinutes ?? "").trim() || "时长未填"} 分钟`}
+            defaultExpanded
+          >
+            <div className="form-grid">
               <label>
-                折子名称
-                <input value={String(formState.excerptName ?? "")} onChange={(event) => setField("excerptName", event.target.value)} />
+                剧目类型
+                <select value={String(formState.workType ?? "full_play")} onChange={(event) => setField("workType", event.target.value)}>
+                  {options.workTypeOptions.map((item) => (
+                    <option key={item} value={item}>
+                      {mapWorkTypeLabel(item)}
+                    </option>
+                  ))}
+                </select>
               </label>
-            ) : null}
-          </section>
+              <label>
+                原作者
+                <input value={String(formState.originalAuthor ?? "")} onChange={(event) => setField("originalAuthor", event.target.value)} />
+              </label>
+              <label>
+                朝代/时期
+                <input value={String(formState.dynastyPeriod ?? "")} onChange={(event) => setField("dynastyPeriod", event.target.value)} />
+              </label>
+              <label>
+                题材/体裁说明
+                <input value={String(formState.genreNote ?? "")} onChange={(event) => setField("genreNote", event.target.value)} />
+              </label>
+              <label>
+                时长（分钟）
+                <input value={String(formState.durationMinutes ?? "")} onChange={(event) => setField("durationMinutes", event.target.value)} />
+              </label>
+              <label>
+                最早可考时间
+                <input value={String(formState.firstKnownDate ?? "")} onChange={(event) => setField("firstKnownDate", event.target.value)} />
+              </label>
+              <SearchCreateSelect
+                className="field-span-full"
+                label="所属母剧目"
+                options={options.fullWorks}
+                value={String(formState.parentWorkId ?? "")}
+                onChange={(value) => setField("parentWorkId", value)}
+                onCreate={(name) => createQuickOption("work", name, "fullWorks", { workType: "full_play" })}
+                placeholder="搜索已有剧目，没有则创建新剧目"
+                createLabel="创建新剧目："
+              />
+              {formState.workType === "excerpt" ? (
+                <label className="field-span-full">
+                  折子名称
+                  <input value={String(formState.excerptName ?? "")} onChange={(event) => setField("excerptName", event.target.value)} />
+                </label>
+              ) : null}
+              <label className="checkbox-row field-span-full">
+                <input
+                  type="checkbox"
+                  checked={Boolean(formState.isKunquCore)}
+                  onChange={(event) => setField("isKunquCore", event.target.checked)}
+                />
+                昆曲核心剧目
+              </label>
+            </div>
+          </CollapsibleFormSection>
         ) : null}
 
         {activeEntityType === "person" && options ? (
-          <section className="form-section">
-            <div className="editor-section-head">
-              <h3>人物资料</h3>
-              <p>人物履历和院团履历现在都通过行编辑器录入，不再直接暴露 JSON。</p>
+          <CollapsibleFormSection
+            title="人物资料"
+            description="人物履历和院团履历现在都通过行编辑器录入，不再直接暴露 JSON。"
+            summary={`${String(formState.personTypeNote ?? "").trim() || "人物类型未填"} · ${String(formState.gender ?? "").trim() || "性别未填"} · ${String(formState.hometown ?? "").trim() || "籍贯未填"}`}
+            defaultExpanded
+          >
+            <div className="form-grid">
+              <label>
+                人物类型说明
+                <input value={String(formState.personTypeNote ?? "")} onChange={(event) => setField("personTypeNote", event.target.value)} />
+              </label>
+              <label>
+                性别
+                <input value={String(formState.gender ?? "")} onChange={(event) => setField("gender", event.target.value)} />
+              </label>
+              <DateTimeField label="出生时间" value={String(formState.birthDate ?? "")} onChange={(value) => setField("birthDate", value)} />
+              <DateTimeField label="去世时间" value={String(formState.deathDate ?? "")} onChange={(value) => setField("deathDate", value)} />
+              <label>
+                籍贯/家乡
+                <input value={String(formState.hometown ?? "")} onChange={(event) => setField("hometown", event.target.value)} />
+              </label>
+              <SearchCreateSelect
+                label="出生地"
+                options={options.cities}
+                value={String(formState.birthCityId ?? "")}
+                onChange={(value) => setField("birthCityId", value)}
+                onCreate={(name) => createQuickOption("city", name, "cities")}
+                placeholder="搜索已有城市，没有则创建新城市"
+                createLabel="创建新城市："
+              />
+              <label className="checkbox-row field-span-full">
+                <input type="checkbox" checked={Boolean(formState.isLiving)} onChange={(event) => setField("isLiving", event.target.checked)} />
+                在世
+              </label>
+              <SearchCreateMultiSelect
+                className="field-span-full"
+                label="代表剧目"
+                options={options.fullWorks}
+                values={Array.isArray(formState.representativeWorkIds) ? (formState.representativeWorkIds as string[]) : []}
+                onAdd={(id) => toggleArrayField("representativeWorkIds", id)}
+                onRemove={(id) => toggleArrayField("representativeWorkIds", id)}
+                onCreate={(name) => createQuickOption("work", name, "fullWorks", { workType: "full_play" })}
+                placeholder="搜索已有剧目"
+                createLabel="创建新剧目："
+              />
+              <SearchCreateMultiSelect
+                className="field-span-full"
+                label="代表折子戏"
+                options={options.excerpts}
+                values={Array.isArray(formState.representativeExcerptIds) ? (formState.representativeExcerptIds as string[]) : []}
+                onAdd={(id) => toggleArrayField("representativeExcerptIds", id)}
+                onRemove={(id) => toggleArrayField("representativeExcerptIds", id)}
+                onCreate={(name) =>
+                  createQuickOption("work", name, "excerpts", {
+                    workType: "excerpt",
+                    parentWorkId:
+                      Array.isArray(formState.representativeWorkIds) && typeof formState.representativeWorkIds[0] === "string"
+                        ? String(formState.representativeWorkIds[0])
+                        : undefined
+                  })
+                }
+                placeholder="搜索已有折子戏"
+                createLabel="创建新折子戏："
+              />
             </div>
-            <label>
-              人物类型说明
-              <input value={String(formState.personTypeNote ?? "")} onChange={(event) => setField("personTypeNote", event.target.value)} />
-            </label>
-            <label>
-              性别
-              <input value={String(formState.gender ?? "")} onChange={(event) => setField("gender", event.target.value)} />
-            </label>
-            <label>
-              出生时间
-              <input type="datetime-local" value={String(formState.birthDate ?? "")} onChange={(event) => setField("birthDate", event.target.value)} />
-            </label>
-            <label>
-              去世时间
-              <input type="datetime-local" value={String(formState.deathDate ?? "")} onChange={(event) => setField("deathDate", event.target.value)} />
-            </label>
-            <label>
-              籍贯/家乡
-              <input value={String(formState.hometown ?? "")} onChange={(event) => setField("hometown", event.target.value)} />
-            </label>
-            <label>
-              <input type="checkbox" checked={Boolean(formState.isLiving)} onChange={(event) => setField("isLiving", event.target.checked)} />
-              在世
-            </label>
-            <SearchCreateSelect
-              label="出生地"
-              options={options.cities}
-              value={String(formState.birthCityId ?? "")}
-              onChange={(value) => setField("birthCityId", value)}
-              onCreate={(name) => createQuickOption("city", name, "cities")}
-              placeholder="搜索已有城市，没有则创建新城市"
-              createLabel="创建新城市："
-            />
-            <SearchCreateMultiSelect
-              label="代表剧目"
-              options={options.fullWorks}
-              values={Array.isArray(formState.representativeWorkIds) ? (formState.representativeWorkIds as string[]) : []}
-              onAdd={(id) => toggleArrayField("representativeWorkIds", id)}
-              onRemove={(id) => toggleArrayField("representativeWorkIds", id)}
-              onCreate={(name) => createQuickOption("work", name, "fullWorks", { workType: "full_play" })}
-              placeholder="搜索已有剧目"
-              createLabel="创建新剧目："
-            />
-            <SearchCreateMultiSelect
-              label="代表折子戏"
-              options={options.excerpts}
-              values={Array.isArray(formState.representativeExcerptIds) ? (formState.representativeExcerptIds as string[]) : []}
-              onAdd={(id) => toggleArrayField("representativeExcerptIds", id)}
-              onRemove={(id) => toggleArrayField("representativeExcerptIds", id)}
-              onCreate={(name) =>
-                createQuickOption("work", name, "excerpts", {
-                  workType: "excerpt",
-                  parentWorkId:
-                    Array.isArray(formState.representativeWorkIds) && typeof formState.representativeWorkIds[0] === "string"
-                      ? String(formState.representativeWorkIds[0])
-                      : undefined
-                })
-              }
-              placeholder="搜索已有折子戏"
-              createLabel="创建新折子戏："
-            />
 
             <div className="structured-group">
               <div className="structured-group-head">
@@ -1426,52 +1714,12 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
               {Array.isArray(formState.personIdentities) && (formState.personIdentities as PersonIdentityRow[]).length > 0 ? (
                 <div className="structured-list">
                   {(formState.personIdentities as PersonIdentityRow[]).map((item) => (
-                    <div key={item.key} className="structured-card">
-                      <div className="structured-grid">
-                        <label>
-                          身份
-                          <input
-                            list="identity-options"
-                            value={item.identityTerm}
-                            onChange={(event) =>
-                              updateStructuredRow<PersonIdentityRow>("personIdentities", item.key, (current) => ({
-                                ...current,
-                                identityTerm: event.target.value
-                              }))
-                            }
-                          />
-                        </label>
-                        <label>
-                          开始时间
-                          <input
-                            type="datetime-local"
-                            value={item.startDate}
-                            onChange={(event) =>
-                              updateStructuredRow<PersonIdentityRow>("personIdentities", item.key, (current) => ({
-                                ...current,
-                                startDate: event.target.value
-                              }))
-                            }
-                          />
-                        </label>
-                        <label>
-                          结束时间
-                          <input
-                            type="datetime-local"
-                            value={item.endDate}
-                            onChange={(event) =>
-                              updateStructuredRow<PersonIdentityRow>("personIdentities", item.key, (current) => ({
-                                ...current,
-                                endDate: event.target.value
-                              }))
-                            }
-                          />
-                        </label>
-                      </div>
-                      <button type="button" className="ghost-button" onClick={() => removeStructuredRow<PersonIdentityRow>("personIdentities", item.key)}>
-                        删除身份记录
-                      </button>
-                    </div>
+                    <IdentityRowEditor
+                      key={item.key}
+                      item={item}
+                      onUpdate={(updater) => updateStructuredRow<PersonIdentityRow>("personIdentities", item.key, updater)}
+                      onRemove={() => removeStructuredRow<PersonIdentityRow>("personIdentities", item.key)}
+                    />
                   ))}
                 </div>
               ) : (
@@ -1495,79 +1743,15 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
               {Array.isArray(formState.troupeMemberships) && (formState.troupeMemberships as TroupeMembershipRow[]).length > 0 ? (
                 <div className="structured-list">
                   {(formState.troupeMemberships as TroupeMembershipRow[]).map((item) => (
-                    <div key={item.key} className="structured-card">
-                      <SearchCreateSelect
-                        label="所属院团"
-                        options={options.troupes}
-                        value={item.troupeEntityId}
-                        onChange={(value) =>
-                          updateStructuredRow<TroupeMembershipRow>("troupeMemberships", item.key, (current) => ({
-                            ...current,
-                            troupeEntityId: value
-                          }))
-                        }
-                        onCreate={(name) => createQuickOption("troupe", name, "troupes")}
-                        placeholder="搜索已有院团，没有则创建新院团"
-                        createLabel="创建新院团："
-                      />
-                      <DraftBadge visible={Boolean(item.troupeEntityId) && isDraftEntity(item.troupeEntityId)} />
-                      <div className="structured-grid">
-                        <label>
-                          身份/职务
-                          <input
-                            value={item.membershipRole}
-                            onChange={(event) =>
-                              updateStructuredRow<TroupeMembershipRow>("troupeMemberships", item.key, (current) => ({
-                                ...current,
-                                membershipRole: event.target.value
-                              }))
-                            }
-                          />
-                        </label>
-                        <label>
-                          开始时间
-                          <input
-                            type="datetime-local"
-                            value={item.startDate}
-                            onChange={(event) =>
-                              updateStructuredRow<TroupeMembershipRow>("troupeMemberships", item.key, (current) => ({
-                                ...current,
-                                startDate: event.target.value
-                              }))
-                            }
-                          />
-                        </label>
-                        <label>
-                          结束时间
-                          <input
-                            type="datetime-local"
-                            value={item.endDate}
-                            onChange={(event) =>
-                              updateStructuredRow<TroupeMembershipRow>("troupeMemberships", item.key, (current) => ({
-                                ...current,
-                                endDate: event.target.value
-                              }))
-                            }
-                          />
-                        </label>
-                      </div>
-                      <label className="checkbox-row">
-                        <input
-                          type="checkbox"
-                          checked={item.isCurrent}
-                          onChange={(event) =>
-                            updateStructuredRow<TroupeMembershipRow>("troupeMemberships", item.key, (current) => ({
-                              ...current,
-                              isCurrent: event.target.checked
-                            }))
-                          }
-                        />
-                        当前仍在该院团
-                      </label>
-                      <button type="button" className="ghost-button" onClick={() => removeStructuredRow<TroupeMembershipRow>("troupeMemberships", item.key)}>
-                        删除院团履历
-                      </button>
-                    </div>
+                    <MembershipRowEditor
+                      key={item.key}
+                      item={item}
+                      options={options}
+                      onUpdate={(updater) => updateStructuredRow<TroupeMembershipRow>("troupeMemberships", item.key, updater)}
+                      onRemove={() => removeStructuredRow<TroupeMembershipRow>("troupeMemberships", item.key)}
+                      onCreateTroupe={(name) => createQuickOption("troupe", name, "troupes")}
+                      isDraftEntity={isDraftEntity}
+                    />
                   ))}
                 </div>
               ) : (
@@ -1577,202 +1761,200 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                 添加院团履历
               </button>
             </div>
-          </section>
+          </CollapsibleFormSection>
         ) : null}
 
         {activeEntityType === "troupe" && options ? (
-          <section className="form-section">
-            <div className="editor-section-head">
-              <h3>院团资料</h3>
-              <p>院团本体字段全部可编辑。</p>
+          <CollapsibleFormSection
+            title="院团资料"
+            description="院团本体字段全部可编辑。"
+            summary={`${mapTroupeTypeLabel(String(formState.troupeType ?? "troupe"))} · ${String(formState.city ?? "").trim() || "城市未填"} · ${String(formState.region ?? "").trim() || "地区未填"}`}
+          >
+            <div className="form-grid">
+              <label>
+                院团类型
+                <select value={String(formState.troupeType ?? "troupe")} onChange={(event) => setField("troupeType", event.target.value)}>
+                  {options.troupeTypeOptions.map((item) => (
+                    <option key={item} value={item}>
+                      {mapTroupeTypeLabel(item)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <DateTimeField label="成立时间" value={String(formState.foundedDate ?? "")} onChange={(value) => setField("foundedDate", value)} />
+              <DateTimeField label="解散时间" value={String(formState.dissolvedDate ?? "")} onChange={(value) => setField("dissolvedDate", value)} />
+              <SearchCreateSelect
+                label="所在城市"
+                options={options.cities}
+                value={String(formState.cityId ?? "")}
+                onChange={(value) => setField("cityId", value)}
+                onCreate={(name) => createQuickOption("city", name, "cities")}
+                placeholder="搜索已有城市"
+                createLabel="创建新城市："
+              />
+              <label>
+                城市文本
+                <input value={String(formState.city ?? "")} onChange={(event) => setField("city", event.target.value)} />
+              </label>
+              <label>
+                地区
+                <input value={String(formState.region ?? "")} onChange={(event) => setField("region", event.target.value)} />
+              </label>
+              <label className="field-span-full">
+                官网
+                <input value={String(formState.officialWebsite ?? "")} onChange={(event) => setField("officialWebsite", event.target.value)} />
+              </label>
             </div>
-            <label>
-              院团类型
-              <select value={String(formState.troupeType ?? "troupe")} onChange={(event) => setField("troupeType", event.target.value)}>
-                {options.troupeTypeOptions.map((item) => (
-                  <option key={item} value={item}>
-                    {mapTroupeTypeLabel(item)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              成立时间
-              <input type="datetime-local" value={String(formState.foundedDate ?? "")} onChange={(event) => setField("foundedDate", event.target.value)} />
-            </label>
-            <label>
-              解散时间
-              <input type="datetime-local" value={String(formState.dissolvedDate ?? "")} onChange={(event) => setField("dissolvedDate", event.target.value)} />
-            </label>
-            <SearchCreateSelect
-              label="所在城市"
-              options={options.cities}
-              value={String(formState.cityId ?? "")}
-              onChange={(value) => setField("cityId", value)}
-              onCreate={(name) => createQuickOption("city", name, "cities")}
-              placeholder="搜索已有城市"
-              createLabel="创建新城市："
-            />
-            <label>
-              城市文本
-              <input value={String(formState.city ?? "")} onChange={(event) => setField("city", event.target.value)} />
-            </label>
-            <label>
-              地区
-              <input value={String(formState.region ?? "")} onChange={(event) => setField("region", event.target.value)} />
-            </label>
-            <label>
-              官网
-              <input value={String(formState.officialWebsite ?? "")} onChange={(event) => setField("officialWebsite", event.target.value)} />
-            </label>
-          </section>
+          </CollapsibleFormSection>
         ) : null}
 
         {activeEntityType === "venue" && options ? (
-          <section className="form-section">
-            <div className="editor-section-head">
-              <h3>剧场资料</h3>
-              <p>包含场馆坐标、容量、国家与地址信息。</p>
+          <CollapsibleFormSection
+            title="剧场资料"
+            description="包含场馆坐标、容量、国家与地址信息。"
+            summary={`${String(formState.venueType ?? "").trim() || "类型未填"} · ${String(formState.country ?? "").trim() || "国家未填"} · ${String(formState.city ?? "").trim() || "城市未填"}`}
+          >
+            <div className="form-grid">
+              <label>
+                场馆类型
+                <input value={String(formState.venueType ?? "")} onChange={(event) => setField("venueType", event.target.value)} />
+              </label>
+              <label>
+                国家
+                <input value={String(formState.country ?? "")} onChange={(event) => setField("country", event.target.value)} />
+              </label>
+              <SearchCreateSelect
+                label="所在城市"
+                options={options.cities}
+                value={String(formState.cityId ?? "")}
+                onChange={(value) => setField("cityId", value)}
+                onCreate={(name) => createQuickOption("city", name, "cities")}
+                placeholder="搜索已有城市"
+                createLabel="创建新城市："
+              />
+              <label>
+                城市文本
+                <input value={String(formState.city ?? "")} onChange={(event) => setField("city", event.target.value)} />
+              </label>
+              <label>
+                地区
+                <input value={String(formState.region ?? "")} onChange={(event) => setField("region", event.target.value)} />
+              </label>
+              <label className="field-span-full">
+                地址
+                <input value={String(formState.address ?? "")} onChange={(event) => setField("address", event.target.value)} />
+              </label>
+              <label>
+                纬度
+                <input value={String(formState.latitude ?? "")} onChange={(event) => setField("latitude", event.target.value)} />
+              </label>
+              <label>
+                经度
+                <input value={String(formState.longitude ?? "")} onChange={(event) => setField("longitude", event.target.value)} />
+              </label>
+              <label>
+                容量
+                <input value={String(formState.capacity ?? "")} onChange={(event) => setField("capacity", event.target.value)} />
+              </label>
             </div>
-            <label>
-              场馆类型
-              <input value={String(formState.venueType ?? "")} onChange={(event) => setField("venueType", event.target.value)} />
-            </label>
-            <label>
-              国家
-              <input value={String(formState.country ?? "")} onChange={(event) => setField("country", event.target.value)} />
-            </label>
-            <SearchCreateSelect
-              label="所在城市"
-              options={options.cities}
-              value={String(formState.cityId ?? "")}
-              onChange={(value) => setField("cityId", value)}
-              onCreate={(name) => createQuickOption("city", name, "cities")}
-              placeholder="搜索已有城市"
-              createLabel="创建新城市："
-            />
-            <label>
-              城市文本
-              <input value={String(formState.city ?? "")} onChange={(event) => setField("city", event.target.value)} />
-            </label>
-            <label>
-              地区
-              <input value={String(formState.region ?? "")} onChange={(event) => setField("region", event.target.value)} />
-            </label>
-            <label>
-              地址
-              <input value={String(formState.address ?? "")} onChange={(event) => setField("address", event.target.value)} />
-            </label>
-            <label>
-              纬度
-              <input value={String(formState.latitude ?? "")} onChange={(event) => setField("latitude", event.target.value)} />
-            </label>
-            <label>
-              经度
-              <input value={String(formState.longitude ?? "")} onChange={(event) => setField("longitude", event.target.value)} />
-            </label>
-            <label>
-              容量
-              <input value={String(formState.capacity ?? "")} onChange={(event) => setField("capacity", event.target.value)} />
-            </label>
-          </section>
+          </CollapsibleFormSection>
         ) : null}
 
         {activeEntityType === "event" && options ? (
-          <section className="form-section">
-            <div className="editor-section-head">
-              <h3>演出资料</h3>
-              <p>演出默认视为单场条目，可录入多个剧团、节目单和演员表，并支持就地创建缺失人物或剧团。</p>
-            </div>
-            <SearchCreateSelect
-              label="演出城市"
-              options={options.cities}
-              value={String(formState.cityId ?? "")}
-              onChange={(value) => setField("cityId", value)}
-              onCreate={(name) => createQuickOption("city", name, "cities")}
-              placeholder="搜索已有城市"
-              createLabel="创建新城市："
-            />
-            <SearchCreateSelect
-              label="演出剧场"
-              options={options.venues}
-              value={String(formState.venueEntityId ?? "")}
-              onChange={(value) => setField("venueEntityId", value)}
-              onCreate={(name) => createQuickOption("venue", name, "venues")}
-              placeholder="搜索已有剧场"
-              createLabel="创建新剧场："
-            />
-            <SearchCreateMultiSelect
-              label="剧团"
-              options={options.troupes}
-              values={Array.isArray(formState.troupeIds) ? (formState.troupeIds as string[]) : []}
-              onAdd={(id) => toggleArrayField("troupeIds", id)}
-              onRemove={(id) => toggleArrayField("troupeIds", id)}
-              onCreate={(name) => createQuickOption("troupe", name, "troupes")}
-              placeholder="搜索已有剧团，没有则创建新剧团"
-              createLabel="创建新剧团："
-            />
-            {Array.isArray(formState.troupeIds) && (formState.troupeIds as string[]).length > 0 ? (
-              <div className="stack">
-                {(formState.troupeIds as string[]).map((troupeId) => {
-                  const troupe = options.troupes.find((item) => item.id === troupeId);
-                  return (
-                    <div key={troupeId} className="inline-helper-row">
-                      <span>{troupe?.title ?? "未命名剧团"}</span>
-                      <DraftBadge visible={isDraftEntity(troupeId)} />
-                    </div>
-                  );
-                })}
+          <CollapsibleFormSection
+            title="演出资料"
+            description="演出默认视为单场条目，可录入多个剧团、节目单和演员表，并支持就地创建缺失人物或剧团。"
+            summary={buildEventSectionSummary(formState, options)}
+            accent
+            defaultExpanded
+          >
+            <div className="form-grid form-grid-wide">
+              <label>
+                演出类型
+                <select value={String(formState.eventType ?? "performance")} onChange={(event) => setField("eventType", event.target.value)}>
+                  {options.eventTypeOptions.map((item) => (
+                    <option key={item} value={item}>
+                      {mapEventTypeLabel(item)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                业务状态
+                <select value={String(formState.businessStatus ?? "scheduled")} onChange={(event) => setField("businessStatus", event.target.value)}>
+                  {options.eventStatusOptions.map((item) => (
+                    <option key={item} value={item}>
+                      {mapEventStatusLabel(item)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <SearchCreateSelect
+                label="演出城市"
+                options={options.cities}
+                value={String(formState.cityId ?? "")}
+                onChange={(value) => setField("cityId", value)}
+                onCreate={(name) => createQuickOption("city", name, "cities")}
+                placeholder="搜索已有城市"
+                createLabel="创建新城市："
+              />
+              <SearchCreateSelect
+                label="演出剧场"
+                options={options.venues}
+                value={String(formState.venueEntityId ?? "")}
+                onChange={(value) => setField("venueEntityId", value)}
+                onCreate={(name) => createQuickOption("venue", name, "venues")}
+                placeholder="搜索已有剧场"
+                createLabel="创建新剧场："
+              />
+              <SearchCreateMultiSelect
+                className="field-span-full"
+                label="剧团"
+                options={options.troupes}
+                values={Array.isArray(formState.troupeIds) ? (formState.troupeIds as string[]) : []}
+                onAdd={(id) => toggleArrayField("troupeIds", id)}
+                onRemove={(id) => toggleArrayField("troupeIds", id)}
+                onCreate={(name) => createQuickOption("troupe", name, "troupes")}
+                placeholder="搜索已有剧团，没有则创建新剧团"
+                createLabel="创建新剧团："
+                renderTagMeta={(item) => (isDraftEntity(item.id) ? <span className="tag-status-pill">待补充</span> : null)}
+              />
+              <div className="event-time-panel field-span-full">
+                <div className="event-time-panel-head">
+                  <strong>演出时间</strong>
+                  <p>开始与结束时间合并为一个紧凑时间块，填写时更清晰，回看时也更容易比较。</p>
+                </div>
+                <div className="event-time-grid">
+                  <DateTimeField label="开始时间" value={String(formState.startAt ?? "")} onChange={(value) => setField("startAt", value)} />
+                  <DateTimeField
+                    label="结束时间"
+                    value={String(formState.endAt ?? "")}
+                    onChange={(value) => setField("endAt", value)}
+                    helper="如果是单场演出，可只填写开始时间。"
+                  />
+                </div>
               </div>
-            ) : null}
-            <label>
-              演出类型
-              <select value={String(formState.eventType ?? "performance")} onChange={(event) => setField("eventType", event.target.value)}>
-                {options.eventTypeOptions.map((item) => (
-                  <option key={item} value={item}>
-                    {mapEventTypeLabel(item)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              业务状态
-              <select value={String(formState.businessStatus ?? "scheduled")} onChange={(event) => setField("businessStatus", event.target.value)}>
-                {options.eventStatusOptions.map((item) => (
-                  <option key={item} value={item}>
-                    {mapEventStatusLabel(item)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              开始时间
-              <input type="datetime-local" value={String(formState.startAt ?? "")} onChange={(event) => setField("startAt", event.target.value)} />
-            </label>
-            <label>
-              结束时间
-              <input type="datetime-local" value={String(formState.endAt ?? "")} onChange={(event) => setField("endAt", event.target.value)} />
-            </label>
-            <label>
-              票务链接
-              <input value={String(formState.ticketUrl ?? "")} onChange={(event) => setField("ticketUrl", event.target.value)} />
-            </label>
-            <label>
-              演出时长
-              <input value={String(formState.duration ?? "")} onChange={(event) => setField("duration", event.target.value)} />
-            </label>
-            <label>
-              票务状态
-              <input value={String(formState.ticketStatus ?? "")} onChange={(event) => setField("ticketStatus", event.target.value)} />
-            </label>
-            <label>
-              海报资源 ID
-              <input value={String(formState.posterImageId ?? "")} onChange={(event) => setField("posterImageId", event.target.value)} />
-            </label>
-            <label>
-              演出备注
-              <textarea value={String(formState.noteText ?? "")} onChange={(event) => setField("noteText", event.target.value)} />
-            </label>
+              <label>
+                票务链接
+                <input value={String(formState.ticketUrl ?? "")} onChange={(event) => setField("ticketUrl", event.target.value)} />
+              </label>
+              <label>
+                演出时长
+                <input value={String(formState.duration ?? "")} onChange={(event) => setField("duration", event.target.value)} />
+              </label>
+              <label>
+                票务状态
+                <input value={String(formState.ticketStatus ?? "")} onChange={(event) => setField("ticketStatus", event.target.value)} />
+              </label>
+              <label>
+                海报资源 ID
+                <input value={String(formState.posterImageId ?? "")} onChange={(event) => setField("posterImageId", event.target.value)} />
+              </label>
+              <label className="field-span-full">
+                演出备注
+                <textarea value={String(formState.noteText ?? "")} onChange={(event) => setField("noteText", event.target.value)} />
+              </label>
+            </div>
 
             <div className="structured-group programs-panel">
               <div className="structured-group-head">
@@ -1811,64 +1993,67 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                 </button>
               </div>
             </div>
-          </section>
+          </CollapsibleFormSection>
         ) : null}
 
         {activeEntityType === "city" ? (
-          <section className="form-section">
-            <div className="editor-section-head">
-              <h3>城市资料</h3>
-              <p>目前城市实体的结构化字段为所属省份。</p>
+          <CollapsibleFormSection title="城市资料" description="目前城市实体的结构化字段为所属省份。" summary={String(formState.province ?? "").trim() || "省份未填"}>
+            <div className="form-grid">
+              <label>
+                省份
+                <input value={String(formState.province ?? "")} onChange={(event) => setField("province", event.target.value)} />
+              </label>
             </div>
-            <label>
-              省份
-              <input value={String(formState.province ?? "")} onChange={(event) => setField("province", event.target.value)} />
-            </label>
-          </section>
+          </CollapsibleFormSection>
         ) : null}
 
         {activeEntityType === "article" && options ? (
-          <section className="form-section">
-            <div className="editor-section-head">
-              <h3>知识条目资料</h3>
-              <p>覆盖条目分类、摘要和正文来源字段。</p>
+          <CollapsibleFormSection
+            title="知识条目资料"
+            description="覆盖条目分类、摘要和正文来源字段。"
+            summary={`${mapArticleTypeLabel(String(formState.articleType ?? "term"))} · ${String(formState.difficultyLevel ?? "").trim() || "难度未填"}`}
+          >
+            <div className="form-grid">
+              <label>
+                条目类型
+                <select value={String(formState.articleType ?? "term")} onChange={(event) => setField("articleType", event.target.value)}>
+                  {options.articleTypeOptions.map((item) => (
+                    <option key={item} value={item}>
+                      {mapArticleTypeLabel(item)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                难度等级
+                <input value={String(formState.difficultyLevel ?? "")} onChange={(event) => setField("difficultyLevel", event.target.value)} />
+              </label>
+              <label className="field-span-full">
+                摘要说明
+                <textarea value={String(formState.abstract ?? "")} onChange={(event) => setField("abstract", event.target.value)} />
+              </label>
+              <label className="field-span-full">
+                正文来源类型
+                <input value={String(formState.bodySourceType ?? "")} onChange={(event) => setField("bodySourceType", event.target.value)} />
+              </label>
             </div>
-            <label>
-              条目类型
-              <select value={String(formState.articleType ?? "term")} onChange={(event) => setField("articleType", event.target.value)}>
-                {options.articleTypeOptions.map((item) => (
-                  <option key={item} value={item}>
-                    {mapArticleTypeLabel(item)}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              摘要说明
-              <textarea value={String(formState.abstract ?? "")} onChange={(event) => setField("abstract", event.target.value)} />
-            </label>
-            <label>
-              难度等级
-              <input value={String(formState.difficultyLevel ?? "")} onChange={(event) => setField("difficultyLevel", event.target.value)} />
-            </label>
-            <label>
-              正文来源类型
-              <input value={String(formState.bodySourceType ?? "")} onChange={(event) => setField("bodySourceType", event.target.value)} />
-            </label>
-          </section>
+          </CollapsibleFormSection>
         ) : null}
 
         {!isCreateMode ? (
-          <section className="form-section">
-            <div className="editor-section-head">
-              <h3>提交审核</h3>
-              <p>编辑说明会进入提案与版本历史。留空时会自动使用你的签名和提交时间。</p>
+          <CollapsibleFormSection
+            title="提交审核"
+            description="编辑说明会进入提案与版本历史。留空时会自动使用你的签名和提交时间。"
+            summary={editSummary.trim() ? "已填写编辑说明" : "编辑说明为空"}
+            defaultExpanded={false}
+          >
+            <div className="form-grid">
+              <label className="field-span-full">
+                编辑说明
+                <textarea value={editSummary} onChange={(event) => setEditSummary(event.target.value)} disabled={pending} />
+              </label>
             </div>
-            <label>
-              编辑说明
-              <textarea value={editSummary} onChange={(event) => setEditSummary(event.target.value)} disabled={pending} />
-            </label>
-          </section>
+          </CollapsibleFormSection>
         ) : null}
 
         <div className="actions">
