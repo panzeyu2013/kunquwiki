@@ -6,3 +6,4 @@ coverage
 *.log
 apps/api/dev.db
 apps/api/dev.db-journal
+*.tsbuildinfo
