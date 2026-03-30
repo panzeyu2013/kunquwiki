@@ -1,6 +1,7 @@
 import { EntityGrid } from "../../components/entity-grid";
 import { getEntities } from "../../lib/api";
 import Link from "next/link";
+import styles from "../../styles/catalog-page.module.css";
 
 export default async function PeoplePage({
   searchParams
@@ -12,7 +13,7 @@ export default async function PeoplePage({
   const city = typeof params.city === "string" ? params.city : "";
   const people = await getEntities({ type: "person", q, city });
   return (
-    <div>
+    <div className={styles.page}>
       <h1 className="page-title">人物库</h1>
       <p>收录演员、教师、推广者、学者等与昆曲相关人物。</p>
       <div className="actions">

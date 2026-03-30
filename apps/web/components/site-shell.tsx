@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ReactNode } from "react";
 import { AuthStatus } from "./auth/auth-status";
+import styles from "../styles/site-shell.module.css";
 
 const navItems = [
   { href: "/", label: "首页" },
@@ -14,7 +15,7 @@ const navItems = [
 
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
-    <div className="site-shell">
+    <div className={styles.shell}>
       <header className="site-header">
         <div className="site-header-inner">
           <div>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEntity } from "../../../lib/api";
 import { getEntityDetailPath } from "../../../lib/routes";
+import styles from "../../../styles/catalog-page.module.css";
 
 export default async function DiscussionPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -11,7 +12,7 @@ export default async function DiscussionPage({ params }: { params: Promise<{ slu
   }
 
   return (
-    <div>
+    <div className={styles.page}>
       <h1 className="page-title">讨论页</h1>
       <p>当前条目：{entity.title}</p>
       <div className="edit-form">

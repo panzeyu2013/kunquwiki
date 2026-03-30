@@ -1,5 +1,6 @@
 import { getRecentChanges } from "../../../lib/api";
 import { mapReviewStatusLabel } from "../../../lib/labels";
+import styles from "../../../styles/detail-page.module.css";
 
 export default async function HistoryPage({ params }: { params: Promise<{ entityId: string }> }) {
   const { entityId } = await params;
@@ -7,7 +8,7 @@ export default async function HistoryPage({ params }: { params: Promise<{ entity
   const entityChanges = changes.filter((item) => item.entityId === entityId);
 
   return (
-    <div>
+    <div className={styles.page}>
       <h1 className="page-title">版本历史</h1>
       <div className="table-shell">
         <table>

@@ -4,6 +4,7 @@ import { EventEntity } from "@kunquwiki/shared";
 import { mapEventStatusLabel } from "../../lib/labels";
 import Link from "next/link";
 import { SectionCard } from "../../components/section-card";
+import styles from "../../styles/detail-page.module.css";
 
 export default async function EventsPage({
   searchParams
@@ -22,7 +23,7 @@ export default async function EventsPage({
   const events = entities as EventEntity[];
 
   return (
-    <main className="page-container">
+    <div className={styles.page}>
       <section className="section-card">
         <div className="section-card-header">
           <h2>演出库</h2>
@@ -73,6 +74,6 @@ export default async function EventsPage({
       <SectionCard title="匹配结果">
         <EventList events={events} />
       </SectionCard>
-    </main>
+    </div>
   );
 }

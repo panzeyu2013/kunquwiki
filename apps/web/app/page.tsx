@@ -2,12 +2,13 @@ import { EntityGrid } from "../components/entity-grid";
 import { EventList } from "../components/event-list";
 import { SectionCard } from "../components/section-card";
 import { getHomeData } from "../lib/api";
+import styles from "../styles/home-page.module.css";
 
 export default async function HomePage() {
   const data = await getHomeData();
 
   return (
-    <main className="page-container">
+    <div className={styles.page}>
       <section className="hero">
         <h1>{data.hero.title}</h1>
         <p>{data.hero.subtitle}</p>
@@ -43,6 +44,6 @@ export default async function HomePage() {
       <SectionCard title="重点人物">
         <EntityGrid items={data.featuredPeople} />
       </SectionCard>
-    </main>
+    </div>
   );
 }

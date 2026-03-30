@@ -1,10 +1,11 @@
 import { SectionCard } from "../../components/section-card";
 import { getStats } from "../../lib/api";
+import styles from "../../styles/detail-page.module.css";
 
 export default async function StatsPage() {
   const stats = await getStats();
   return (
-    <div>
+    <div className={styles.page}>
       <h1 className="page-title">统计页</h1>
       <p>首版先覆盖演出规模、活跃城市和剧目热度，后续可扩展合作图谱与时间轴。</p>
       <section className="metrics">

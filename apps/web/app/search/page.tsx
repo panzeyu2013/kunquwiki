@@ -2,6 +2,7 @@ import Link from "next/link";
 import { searchEntities } from "../../lib/api";
 import { mapEntityTypeLabel } from "../../lib/labels";
 import { getEntityDetailPath, isRoutableEntityType } from "../../lib/routes";
+import styles from "../../styles/catalog-page.module.css";
 
 export default async function SearchPage({
   searchParams
@@ -13,7 +14,7 @@ export default async function SearchPage({
   const results = (await searchEntities(q)).filter((result) => isRoutableEntityType(result.entityType));
 
   return (
-    <div>
+    <div className={styles.page}>
       <h1 className="page-title">搜索</h1>
       <form className="edit-form" action="/search">
         <label>
