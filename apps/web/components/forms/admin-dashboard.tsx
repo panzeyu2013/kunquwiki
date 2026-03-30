@@ -90,95 +90,152 @@ export function AdminDashboard() {
           </div>
         </section>
       </div>
-      <section className="detail-panel editor-panel">
-        <div className="editor-list-head">
+      <section className="detail-panel editor-panel compact-user-panel">
+        <div className="editor-list-head compact-head">
           <div>
             <h2>用户权限管理</h2>
             <p>统一调整账号身份、状态与基础权限。</p>
           </div>
-          <span className="pill strong">{users.length} 人</span>
+
+          <div className="toolbar">
+            <input className="search-input" placeholder="搜索用户名 / 邮箱" />
+            <select className="filter-select">
+              <option>全部状态</option>
+              <option>正常</option>
+              <option>停用</option>
+            </select>
+            <select className="filter-select">
+              <option>全部身份</option>
+              <option>访客</option>
+              <option>审核</option>
+              <option>编辑</option>
+              <option>管理员</option>
+              <option>机器人</option>
+            </select>
+            <span className="pill strong">{users.length} 人</span>
+          </div>
         </div>
-        <div className="stack">
+
+        <div className="user-table">
+          <div className="user-table-head">
+            <span>状态</span>
+            <span>用户</span>
+            <span>邮箱</span>
+            <span>身份</span>
+            <span>信誉</span>
+            <span>操作</span>
+          </div>
+
           {users.map((user) => (
-            <article key={user.id} className="event-row admin-user-card">
-              <div className="admin-user-overview">
-                <div className="pill-row">
-                  <span className="pill strong">{mapUserStatusLabel(user.status)}</span>
-                  <span className="pill">信誉 {user.reputation}</span>
-                </div>
-                <strong>{user.displayName}</strong>
-                <p>账号标识：{user.username}</p>
-                <p>邮箱：{user.email}</p>
-                <p>当前身份：{user.roles.map(mapUserRoleLabel).join(" / ")}</p>
+            <div key={user.id} className="user-table-row">
+              <div className="cell">
+                <span className={`status-tag ${user.status}`}>
+                  {mapUserStatusLabel(user.status)}
+                </span>
               </div>
-              <div className="actions">
+
+              <div className="cell user-cell">
+                <strong>{user.displayName}</strong>
+                <span>@{user.username}</span>
+              </div>
+
+              <div className="cell email-cell">{user.email}</div>
+
+              <div className="cell role-cell">
+                {user.roles.map((role) => (
+                  <span key={role} className="role-tag">
+                    {mapUserRoleLabel(role)}
+                  </span>
+                ))}
+              </div>
+
+              <div className="cell reputation-cell">{user.reputation}</div>
+
+              <div className="cell actions-cell">
                 <button
                   type="button"
-                  className="ghost-button"
+                  className={`mini-button ${user.roles.includes("reviewer") ? "active" : ""}`}
                   onClick={async () => {
                     const nextRoles = getNextRoles(user.roles, "reviewer");
-                    await updateAdminUserClient(user.id, { roles: nextRoles.length > 0 ? nextRoles : ["visitor"] });
+                    await updateAdminUserClient(user.id, {
+                      roles: nextRoles.length > 0 ? nextRoles : ["visitor"],
+                    });
                     await loadAll();
                   }}
                 >
-                  {user.roles.includes("reviewer") ? "撤销审核身份" : "授予审核身份"}
+                  审核
                 </button>
+
                 <button
                   type="button"
-                  className="ghost-button"
+                  className={`mini-button ${user.roles.includes("editor") ? "active" : ""}`}
                   onClick={async () => {
                     const nextRoles = getNextRoles(user.roles, "editor");
-                    await updateAdminUserClient(user.id, { roles: nextRoles.length > 0 ? nextRoles : ["visitor"] });
+                    await updateAdminUserClient(user.id, {
+                      roles: nextRoles.length > 0 ? nextRoles : ["visitor"],
+                    });
                     await loadAll();
                   }}
                 >
-                  {user.roles.includes("editor") ? "撤销编辑身份" : "授予编辑身份"}
+                  编辑
                 </button>
+
                 <button
                   type="button"
-                  className="ghost-button"
-                  onClick={async () => {
-                    const nextRoles = getNextRoles(user.roles, "admin");
-                    await updateAdminUserClient(user.id, { roles: nextRoles.length > 0 ? nextRoles : ["visitor"] });
-                    await loadAll();
-                  }}
-                >
-                  {user.roles.includes("admin") ? "撤销管理员身份" : "授予管理员身份"}
-                </button>
-                <button
-                  type="button"
-                  className="ghost-button"
-                  onClick={async () => {
-                    const nextRoles = getNextRoles(user.roles, "bot");
-                    await updateAdminUserClient(user.id, { roles: nextRoles.length > 0 ? nextRoles : ["visitor"] });
-                    await loadAll();
-                  }}
-                >
-                  {user.roles.includes("bot") ? "撤销机器人身份" : "授予机器人身份"}
-                </button>
-                <button
-                  type="button"
-                  className="ghost-button"
-                  onClick={async () => {
-                    await updateAdminUserClient(user.id, { roles: getNextRoles(user.roles, "visitor") });
-                    await loadAll();
-                  }}
-                >
-                  仅保留访客身份
-                </button>
-                <button
-                  type="button"
-                  className="ghost-button"
+                  className={`mini-button danger ${user.status !== "active" ? "active" : ""}`}
                   onClick={async () => {
                     const nextStatus = user.status === "active" ? "suspended" : "active";
                     await updateAdminUserClient(user.id, { status: nextStatus });
                     await loadAll();
                   }}
                 >
-                  {user.status === "active" ? "停用账号" : "恢复账号"}
+                  {user.status === "active" ? "停用" : "恢复"}
                 </button>
+
+                <details className="more-actions">
+                  <summary>更多</summary>
+                  <div className="dropdown-menu">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const nextRoles = getNextRoles(user.roles, "admin");
+                        await updateAdminUserClient(user.id, {
+                          roles: nextRoles.length > 0 ? nextRoles : ["visitor"],
+                        });
+                        await loadAll();
+                      }}
+                    >
+                      {user.roles.includes("admin") ? "撤销管理员" : "授予管理员"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const nextRoles = getNextRoles(user.roles, "bot");
+                        await updateAdminUserClient(user.id, {
+                          roles: nextRoles.length > 0 ? nextRoles : ["visitor"],
+                        });
+                        await loadAll();
+                      }}
+                    >
+                      {user.roles.includes("bot") ? "撤销机器人" : "授予机器人"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await updateAdminUserClient(user.id, {
+                          roles: getNextRoles(user.roles, "visitor"),
+                        });
+                        await loadAll();
+                      }}
+                    >
+                      仅保留访客
+                    </button>
+                  </div>
+                </details>
               </div>
-            </article>
+            </div>
           ))}
         </div>
       </section>

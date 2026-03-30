@@ -21,9 +21,9 @@ export function AuthStatus() {
 
   return (
     <div className="auth-box">
-      {hasRole("editor") ? <Link href="/changes">最近更改</Link> : null}
-      {hasRole("reviewer") || hasRole("admin") ? <Link href="/moderation/queue">审核</Link> : null}
-      {hasRole("admin") ? <Link href="/admin">后台</Link> : null}
+      {hasRole("editor") ? <Link className="nav-link" href="/changes">最近更改</Link> : null}
+      {hasRole("reviewer") || hasRole("admin") ? <Link className="nav-link" href="/moderation/queue">审核</Link> : null}
+      {hasRole("admin") ? <Link className="nav-link" href="/admin">后台</Link> : null}
       <span className="pill strong">{user.username}</span>
       <button
         type="button"
