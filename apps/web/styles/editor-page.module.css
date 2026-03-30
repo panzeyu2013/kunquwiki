@@ -970,10 +970,8 @@
 }
 
 .page :global(.user-table) {
-  border: 1px solid #eaded8;
-  border-radius: 16px;
-  overflow: hidden;
-  background: #fff;
+  overflow: visible;
+  background: transparent;
 }
 
 .page :global(.user-table-head),
@@ -990,17 +988,23 @@
   color: #7a6a63;
   font-size: 13px;
   font-weight: 600;
+  border: 1px solid #eaded8;
   border-bottom: 1px solid #eaded8;
+  border-radius: 16px 16px 0 0;
 }
 
 .page :global(.user-table-row) {
   min-height: 68px;
   padding: 0 16px;
   border-bottom: 1px solid #f0e7e3;
+  border-left: 1px solid #eaded8;
+  border-right: 1px solid #eaded8;
+  background: #fff;
 }
 
 .page :global(.user-table-row:last-child) {
-  border-bottom: none;
+  border-bottom: 1px solid #eaded8;
+  border-radius: 0 0 16px 16px;
 }
 
 .page :global(.cell) {
@@ -1094,6 +1098,12 @@
 .page :global(.mini-button.danger) {
   border-color: #d8b5ae;
   color: #9e3b31;
+}
+
+.page :global(.mini-button.danger.active) {
+  background: #8f2d1f;
+  color: #fff;
+  border-color: #8f2d1f;
 }
 
 .page :global(.more-actions) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getAdminOverviewClient, getAdminUsersClient, updateAdminUserClient } from "../../lib/api-client";
 import { mapUserRoleLabel, mapUserStatusLabel } from "../../lib/labels";
 
@@ -8,18 +8,87 @@ export function AdminDashboard() {
   const [data, setData] = useState<Awaited<ReturnType<typeof getAdminOverviewClient>> | null>(null);
   const [users, setUsers] = useState<Awaited<ReturnType<typeof getAdminUsersClient>>>([]);
   const [message, setMessage] = useState<string | null>(null);
+  const initialUserOrderRef = useRef<string[] | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [appliedQuery, setAppliedQuery] = useState("");
+  const [appliedStatus, setAppliedStatus] = useState("all");
+  const [appliedRole, setAppliedRole] = useState("all");
+
+  function sortUsersStable(list: Awaited<ReturnType<typeof getAdminUsersClient>>) {
+    if (!initialUserOrderRef.current) {
+      initialUserOrderRef.current = list.map((user) => user.id);
+      return list;
+    }
+
+    const order = new Map(initialUserOrderRef.current.map((id, index) => [id, index]));
+    return [...list].sort((a, b) => {
+      const aIndex = order.get(a.id);
+      const bIndex = order.get(b.id);
+
+      if (aIndex !== undefined && bIndex !== undefined) {
+        return aIndex - bIndex;
+      }
+
+      if (aIndex !== undefined) {
+        return -1;
+      }
+
+      if (bIndex !== undefined) {
+        return 1;
+      }
+
+      return a.id.localeCompare(b.id);
+    });
+  }
 
   async function loadAll() {
     const [overview, userList] = await Promise.all([getAdminOverviewClient(), getAdminUsersClient()]);
     setData(overview);
-    setUsers(userList);
+    setUsers(sortUsersStable(userList));
   }
+
+  const normalizedQuery = appliedQuery.trim().toLowerCase();
+  const filteredUsers = users.filter((user) => {
+    const matchesQuery = normalizedQuery.length === 0
+      || user.displayName.toLowerCase().includes(normalizedQuery)
+      || user.username.toLowerCase().includes(normalizedQuery)
+      || user.email.toLowerCase().includes(normalizedQuery);
+
+    const matchesStatus = appliedStatus === "all" || user.status === appliedStatus;
+    const matchesRole = appliedRole === "all" || user.roles.includes(appliedRole);
+
+    return matchesQuery && matchesStatus && matchesRole;
+  });
 
   useEffect(() => {
     loadAll()
       .catch((error) => {
         setMessage(error instanceof Error ? error.message : "加载失败");
       });
+  }, []);
+
+  useEffect(() => {
+    function handleDocumentClick(event: MouseEvent) {
+      const target = event.target as HTMLElement | null;
+      if (!target) {
+        return;
+      }
+
+      if (target.closest(".more-actions")) {
+        return;
+      }
+
+      document.querySelectorAll<HTMLDetailsElement>("details.more-actions[open]").forEach((detail) => {
+        detail.open = false;
+      });
+    }
+
+    document.addEventListener("click", handleDocumentClick);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick);
+    };
   }, []);
 
   if (message) {
@@ -98,21 +167,45 @@ export function AdminDashboard() {
           </div>
 
           <div className="toolbar">
-            <input className="search-input" placeholder="搜索用户名 / 邮箱" />
-            <select className="filter-select">
-              <option>全部状态</option>
-              <option>正常</option>
-              <option>停用</option>
+            <input
+              className="search-input"
+              placeholder="搜索用户名 / 邮箱"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+            />
+            <select
+              className="filter-select"
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value)}
+            >
+              <option value="all">全部状态</option>
+              <option value="active">正常</option>
+              <option value="suspended">停用</option>
             </select>
-            <select className="filter-select">
-              <option>全部身份</option>
-              <option>访客</option>
-              <option>审核</option>
-              <option>编辑</option>
-              <option>管理员</option>
-              <option>机器人</option>
+            <select
+              className="filter-select"
+              value={roleFilter}
+              onChange={(event) => setRoleFilter(event.target.value)}
+            >
+              <option value="all">全部身份</option>
+              <option value="visitor">访客</option>
+              <option value="reviewer">审核</option>
+              <option value="editor">编辑</option>
+              <option value="admin">管理员</option>
+              <option value="bot">机器人</option>
             </select>
-            <span className="pill strong">{users.length} 人</span>
+            <button
+              type="button"
+              className="mini-button"
+              onClick={() => {
+                setAppliedQuery(searchQuery);
+                setAppliedStatus(statusFilter);
+                setAppliedRole(roleFilter);
+              }}
+            >
+              搜索
+            </button>
+            <span className="pill strong">{filteredUsers.length} / {users.length} 人</span>
           </div>
         </div>
 
@@ -126,7 +219,7 @@ export function AdminDashboard() {
             <span>操作</span>
           </div>
 
-          {users.map((user) => (
+          {filteredUsers.map((user) => (
             <div key={user.id} className="user-table-row">
               <div className="cell">
                 <span className={`status-tag ${user.status}`}>
