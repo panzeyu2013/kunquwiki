@@ -8,6 +8,8 @@ import { RelatedEntities } from "../../../components/related-entities";
 import { mapWorkTypeLabel } from "../../../lib/labels";
 import { MarkdownContent } from "../../../components/markdown-content";
 import styles from "../../../styles/detail-page.module.css";
+import pillStyles from "../../../styles/components/pill.module.css";
+import { ActionBar } from "../../../components/action-bar";
 
 export default async function WorkDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -24,9 +26,9 @@ export default async function WorkDetailPage({ params }: { params: Promise<{ slu
     <div className={styles.page}>
       <div className="detail-layout">
         <section className="detail-panel">
-          <div className="pill-row">
-            <span className="pill">{workTypeLabel}</span>
-          </div>
+        <div className={pillStyles.row}>
+          <span className={pillStyles.pill}>{workTypeLabel}</span>
+        </div>
           <h1 className="page-title">{work.title}</h1>
           {parentWork ? (
             <>
@@ -52,11 +54,11 @@ export default async function WorkDetailPage({ params }: { params: Promise<{ slu
           <MarkdownContent value={work.plot} />
           <h2>参考资料</h2>
           <ReferenceList entity={work} />
-          <div className="actions">
+          <ActionBar>
             <Link href={`/edit/${work.slug}`}>提交编辑</Link>
             <Link href={`/history/${work.id}`}>版本历史</Link>
             <Link href={`/discussion/${work.slug}`}>讨论页</Link>
-          </div>
+          </ActionBar>
         </section>
         <aside className="detail-panel">
           <h2>信息框</h2>

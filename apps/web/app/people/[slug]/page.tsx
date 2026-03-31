@@ -7,6 +7,8 @@ import { ReferenceList } from "../../../components/reference-list";
 import { RelatedEntities } from "../../../components/related-entities";
 import { MarkdownContent } from "../../../components/markdown-content";
 import styles from "../../../styles/detail-page.module.css";
+import pillStyles from "../../../styles/components/pill.module.css";
+import { ActionBar } from "../../../components/action-bar";
 
 export default async function PersonDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -26,9 +28,9 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ s
     <div className={styles.page}>
       <div className="detail-layout">
         <section className="detail-panel">
-          <div className="pill-row">
+          <div className={pillStyles.row}>
             {person.roles.map((role) => (
-              <span key={role} className="pill">
+              <span key={role} className={pillStyles.pill}>
                 {role}
               </span>
             ))}
@@ -37,11 +39,11 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ s
           <MarkdownContent value={person.bio} />
           <h2>参考资料</h2>
           <ReferenceList entity={person} />
-          <div className="actions">
+          <ActionBar>
             <Link href={`/edit/${person.slug}`}>提交编辑</Link>
             <Link href={`/history/${person.id}`}>版本历史</Link>
             <Link href={`/discussion/${person.slug}`}>讨论页</Link>
-          </div>
+          </ActionBar>
         </section>
         <aside className="detail-panel">
           <h2>信息框</h2>

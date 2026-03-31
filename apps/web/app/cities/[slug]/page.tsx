@@ -4,6 +4,7 @@ import { CityEntity } from "@kunquwiki/shared";
 import { getEntity } from "../../../lib/api";
 import { RelatedEntities } from "../../../components/related-entities";
 import styles from "../../../styles/detail-page.module.css";
+import { ActionBar } from "../../../components/action-bar";
 
 export default async function CityDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -22,11 +23,11 @@ export default async function CityDetailPage({ params }: { params: Promise<{ slu
         <section className="detail-panel">
           <h1 className="page-title">{city.title}</h1>
           <p>{city.province || "待补充省份信息"}</p>
-          <div className="actions">
+          <ActionBar>
             <Link href={`/edit/${city.slug}`}>提交编辑</Link>
             <Link href={`/history/${city.id}`}>版本历史</Link>
             <Link href={`/discussion/${city.slug}`}>讨论页</Link>
-          </div>
+          </ActionBar>
         </section>
         <aside className="detail-panel">
           <h2>城市信息</h2>

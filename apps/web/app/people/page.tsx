@@ -2,6 +2,8 @@ import { EntityGrid } from "../../components/entity-grid";
 import { getEntities } from "../../lib/api";
 import Link from "next/link";
 import styles from "../../styles/catalog-page.module.css";
+import { ActionBar } from "../../components/action-bar";
+import formStyles from "../../styles/components/form.module.css";
 
 export default async function PeoplePage({
   searchParams
@@ -16,10 +18,10 @@ export default async function PeoplePage({
     <div className={styles.page}>
       <h1 className="page-title">人物库</h1>
       <p>收录演员、教师、推广者、学者等与昆曲相关人物。</p>
-      <div className="actions">
+      <ActionBar>
         <Link href="/create/person">创建人物</Link>
-      </div>
-      <form className="edit-form" action="/people">
+      </ActionBar>
+      <form className={formStyles.form} action="/people">
         <label>
           关键词
           <input name="q" defaultValue={q} placeholder="搜索人物姓名、简介或身份" />

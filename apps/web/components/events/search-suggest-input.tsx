@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { buildApiUrl, withQuery } from "../../lib/api-core";
+import styles from "../../styles/components/search-suggest-input.module.css";
 
 type SearchSuggestion = {
   id: string;
@@ -78,9 +79,9 @@ export function SearchSuggestInput({
   }, [value]);
 
   return (
-    <div className="suggest-shell">
+    <div className={styles.shell}>
       <input
-        className={inputClassName ?? "search-input"}
+        className={inputClassName ?? styles.input}
         type="search"
         name={name}
         value={value}
@@ -97,17 +98,17 @@ export function SearchSuggestInput({
         }}
       />
       {open ? (
-        <div className="suggest-panel" onMouseDown={(event) => event.preventDefault()}>
-          {loading ? <div className="suggest-item muted">正在检索...</div> : null}
+        <div className={styles.panel} onMouseDown={(event) => event.preventDefault()}>
+          {loading ? <div className={`${styles.item} ${styles.itemMuted}`}>正在检索...</div> : null}
           {!loading && suggestions.length === 0 ? (
-            <div className="suggest-item muted">暂无匹配建议</div>
+            <div className={`${styles.item} ${styles.itemMuted}`}>暂无匹配建议</div>
           ) : null}
           {!loading
             ? suggestions.map((item) => (
                 <button
                   key={item.id}
                   type="button"
-                  className="suggest-item"
+                  className={styles.item}
                   onClick={() => {
                     setValue(item.title);
                     setOpen(false);

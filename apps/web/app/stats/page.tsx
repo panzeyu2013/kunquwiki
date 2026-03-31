@@ -30,7 +30,7 @@ export default async function StatsPage() {
         <SectionCard title="热门剧目">
           <div className="stack">
             {stats.topWorks.map((item) => (
-              <div key={item.title} className="event-row">
+              <div key={item.title} className={styles.statsRow}>
                 <strong>{item.title}</strong>
                 <span>{item.count} 次</span>
               </div>
@@ -40,7 +40,7 @@ export default async function StatsPage() {
         <SectionCard title="活跃城市">
           <div className="stack">
             {stats.topCities.map((item) => (
-              <div key={item.city} className="event-row">
+              <div key={item.city} className={styles.statsRow}>
                 <strong>{item.city}</strong>
                 <span>{item.count} 场</span>
               </div>

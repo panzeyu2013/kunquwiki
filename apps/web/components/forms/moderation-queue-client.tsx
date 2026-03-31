@@ -12,6 +12,9 @@ import {
   mapUserRoleLabel,
   mapWorkTypeLabel
 } from "../../lib/labels";
+import pillStyles from "../../styles/components/pill.module.css";
+import ghostButtonStyles from "../../styles/components/ghost-button.module.css";
+import { ActionBar } from "../action-bar";
 
 type QueueItem = Awaited<ReturnType<typeof getModerationQueueClient>>[number];
 type EditorOptions = Awaited<ReturnType<typeof getEditorOptions>>;
@@ -311,22 +314,22 @@ export function ModerationQueueClient() {
           <h2>待审核提案</h2>
           <p>逐条核对提案内容、提案人身份与编辑说明。</p>
         </div>
-        <div className="actions">
+        <ActionBar>
           <button type="button" onClick={() => void loadQueue()}>
             刷新队列
           </button>
-          <span className="pill strong">{queue.length} 项</span>
-        </div>
+          <span className={`${pillStyles.pill} ${pillStyles.strong}`}>{queue.length} 项</span>
+        </ActionBar>
       </div>
       {message ? <p className="status-message">{message}</p> : null}
       {loading ? <p className="status-message">正在加载审核队列...</p> : null}
       {queue.map((item) => (
         <article key={item.id} className="detail-panel editor-record-card">
           <div className="editor-record-top">
-            <div className="pill-row">
-              <span className="pill strong">{mapReviewStatusLabel(item.status)}</span>
-              <span className="pill">{mapProposalTypeLabel(item.proposalType)}</span>
-              <span className="pill">{mapEntityTypeLabel(item.entity.entityType)}</span>
+            <div className={pillStyles.row}>
+              <span className={`${pillStyles.pill} ${pillStyles.strong}`}>{mapReviewStatusLabel(item.status)}</span>
+              <span className={pillStyles.pill}>{mapProposalTypeLabel(item.proposalType)}</span>
+              <span className={pillStyles.pill}>{mapEntityTypeLabel(item.entity.entityType)}</span>
             </div>
             <span className="editor-record-meta">#{item.id}</span>
           </div>
@@ -347,7 +350,7 @@ export function ModerationQueueClient() {
             </div>
           </div>
           {renderEntityReview(item, editorOptions)}
-          <div className="actions">
+          <ActionBar>
             <button
               type="button"
               onClick={async () => {
@@ -359,7 +362,7 @@ export function ModerationQueueClient() {
             </button>
             <button
               type="button"
-              className="ghost-button"
+              className={ghostButtonStyles.button}
               onClick={async () => {
                 await reviewProposal(item.id, "rejected", "前台审核驳回");
                 await loadQueue();
@@ -367,7 +370,7 @@ export function ModerationQueueClient() {
             >
               驳回
             </button>
-          </div>
+          </ActionBar>
         </article>
       ))}
       {!loading && queue.length === 0 ? <p className="status-message">当前没有待审核提案。</p> : null}

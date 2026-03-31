@@ -1,0 +1,30 @@
+.content {
+  line-height: 1.78;
+}
+
+.content :global(p),
+.content :global(li) {
+  color: var(--ink-soft);
+}
+
+.content :global(h1),
+.content :global(h2),
+.content :global(h3) {
+  margin: 0.8rem 0 0.48rem;
+}
+
+.content :global(pre) {
+  margin: 0.55rem 0;
+  padding: 0.78rem 0.85rem;
+  background: rgba(31, 29, 25, 0.05);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+}
+
+.content :global(blockquote) {
+  margin: 0.75rem 0;
+  padding-left: 0.85rem;
+  border-left: 3px solid rgba(126, 44, 36, 0.4);
+  color: var(--muted);
+}

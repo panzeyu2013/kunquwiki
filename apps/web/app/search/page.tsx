@@ -3,6 +3,9 @@ import { searchEntities } from "../../lib/api";
 import { mapEntityTypeLabel } from "../../lib/labels";
 import { getEntityDetailPath, isRoutableEntityType } from "../../lib/routes";
 import styles from "../../styles/catalog-page.module.css";
+import { EntityCard, entityCardStyles } from "../../components/entity-card";
+import pillStyles from "../../styles/components/pill.module.css";
+import formStyles from "../../styles/components/form.module.css";
 
 export default async function SearchPage({
   searchParams
@@ -16,7 +19,7 @@ export default async function SearchPage({
   return (
     <div className={styles.page}>
       <h1 className="page-title">搜索</h1>
-      <form className="edit-form" action="/search">
+      <form className={formStyles.form} action="/search">
         <label>
           关键词
           <input defaultValue={q} name="q" placeholder="输入城市、剧目、人物、院团、剧场或术语" />
@@ -25,14 +28,14 @@ export default async function SearchPage({
       </form>
       <div className="stack">
         {results.map((result) => (
-          <article key={result.id} className="entity-card">
-            <div className="pill-row">
-              <span className="pill">{mapEntityTypeLabel(result.entityType)}</span>
+          <EntityCard key={result.id}>
+            <div className={pillStyles.row}>
+              <span className={pillStyles.pill}>{mapEntityTypeLabel(result.entityType)}</span>
             </div>
-            <h3>
+            <h3 className={entityCardStyles.title}>
               <Link href={getEntityDetailPath(result.entityType, result.slug)}>{result.title}</Link>
             </h3>
-          </article>
+          </EntityCard>
         ))}
       </div>
     </div>

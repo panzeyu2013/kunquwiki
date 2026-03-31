@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getRecentChangesClient } from "../../lib/api-client";
 import { mapReviewStatusLabel } from "../../lib/labels";
+import pillStyles from "../../styles/components/pill.module.css";
+import tableStyles from "../../styles/components/table.module.css";
 
 type ChangeItem = Awaited<ReturnType<typeof getRecentChangesClient>>[number];
 
@@ -41,9 +43,9 @@ export function RecentChangesClient() {
           <h2>修订记录</h2>
           <p>按版本浏览最近提交与审核状态。</p>
         </div>
-        <span className="pill strong">{changes.length} 条</span>
+        <span className={`${pillStyles.pill} ${pillStyles.strong}`}>{changes.length} 条</span>
       </div>
-      <div className="table-shell editor-table-shell">
+      <div className={`${tableStyles.shell} editor-table-shell`}>
       <table>
         <thead>
           <tr>
@@ -61,7 +63,7 @@ export function RecentChangesClient() {
               <td>{change.editorName}</td>
               <td>{change.editSummary}</td>
               <td>
-                <span className="pill">{mapReviewStatusLabel(change.reviewStatus)}</span>
+                <span className={pillStyles.pill}>{mapReviewStatusLabel(change.reviewStatus)}</span>
               </td>
               <td>
                 <Link className="table-link" href={`/history/${change.entityId}`}>

@@ -1,0 +1,28 @@
+.shell {
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.shell :global(table) {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.shell :global(th),
+.shell :global(td) {
+  text-align: left;
+  padding: 0.82rem 0.95rem;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+}
+
+.shell :global(thead th) {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 700;
+  background: rgba(31, 29, 25, 0.02);
+}
+
+.shell :global(tbody tr:hover) {
+  background: rgba(126, 44, 36, 0.025);
+}

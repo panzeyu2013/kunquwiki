@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { login, register } from "../../lib/api-client";
+import ghostButtonStyles from "../../styles/components/ghost-button.module.css";
 import styles from "../../styles/editor-page.module.css";
+import { ActionBar } from "../action-bar";
 
 export function LoginForm() {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -79,14 +81,14 @@ export function LoginForm() {
                   <input name="password" type="password" required />
                 </label>
               </section>
-              <div className="actions">
+              <ActionBar>
                 <button type="submit" disabled={pending}>
                   {pending ? "提交中..." : mode === "login" ? "登录" : "注册"}
                 </button>
-                <button type="button" className="ghost-button" onClick={() => setMode(mode === "login" ? "register" : "login")}>
+                <button type="button" className={ghostButtonStyles.button} onClick={() => setMode(mode === "login" ? "register" : "login")}>
                   {mode === "login" ? "切换到注册" : "切换到登录"}
                 </button>
-              </div>
+              </ActionBar>
               {message ? <p className="status-message">{message}</p> : null}
             </form>
           </section>

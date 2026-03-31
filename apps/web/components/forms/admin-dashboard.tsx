@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getAdminOverviewClient, getAdminUsersClient, updateAdminUserClient } from "../../lib/api-client";
 import { mapUserRoleLabel, mapUserStatusLabel } from "../../lib/labels";
+import pillStyles from "../../styles/components/pill.module.css";
 
 export function AdminDashboard() {
   const [data, setData] = useState<Awaited<ReturnType<typeof getAdminOverviewClient>> | null>(null);
@@ -205,7 +206,7 @@ export function AdminDashboard() {
             >
               搜索
             </button>
-            <span className="pill strong">{filteredUsers.length} / {users.length} 人</span>
+            <span className={`${pillStyles.pill} ${pillStyles.strong}`}>{filteredUsers.length} / {users.length} 人</span>
           </div>
         </div>
 

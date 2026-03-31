@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { countdownLabelPrecise } from "../lib/format";
+import pillStyles from "../styles/components/pill.module.css";
 
 export function PreciseCountdown({ value }: { value: string }) {
   const [now, setNow] = useState<Date | null>(null);
@@ -14,5 +15,5 @@ export function PreciseCountdown({ value }: { value: string }) {
     return () => window.clearInterval(timer);
   }, []);
 
-  return <span className="pill">{now ? countdownLabelPrecise(value, now, true) : "即将开始"}</span>;
+  return <span className={pillStyles.pill}>{now ? countdownLabelPrecise(value, now, true) : "即将开始"}</span>;
 }

@@ -5,6 +5,10 @@ import Link from "next/link";
 import styles from "../../styles/detail-page.module.css";
 import { SearchSuggestInput } from "../../components/events/search-suggest-input";
 import { EventResults } from "../../components/events/event-results";
+import { SectionCard } from "../../components/section-card";
+import ghostButtonStyles from "../../styles/components/ghost-button.module.css";
+import { ActionBar } from "../../components/action-bar";
+import formStyles from "../../styles/components/form.module.css";
 
 export default async function EventsPage({
   searchParams
@@ -51,20 +55,23 @@ export default async function EventsPage({
 
   return (
     <div className={styles.page}>
-      <section className="section-card event-hero">
-        <div className="event-header">
-          <div>
-            <h2 className="page-title">演出库</h2>
-            <p>按时间管理和公开浏览昆曲演出、纪念活动、讲座与专题项目。</p>
+      <SectionCard
+        className="event-hero"
+        header={
+          <div className="event-header">
+            <div>
+              <h2 className="page-title">演出库</h2>
+              <p>按时间管理和公开浏览昆曲演出、纪念活动、讲座与专题项目。</p>
+            </div>
+            <ActionBar>
+              <Link href="/create/event">创建演出</Link>
+            </ActionBar>
           </div>
-          <div className="actions">
-            <Link href="/create/event">创建演出</Link>
-          </div>
-        </div>
-      </section>
+        }
+      />
 
-      <section className="section-card search-shell">
-        <form action="/events" className="event-search">
+      <SectionCard className="search-shell">
+        <form action="/events" className={`event-search ${formStyles.form}`}>
           <div className="search-row">
             <SearchSuggestInput
               name="q"
@@ -76,7 +83,7 @@ export default async function EventsPage({
             <label className="filter-toggle" htmlFor="event-filter-toggle">
               筛选
             </label>
-            <Link className="ghost-button search-reset-button" href="/events">
+            <Link className={`${ghostButtonStyles.button} ${ghostButtonStyles.raised} search-reset-button`} href="/events">
               重置
             </Link>
           </div>
@@ -175,15 +182,15 @@ export default async function EventsPage({
             </div>
             <div className="filter-actions">
               <button type="submit">应用筛选</button>
-              <Link className="ghost-button" href="/events">
+              <Link className={`${ghostButtonStyles.button} ${ghostButtonStyles.raised}`} href="/events">
                 清空条件
               </Link>
             </div>
           </div>
         </form>
-      </section>
+      </SectionCard>
 
-      <section className="section-card filter-summary">
+      <SectionCard className="filter-summary">
         <div className="chip-row">
           <span className="chip-label">当前筛选：</span>
           {activeFilters.length === 0 ? (
@@ -204,7 +211,7 @@ export default async function EventsPage({
             </Link>
           ) : null}
         </div>
-      </section>
+      </SectionCard>
 
       <EventResults events={events} initialSort={sort} />
     </div>

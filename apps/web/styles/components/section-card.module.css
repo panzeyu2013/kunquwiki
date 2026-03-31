@@ -1,0 +1,18 @@
+.card {
+  padding: 0.95rem;
+  margin-top: 0.9rem;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 251, 246, 0.92)),
+    var(--paper-solid);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+}
+
+.header {
+  margin-bottom: 0.75rem;
+}
+
+.title {
+  margin: 0;
+}

@@ -12,6 +12,9 @@ import {
 } from "../../lib/labels";
 import { getEntityDetailPath } from "../../lib/routes";
 import { excerptText } from "../../lib/text";
+import pillStyles from "../../styles/components/pill.module.css";
+import ghostButtonStyles from "../../styles/components/ghost-button.module.css";
+import { ActionBar } from "../action-bar";
 
 type EditorOptions = Awaited<ReturnType<typeof getEditorOptions>>;
 type EditableEntity = Awaited<ReturnType<typeof getEntityPublic>>;
@@ -239,7 +242,7 @@ function SearchCreateSelect({
               <button
                 key={item.id}
                 type="button"
-                className="ghost-button"
+                className={ghostButtonStyles.button}
                 onClick={() => {
                   onChange(item.id);
                   setQuery(item.title);
@@ -362,7 +365,7 @@ function SearchCreateMultiSelect({
               <button
                 key={item.id}
                 type="button"
-                className="ghost-button"
+                className={ghostButtonStyles.button}
                 onClick={() => {
                   onAdd(item.id);
                   setQuery("");
@@ -442,7 +445,7 @@ function SearchCreateInlineSelect({
             <button
               key={item.id}
               type="button"
-              className={`ghost-button inline-choice ${value === item.id ? "selected" : ""}`}
+              className={`${ghostButtonStyles.button} inline-choice ${value === item.id ? "selected" : ""}`}
               onClick={() => {
                 onChange(item.id);
                 setQuery(item.title);
@@ -454,7 +457,7 @@ function SearchCreateInlineSelect({
           {canCreate ? (
             <button
               type="button"
-              className="ghost-button inline-choice inline-choice-create"
+              className={`${ghostButtonStyles.button} inline-choice inline-choice-create`}
               disabled={creating}
               onClick={async () => {
                 setCreating(true);
@@ -554,7 +557,7 @@ function CollapsibleFormSection({
           <h3>{title}</h3>
           <p>{description}</p>
         </div>
-        <button type="button" className="ghost-button section-toggle-button" onClick={() => setExpanded((current) => !current)}>
+        <button type="button" className={`${ghostButtonStyles.button} section-toggle-button`} onClick={() => setExpanded((current) => !current)}>
           {expanded ? "收起" : "展开"}
         </button>
       </div>
@@ -608,10 +611,10 @@ function IdentityRowEditor({
           <p className="structured-card-summary">{buildIdentitySummary(item)}</p>
         </div>
         <div className="inline-actions">
-          <button type="button" className="ghost-button" onClick={() => setExpanded((current) => !current)}>
+          <button type="button" className={ghostButtonStyles.button} onClick={() => setExpanded((current) => !current)}>
             {expanded ? "收起" : "展开"}
           </button>
-          <button type="button" className="ghost-button" onClick={onRemove}>
+          <button type="button" className={ghostButtonStyles.button} onClick={onRemove}>
             删除
           </button>
         </div>
@@ -682,10 +685,10 @@ function MembershipRowEditor({
           <p className="structured-card-summary">{buildMembershipSummary(item, options)}</p>
         </div>
         <div className="inline-actions">
-          <button type="button" className="ghost-button" onClick={() => setExpanded((current) => !current)}>
+          <button type="button" className={ghostButtonStyles.button} onClick={() => setExpanded((current) => !current)}>
             {expanded ? "收起" : "展开"}
           </button>
-          <button type="button" className="ghost-button" onClick={onRemove}>
+          <button type="button" className={ghostButtonStyles.button} onClick={onRemove}>
             删除
           </button>
         </div>
@@ -781,9 +784,9 @@ function EditorSummaryBar({
   return (
     <header className="editor-summary-bar">
       <div>
-        <div className="pill-row">
-          <span className="pill strong">{entityTypeLabel}</span>
-          <span className="pill">{loaded ? "已加载" : "加载中"}</span>
+        <div className={pillStyles.row}>
+          <span className={`${pillStyles.pill} ${pillStyles.strong}`}>{entityTypeLabel}</span>
+          <span className={pillStyles.pill}>{loaded ? "已加载" : "加载中"}</span>
         </div>
         <h1>{title || "未命名条目"}</h1>
         <div className="summary-meta-row">
@@ -794,10 +797,10 @@ function EditorSummaryBar({
       </div>
       {entity ? (
         <div className="summary-actions">
-          <Link className="ghost-button" href={entityPath(entity.entityType, entity.slug)}>
+          <Link className={ghostButtonStyles.button} href={entityPath(entity.entityType, entity.slug)}>
             查看条目
           </Link>
-          <Link className="ghost-button" href={`/history/${entity.id}`}>
+          <Link className={ghostButtonStyles.button} href={`/history/${entity.id}`}>
             历史
           </Link>
         </div>
@@ -865,10 +868,10 @@ function CastRow({ cast, options, onUpdate, onRemove, onClearRole, createQuickOp
         </label>
       </div>
       <div className="cast-actions">
-        <button type="button" className="ghost-button" onClick={onClearRole}>
+        <button type="button" className={ghostButtonStyles.button} onClick={onClearRole}>
           清空角色
         </button>
-        <button type="button" className="ghost-button" onClick={onRemove}>
+        <button type="button" className={ghostButtonStyles.button} onClick={onRemove}>
           删除
         </button>
       </div>
@@ -929,10 +932,10 @@ function ProgramBlock({ item, index, options, onUpdate, onRemove, onAddCast, cre
           <span>{item.durationMinutes ? `${item.durationMinutes} 分钟` : "时长未填"}</span>
         </div>
         <div className="program-block-actions">
-          <button type="button" className="ghost-button" onClick={() => setExpanded((prev) => !prev)}>
+          <button type="button" className={ghostButtonStyles.button} onClick={() => setExpanded((prev) => !prev)}>
             {expanded ? "收起" : "展开"}
           </button>
-          <button type="button" className="ghost-button" onClick={onRemove}>
+          <button type="button" className={ghostButtonStyles.button} onClick={onRemove}>
             删除节目
           </button>
         </div>
@@ -2056,12 +2059,12 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
           </CollapsibleFormSection>
         ) : null}
 
-        <div className="actions">
+        <ActionBar>
           <button type="submit" disabled={pending || !loaded || !title.trim()}>
             {pending ? "提交中..." : isCreateMode ? "创建条目" : "提交提案"}
           </button>
           {message ? <p className="status-message">{message}</p> : null}
-        </div>
+        </ActionBar>
       </form>
     </div>
   );

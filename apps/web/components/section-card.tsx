@@ -1,12 +1,26 @@
 import { ReactNode } from "react";
+import styles from "../styles/components/section-card.module.css";
 
-export function SectionCard({ title, children }: { title: string; children: ReactNode }) {
+export function SectionCard({
+  title,
+  header,
+  className,
+  children
+}: {
+  title?: string;
+  header?: ReactNode;
+  className?: string;
+  children?: ReactNode;
+}) {
   return (
-    <section className="section-card">
-      <div className="section-card-header">
-        <h2>{title}</h2>
-      </div>
-      <div>{children}</div>
+    <section className={[styles.card, className].filter(Boolean).join(" ")}>
+      {header ? <div className={styles.header}>{header}</div> : null}
+      {!header && title ? (
+        <div className={styles.header}>
+          <h2 className={styles.title}>{title}</h2>
+        </div>
+      ) : null}
+      {children !== undefined && children !== null ? <div>{children}</div> : null}
     </section>
   );
 }

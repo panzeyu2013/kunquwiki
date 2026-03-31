@@ -1,0 +1,48 @@
+.shell {
+  position: relative;
+}
+
+.input {
+  width: 100%;
+  font-size: 1rem;
+  height: 44px;
+  padding: 0 0.95rem;
+  border-radius: 16px;
+}
+
+.panel {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.45rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid var(--line-soft);
+  box-shadow: var(--shadow);
+}
+
+.item {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: rgba(126, 44, 36, 0.04);
+  color: var(--ink);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.item:hover {
+  border-color: rgba(126, 44, 36, 0.2);
+  background: rgba(126, 44, 36, 0.08);
+}
+
+.itemMuted {
+  cursor: default;
+  color: var(--muted);
+  background: rgba(31, 29, 25, 0.04);
+}

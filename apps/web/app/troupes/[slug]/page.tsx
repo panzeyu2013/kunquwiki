@@ -8,6 +8,7 @@ import { RelatedEntities } from "../../../components/related-entities";
 import { mapTroupeTypeLabel } from "../../../lib/labels";
 import { MarkdownContent } from "../../../components/markdown-content";
 import styles from "../../../styles/detail-page.module.css";
+import { ActionBar } from "../../../components/action-bar";
 
 export default async function TroupeDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -26,11 +27,11 @@ export default async function TroupeDetailPage({ params }: { params: Promise<{ s
           <MarkdownContent value={troupe.description} />
           <h2>参考资料</h2>
           <ReferenceList entity={troupe} />
-          <div className="actions">
+          <ActionBar>
             <Link href={`/edit/${troupe.slug}`}>提交编辑</Link>
             <Link href={`/history/${troupe.id}`}>版本历史</Link>
             <Link href={`/discussion/${troupe.slug}`}>讨论页</Link>
-          </div>
+          </ActionBar>
         </section>
         <aside className="detail-panel">
           <h2>信息框</h2>

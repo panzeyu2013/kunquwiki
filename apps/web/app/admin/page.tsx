@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ProtectedPage } from "../../components/auth/protected-page";
 import { AdminDashboard } from "../../components/forms/admin-dashboard";
+import { ActionBar } from "../../components/action-bar";
 
 export default function AdminPage() {
   return (
@@ -15,10 +16,10 @@ export default function AdminPage() {
           <h1 className="page-title">后台管理</h1>
           <p className="editor-lead">这里汇总提案审核、审计日志、最近修订和用户权限管理。</p>
         </div>
-        <div className="actions">
+        <ActionBar>
           <Link href="/moderation/queue">打开审核队列</Link>
           <Link href="/changes">查看最近更改</Link>
-        </div>
+        </ActionBar>
         <AdminDashboard />
       </div>
     </ProtectedPage>

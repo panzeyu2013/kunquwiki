@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { EventEntity } from "@kunquwiki/shared";
 import { EventRow } from "./event-row";
+import { SectionCard } from "../section-card";
 
 type SortKey = "time" | "updated";
 
@@ -18,7 +19,7 @@ export function EventResults({ events, initialSort }: { events: EventEntity[]; i
   }, [events, sortKey]);
 
   return (
-    <section className="section-card results-shell">
+    <SectionCard className="results-shell">
       <div className="results-header">
         <span className="results-count">匹配结果（{events.length}条）</span>
         <div className="sort-form">
@@ -51,6 +52,6 @@ export function EventResults({ events, initialSort }: { events: EventEntity[]; i
           <EventRow key={event.id} event={event} />
         ))}
       </div>
-    </section>
+    </SectionCard>
   );
 }
