@@ -8,9 +8,11 @@ import { RelatedEntities } from "../../../components/related-entities";
 import { mapEventStatusLabel, mapEventTypeLabel } from "../../../lib/labels";
 import { PreciseCountdown } from "../../../components/precise-countdown";
 import { MarkdownContent } from "../../../components/markdown-content";
+import { ActionBar } from "../../../components/action-bar";
+
+// Styles
 import styles from "../../../styles/detail-page.module.css";
 import pillStyles from "../../../styles/components/pill.module.css";
-import { ActionBar } from "../../../components/action-bar";
 
 export default async function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -40,13 +42,13 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
 
   return (
     <div className={styles.page}>
-      <div className="detail-layout">
-        <section className="detail-panel">
+      <div className={styles.detailLayout}>
+        <section className={styles.detailPanel}>
           <div className={pillStyles.row}>
             <span className={`${pillStyles.pill} ${pillStyles.strong}`}>{mapEventStatusLabel(event.businessStatus)}</span>
             <PreciseCountdown value={event.startAt} />
           </div>
-          <h1 className="page-title">{event.title}</h1>
+          <h1 className={styles.pageTitle}>{event.title}</h1>
           <MarkdownContent value={event.body} />
           <h2>节目单</h2>
           <ul>
@@ -82,7 +84,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
             <Link href={`/discussion/${event.slug}`}>讨论页</Link>
           </ActionBar>
         </section>
-        <aside className="detail-panel">
+        <aside className={styles.detailPanel}>
           <h2>演出信息</h2>
           <p>类型：{mapEventTypeLabel(event.eventType)}</p>
           <p>时间：{formatDateTime(event.startAt)}</p>

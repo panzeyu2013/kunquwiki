@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ReactNode } from "react";
 import { AuthStatus } from "./auth/auth-status";
+
+// Styles
 import styles from "../styles/site-shell.module.css";
 
 const navItems = [
@@ -16,17 +18,17 @@ const navItems = [
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
     <div className={styles.shell}>
-      <header className="site-header">
-        <div className="site-header-inner">
+      <header className={styles.siteHeader}>
+        <div className={styles.siteHeaderInner}>
           <div>
-            <Link className="brand" href="/">
+            <Link className={styles.brand} href="/">
               KunquWiki
             </Link>
-            <p className="brand-subtitle">公开可用的昆曲 Wiki 原型站</p>
+            <p className={styles.brandSubtitle}>公开可用的昆曲 Wiki 原型站</p>
           </div>
-          <nav className="nav">
+          <nav className={styles.nav}>
             {navItems.map((item) => (
-              <Link key={item.href} className="nav-link" href={item.href}>
+              <Link key={item.href} className={styles.navLink} href={item.href}>
                 {item.label}
               </Link>
             ))}
@@ -34,7 +36,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
           </nav>
         </div>
       </header>
-      <main className="page-container">{children}</main>
+      <main className={styles.pageContainer}>{children}</main>
     </div>
   );
 }

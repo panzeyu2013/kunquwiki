@@ -1,0 +1,340 @@
+.editorShell,
+.editorListShell,
+.editorRecordCard,
+.editorRecordBody,
+.editorMetaGrid,
+.structuredGroup,
+.stack {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.page {
+  display: grid;
+  gap: 1rem;
+}
+
+.pageTitle {
+  margin: 0 0 0.8rem;
+  font-size: clamp(1.65rem, 2.7vw, 2.2rem);
+}
+
+.editorPageHead,
+.editorPanel,
+.editorNotice,
+.detailPanel,
+.editForm,
+.formSection,
+.editorShell fieldset {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 251, 246, 0.92)),
+    var(--paper-solid);
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+}
+
+.editorPageHead {
+  gap: 0.4rem;
+  padding: 1.15rem 1.2rem;
+}
+
+.editorKicker {
+  margin: 0;
+  font-size: 0.76rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.editorLead {
+  margin-bottom: 0;
+  max-width: 760px;
+}
+
+.detailLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 2.3fr) minmax(260px, 1fr);
+  gap: 0.9rem;
+}
+
+.editorLayout {
+  align-items: start;
+}
+
+.editorSidePanel {
+  position: sticky;
+  top: 1rem;
+}
+
+.editorSectionHead {
+  display: grid;
+  gap: 0.24rem;
+  margin-bottom: 0.1rem;
+}
+
+.editorSectionHead h2,
+.editorSectionHead h3 {
+  margin: 0;
+}
+
+.editorSectionHead p {
+  margin-bottom: 0;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
+.editorForm {
+  padding: 1rem;
+}
+
+.editForm {
+  padding: 1rem;
+}
+
+.formSection {
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.statusMessage {
+  margin: 0;
+  padding: 0.8rem 0.95rem;
+  border: 1px solid rgba(126, 44, 36, 0.14);
+  border-radius: var(--radius-sm);
+  background: rgba(126, 44, 36, 0.05);
+  color: var(--accent);
+  box-shadow: var(--shadow-xs);
+}
+
+.editorListHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.editorListHead h2 {
+  margin: 0 0 0.2rem;
+}
+
+.editorListHead p {
+  margin: 0;
+}
+
+.editorRecordTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.editorRecordMeta {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.editorMetaItem {
+  display: grid;
+  gap: 0.18rem;
+  padding: 0.78rem 0.88rem;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.62);
+}
+
+.editorMetaItem span,
+.editorMetaItem small {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.editorTableShell {
+  border-radius: var(--radius-md);
+}
+
+.tableLink {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.tableLink:hover {
+  color: var(--accent-hover);
+}
+
+.detailPanel {
+  padding: 1rem;
+}
+
+.editorShell table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.editorShell th,
+.editorShell td {
+  text-align: left;
+  padding: 0.82rem 0.95rem;
+  border-bottom: 1px solid var(--line-soft);
+  vertical-align: top;
+}
+
+.editorShell thead th {
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-weight: 700;
+  background: rgba(31, 29, 25, 0.02);
+}
+
+.editorShell tbody tr:hover {
+  background: rgba(126, 44, 36, 0.025);
+}
+
+.editorShell label {
+  display: grid;
+  gap: 0.42rem;
+  margin-bottom: 0.72rem;
+  color: var(--ink);
+  font-size: 0.93rem;
+  font-weight: 600;
+}
+
+.editorShell label:last-child {
+  margin-bottom: 0;
+}
+
+.editorShell fieldset label {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+.editorShell fieldset {
+  margin: 0;
+  padding: 0.8rem;
+  border-radius: var(--radius-sm);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.46), rgba(255, 253, 249, 0.88)),
+    var(--paper-soft);
+}
+
+.editorShell legend {
+  padding: 0 0.45rem;
+  color: var(--ink);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.editorShell input,
+.editorShell textarea,
+.editorShell select {
+  width: 100%;
+  padding: 0.68rem 0.8rem;
+  border-radius: 12px;
+  border: 1px solid rgba(31, 29, 25, 0.1);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--ink);
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.55),
+    0 1px 2px rgba(31, 29, 25, 0.02);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.editorShell input::placeholder,
+.editorShell textarea::placeholder {
+  color: var(--muted-soft);
+}
+
+.editorShell input:hover,
+.editorShell textarea:hover,
+.editorShell select:hover {
+  border-color: rgba(126, 44, 36, 0.18);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.editorShell input:focus,
+.editorShell textarea:focus,
+.editorShell select:focus {
+  outline: none;
+  border-color: rgba(126, 44, 36, 0.32);
+  box-shadow:
+    0 0 0 4px rgba(126, 44, 36, 0.08),
+    0 6px 18px rgba(126, 44, 36, 0.08);
+  background: white;
+}
+
+.editorShell textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.editorShell textarea[name="bodyMarkdown"] {
+  min-height: 240px;
+}
+
+.editorShell input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--accent);
+  box-shadow: none;
+}
+
+.structuredGroup {
+  gap: 0.75rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(31, 29, 25, 0.07);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 252, 247, 0.88)),
+    var(--paper-soft);
+}
+
+.structuredGroupHead h4,
+.structuredGroupHead h5 {
+  margin: 0;
+}
+
+.structuredGroupHead p {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.helperText {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 860px) {
+  .detailLayout {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .editorSidePanel {
+    position: static;
+  }
+
+  .editorListHead,
+  .editorRecordTop {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .editorForm,
+  .detailPanel,
+  .editorPageHead,
+  .formSection,
+  .editForm {
+    padding: 0.95rem;
+  }
+}

@@ -14,6 +14,7 @@ import {
 } from "../../lib/labels";
 import pillStyles from "../../styles/components/pill.module.css";
 import ghostButtonStyles from "../../styles/components/ghost-button.module.css";
+import styles from "../../styles/components/editor-shared.module.css";
 import { ActionBar } from "../action-bar";
 
 type QueueItem = Awaited<ReturnType<typeof getModerationQueueClient>>[number];
@@ -45,9 +46,9 @@ function formatDateTime(value: unknown) {
 
 function renderKeyValueRows(rows: Array<{ label: string; value: string }>) {
   return (
-    <div className="editor-meta-grid">
+    <div className={styles.editorMetaGrid}>
       {rows.map((row) => (
-        <div key={`${row.label}-${row.value}`} className="editor-meta-item">
+        <div key={`${row.label}-${row.value}`} className={styles.editorMetaItem}>
           <span>{row.label}</span>
           <strong>{row.value}</strong>
         </div>
@@ -62,14 +63,14 @@ function renderSummaryBlock(title: string, description: string, lines: string[])
   }
 
   return (
-    <div className="structured-group">
-      <div className="structured-group-head">
+    <div className={styles.structuredGroup}>
+      <div className={styles.structuredGroupHead}>
         <h4>{title}</h4>
         <p>{description}</p>
       </div>
-      <div className="stack">
+      <div className={styles.stack}>
         {lines.map((line) => (
-          <p key={line} className="helper-text">
+          <p key={line} className={styles.helperText}>
             {line}
           </p>
         ))}
@@ -308,8 +309,8 @@ export function ModerationQueueClient() {
   }, []);
 
   return (
-    <div className="stack editor-list-shell">
-      <div className="editor-list-head">
+    <div className={`${styles.stack} ${styles.editorListShell}`}>
+      <div className={styles.editorListHead}>
         <div>
           <h2>待审核提案</h2>
           <p>逐条核对提案内容、提案人身份与编辑说明。</p>
@@ -321,29 +322,29 @@ export function ModerationQueueClient() {
           <span className={`${pillStyles.pill} ${pillStyles.strong}`}>{queue.length} 项</span>
         </ActionBar>
       </div>
-      {message ? <p className="status-message">{message}</p> : null}
-      {loading ? <p className="status-message">正在加载审核队列...</p> : null}
+      {message ? <p className={styles.statusMessage}>{message}</p> : null}
+      {loading ? <p className={styles.statusMessage}>正在加载审核队列...</p> : null}
       {queue.map((item) => (
-        <article key={item.id} className="detail-panel editor-record-card">
-          <div className="editor-record-top">
+        <article key={item.id} className={`${styles.detailPanel} ${styles.editorRecordCard}`}>
+          <div className={styles.editorRecordTop}>
             <div className={pillStyles.row}>
               <span className={`${pillStyles.pill} ${pillStyles.strong}`}>{mapReviewStatusLabel(item.status)}</span>
               <span className={pillStyles.pill}>{mapProposalTypeLabel(item.proposalType)}</span>
               <span className={pillStyles.pill}>{mapEntityTypeLabel(item.entity.entityType)}</span>
             </div>
-            <span className="editor-record-meta">#{item.id}</span>
+            <span className={styles.editorRecordMeta}>#{item.id}</span>
           </div>
-          <div className="editor-record-body">
+          <div className={styles.editorRecordBody}>
             <div>
               <h2>{item.entity.title}</h2>
             </div>
-            <div className="editor-meta-grid">
-              <div className="editor-meta-item">
+            <div className={styles.editorMetaGrid}>
+              <div className={styles.editorMetaItem}>
                 <span>提案人</span>
                 <strong>{item.proposer.displayName}</strong>
                 <small>{item.proposer.roles.map(mapUserRoleLabel).join(" / ")}</small>
               </div>
-              <div className="editor-meta-item">
+              <div className={styles.editorMetaItem}>
                 <span>编辑说明</span>
                 <strong>{String(item.payloadJson.editSummary ?? "未填写")}</strong>
               </div>
@@ -373,7 +374,7 @@ export function ModerationQueueClient() {
           </ActionBar>
         </article>
       ))}
-      {!loading && queue.length === 0 ? <p className="status-message">当前没有待审核提案。</p> : null}
+      {!loading && queue.length === 0 ? <p className={styles.statusMessage}>当前没有待审核提案。</p> : null}
     </div>
   );
 }

@@ -4,6 +4,8 @@ import { getEntity } from "../../../lib/api";
 import { EventRecordSection } from "../../../components/events/event-record-section";
 import { RelatedEntities } from "../../../components/related-entities";
 import { MarkdownContent } from "../../../components/markdown-content";
+
+// Styles
 import styles from "../../../styles/detail-page.module.css";
 
 export default async function VenueDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -17,12 +19,12 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
 
   return (
     <div className={styles.page}>
-      <div className="detail-layout">
-        <section className="detail-panel">
-          <h1 className="page-title">{venue.title}</h1>
+      <div className={styles.detailLayout}>
+        <section className={styles.detailPanel}>
+          <h1 className={styles.pageTitle}>{venue.title}</h1>
           <MarkdownContent value={venue.description ?? "待补充"} />
         </section>
-        <aside className="detail-panel">
+        <aside className={styles.detailPanel}>
           <h2>场馆信息</h2>
           <p>地址：{venue.address}</p>
           <p>城市：{city?.title ?? venue.city ?? "待补充"}</p>

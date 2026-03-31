@@ -2,8 +2,11 @@ import Link from "next/link";
 import { searchEntities } from "../../lib/api";
 import { mapEntityTypeLabel } from "../../lib/labels";
 import { getEntityDetailPath, isRoutableEntityType } from "../../lib/routes";
-import styles from "../../styles/catalog-page.module.css";
 import { EntityCard, entityCardStyles } from "../../components/entity-card";
+
+// Styles
+import styles from "../../styles/catalog-page.module.css";
+import buttonStyles from "../../styles/components/button.module.css";
 import pillStyles from "../../styles/components/pill.module.css";
 import formStyles from "../../styles/components/form.module.css";
 
@@ -18,15 +21,17 @@ export default async function SearchPage({
 
   return (
     <div className={styles.page}>
-      <h1 className="page-title">搜索</h1>
+      <h1 className={styles.pageTitle}>搜索</h1>
       <form className={formStyles.form} action="/search">
         <label>
           关键词
           <input defaultValue={q} name="q" placeholder="输入城市、剧目、人物、院团、剧场或术语" />
         </label>
-        <button type="submit">搜索</button>
+        <button type="submit" className={buttonStyles.button}>
+          搜索
+        </button>
       </form>
-      <div className="stack">
+      <div className={styles.stack}>
         {results.map((result) => (
           <EntityCard key={result.id}>
             <div className={pillStyles.row}>

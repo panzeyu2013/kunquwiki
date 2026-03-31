@@ -1,5 +1,7 @@
 import { getRecentChanges } from "../../../lib/api";
 import { mapReviewStatusLabel } from "../../../lib/labels";
+
+// Styles
 import styles from "../../../styles/detail-page.module.css";
 import tableStyles from "../../../styles/components/table.module.css";
 
@@ -10,7 +12,7 @@ export default async function HistoryPage({ params }: { params: Promise<{ entity
 
   return (
     <div className={styles.page}>
-      <h1 className="page-title">版本历史</h1>
+      <h1 className={styles.pageTitle}>版本历史</h1>
       <div className={tableStyles.shell}>
         <table>
           <thead>

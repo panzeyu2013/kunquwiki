@@ -2,8 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getEntity } from "../../../lib/api";
 import { getEntityDetailPath } from "../../../lib/routes";
-import styles from "../../../styles/catalog-page.module.css";
 import { ActionBar } from "../../../components/action-bar";
+
+// Styles
+import styles from "../../../styles/catalog-page.module.css";
 import formStyles from "../../../styles/components/form.module.css";
 
 export default async function DiscussionPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -15,7 +17,7 @@ export default async function DiscussionPage({ params }: { params: Promise<{ slu
 
   return (
     <div className={styles.page}>
-      <h1 className="page-title">讨论页</h1>
+      <h1 className={styles.pageTitle}>讨论页</h1>
       <p>当前条目：{entity.title}</p>
       <div className={formStyles.form}>
         <ActionBar>

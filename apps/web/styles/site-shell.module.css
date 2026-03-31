@@ -2,7 +2,7 @@
   min-height: 100vh;
 }
 
-.shell :global(.site-header) {
+.siteHeader {
   position: sticky;
   top: 0;
   z-index: 30;
@@ -12,7 +12,7 @@
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
-.shell :global(.site-header-inner) {
+.siteHeaderInner {
   width: min(1100px, calc(100vw - 2rem));
   margin: 0 auto;
   display: flex;
@@ -22,20 +22,20 @@
   padding: 1rem 0;
 }
 
-.shell :global(.brand) {
+.brand {
   font-size: 1.35rem;
   font-weight: 800;
   letter-spacing: -0.04em;
   color: var(--ink);
 }
 
-.shell :global(.brand-subtitle) {
+.brandSubtitle {
   margin: 0.22rem 0 0;
   color: var(--muted);
   font-size: 0.92rem;
 }
 
-.shell :global(.nav) {
+.nav {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -44,7 +44,7 @@
   font-size: 0.94rem;
 }
 
-.shell :global(.nav-link) {
+.navLink {
   padding: 0.48rem 0.82rem;
   border-radius: 999px;
   color: var(--muted);
@@ -54,37 +54,37 @@
     transform var(--transition-fast);
 }
 
-.shell :global(.nav-link:hover) {
+.navLink:hover {
   background: rgba(126, 44, 36, 0.08);
   color: var(--ink);
   transform: translateY(-1px);
 }
 
-.shell :global(.auth-box) {
+.authBox {
   display: inline-flex;
   gap: 0.45rem;
   align-items: center;
   flex-wrap: wrap;
 }
 
-.shell :global(.page-container) {
+.pageContainer {
   width: min(1100px, calc(100vw - 2rem));
   margin: 0 auto;
   padding: 1.75rem 0 3.5rem;
 }
 
 @media (max-width: 860px) {
-  .shell :global(.site-header-inner) {
+  .siteHeaderInner {
     display: grid;
     grid-template-columns: 1fr;
     align-items: stretch;
   }
 
-  .shell :global(.nav) {
+  .nav {
     justify-content: flex-start;
   }
 
-  .shell :global(.page-container) {
+  .pageContainer {
     width: min(100vw - 1rem, 1100px);
     padding-top: 1rem;
   }

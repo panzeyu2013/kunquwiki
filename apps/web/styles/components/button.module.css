@@ -1,22 +1,18 @@
-.bar {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.bar a,
-.bar button {
+.button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.64rem 0.95rem;
+  height: 40px;
+  padding: 0 0.95rem;
+  border: 1px solid transparent;
   border-radius: 999px;
   background: linear-gradient(180deg, #8f392f 0%, var(--accent) 100%);
   color: white;
-  border: 1px solid rgba(126, 44, 36, 0.28);
   cursor: pointer;
   box-shadow: 0 8px 18px rgba(126, 44, 36, 0.16);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1;
   transition:
     transform var(--transition-fast),
     box-shadow var(--transition-fast),
@@ -24,14 +20,16 @@
     border-color var(--transition-fast);
 }
 
-.bar a:hover,
-.bar button:hover {
-  background: linear-gradient(180deg, #9a4035 0%, var(--accent-hover) 100%);
+.button:hover {
   transform: translateY(-1px);
   box-shadow: 0 12px 24px rgba(126, 44, 36, 0.2);
 }
 
-.bar button:disabled {
+.button:active {
+  transform: translateY(0);
+}
+
+.button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
   transform: none;

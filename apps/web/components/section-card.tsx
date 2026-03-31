@@ -1,4 +1,6 @@
 import { ReactNode } from "react";
+
+// Styles
 import styles from "../styles/components/section-card.module.css";
 
 export function SectionCard({

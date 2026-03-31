@@ -7,8 +7,10 @@ import { ReferenceList } from "../../../components/reference-list";
 import { RelatedEntities } from "../../../components/related-entities";
 import { mapTroupeTypeLabel } from "../../../lib/labels";
 import { MarkdownContent } from "../../../components/markdown-content";
-import styles from "../../../styles/detail-page.module.css";
 import { ActionBar } from "../../../components/action-bar";
+
+// Styles
+import styles from "../../../styles/detail-page.module.css";
 
 export default async function TroupeDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -21,9 +23,9 @@ export default async function TroupeDetailPage({ params }: { params: Promise<{ s
 
   return (
     <div className={styles.page}>
-      <div className="detail-layout">
-        <section className="detail-panel">
-          <h1 className="page-title">{troupe.title}</h1>
+      <div className={styles.detailLayout}>
+        <section className={styles.detailPanel}>
+          <h1 className={styles.pageTitle}>{troupe.title}</h1>
           <MarkdownContent value={troupe.description} />
           <h2>参考资料</h2>
           <ReferenceList entity={troupe} />
@@ -33,7 +35,7 @@ export default async function TroupeDetailPage({ params }: { params: Promise<{ s
             <Link href={`/discussion/${troupe.slug}`}>讨论页</Link>
           </ActionBar>
         </section>
-        <aside className="detail-panel">
+        <aside className={styles.detailPanel}>
           <h2>信息框</h2>
           <p>城市：{city?.title ?? troupe.city ?? "待补充"}</p>
           <p>地区：{troupe.region}</p>

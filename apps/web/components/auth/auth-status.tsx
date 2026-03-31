@@ -5,6 +5,7 @@ import { clearStoredToken } from "../../lib/auth";
 import { useAuthUser } from "./use-auth-user";
 import pillStyles from "../../styles/components/pill.module.css";
 import ghostButtonStyles from "../../styles/components/ghost-button.module.css";
+import styles from "../../styles/site-shell.module.css";
 
 export function AuthStatus() {
   const { user, ready, hasRole } = useAuthUser();
@@ -15,17 +16,17 @@ export function AuthStatus() {
 
   if (!user) {
     return (
-      <div className="auth-box">
+      <div className={styles.authBox}>
         <Link href="/login">登录</Link>
       </div>
     );
   }
 
   return (
-    <div className="auth-box">
-      {hasRole("editor") ? <Link className="nav-link" href="/changes">最近更改</Link> : null}
-      {hasRole("reviewer") || hasRole("admin") ? <Link className="nav-link" href="/moderation/queue">审核</Link> : null}
-      {hasRole("admin") ? <Link className="nav-link" href="/admin">后台</Link> : null}
+    <div className={styles.authBox}>
+      {hasRole("editor") ? <Link className={styles.navLink} href="/changes">最近更改</Link> : null}
+      {hasRole("reviewer") || hasRole("admin") ? <Link className={styles.navLink} href="/moderation/queue">审核</Link> : null}
+      {hasRole("admin") ? <Link className={styles.navLink} href="/admin">后台</Link> : null}
       <span className={`${pillStyles.pill} ${pillStyles.strong}`}>{user.username}</span>
       <button
         type="button"

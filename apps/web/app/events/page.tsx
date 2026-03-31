@@ -2,12 +2,15 @@ import { getEntities } from "../../lib/api";
 import { EventEntity } from "@kunquwiki/shared";
 import { mapEventStatusLabel } from "../../lib/labels";
 import Link from "next/link";
-import styles from "../../styles/detail-page.module.css";
 import { SearchSuggestInput } from "../../components/events/search-suggest-input";
 import { EventResults } from "../../components/events/event-results";
 import { SectionCard } from "../../components/section-card";
-import ghostButtonStyles from "../../styles/components/ghost-button.module.css";
 import { ActionBar } from "../../components/action-bar";
+
+// Styles
+import styles from "../../styles/detail-page.module.css";
+import buttonStyles from "../../styles/components/button.module.css";
+import ghostButtonStyles from "../../styles/components/ghost-button.module.css";
 import formStyles from "../../styles/components/form.module.css";
 
 export default async function EventsPage({
@@ -56,11 +59,11 @@ export default async function EventsPage({
   return (
     <div className={styles.page}>
       <SectionCard
-        className="event-hero"
+        className={styles.eventHero}
         header={
-          <div className="event-header">
+          <div className={styles.eventHeader}>
             <div>
-              <h2 className="page-title">演出库</h2>
+              <h2 className={styles.pageTitle}>演出库</h2>
               <p>按时间管理和公开浏览昆曲演出、纪念活动、讲座与专题项目。</p>
             </div>
             <ActionBar>
@@ -70,9 +73,9 @@ export default async function EventsPage({
         }
       />
 
-      <SectionCard className="search-shell">
-        <form action="/events" className={`event-search ${formStyles.form}`}>
-          <div className="search-row">
+      <SectionCard className={styles.searchShell}>
+        <form action="/events" className={`${styles.eventSearch} ${formStyles.form}`}>
+          <div className={styles.searchRow}>
             <SearchSuggestInput
               name="q"
               type="event"
@@ -80,28 +83,28 @@ export default async function EventsPage({
               placeholder="搜索演出标题、摘要或关键词"
             />
             <input type="hidden" name="sort" value={sort} />
-            <label className="filter-toggle" htmlFor="event-filter-toggle">
+            <label className={styles.filterToggle} htmlFor="event-filter-toggle">
               筛选
             </label>
-            <Link className={`${ghostButtonStyles.button} ${ghostButtonStyles.raised} search-reset-button`} href="/events">
+            <Link className={`${ghostButtonStyles.button} ${ghostButtonStyles.raised} ${styles.searchResetButton}`} href="/events">
               重置
             </Link>
           </div>
           <input
             id="event-filter-toggle"
-            className="filter-toggle-input"
+            className={styles.filterToggleInput}
             type="checkbox"
             defaultChecked={hasAdvancedFilters}
           />
-          <div className="filter-panel">
-            <div className="filter-grid">
+          <div className={styles.filterPanel}>
+            <div className={styles.filterGrid}>
               <label>
                 城市
                 <SearchSuggestInput
                   name="city"
                   type="city"
                   minChars={1}
-                  inputClassName="filter-input"
+                  inputClassName={styles.filterInput}
                   defaultValue={city}
                   placeholder="例如：上海、苏州"
                 />
@@ -112,7 +115,7 @@ export default async function EventsPage({
                   name="troupe"
                   type="troupe"
                   minChars={1}
-                  inputClassName="filter-input"
+                  inputClassName={styles.filterInput}
                   defaultValue={troupe}
                   placeholder="例如：上海昆剧团"
                 />
@@ -123,7 +126,7 @@ export default async function EventsPage({
                   name="person"
                   type="person"
                   minChars={1}
-                  inputClassName="filter-input"
+                  inputClassName={styles.filterInput}
                   defaultValue={person}
                   placeholder="例如：张军"
                 />
@@ -134,7 +137,7 @@ export default async function EventsPage({
                   name="work"
                   type="work"
                   minChars={1}
-                  inputClassName="filter-input"
+                  inputClassName={styles.filterInput}
                   defaultValue={work}
                   placeholder="例如：牡丹亭、牡丹亭·游园惊梦"
                 />
@@ -145,43 +148,45 @@ export default async function EventsPage({
                   name="venue"
                   type="venue"
                   minChars={1}
-                  inputClassName="filter-input"
+                  inputClassName={styles.filterInput}
                   defaultValue={venue}
                   placeholder="例如：上海大剧院"
                 />
               </label>
-              <fieldset className="status-field">
+              <fieldset className={styles.statusField}>
                 <legend>状态</legend>
-                <div className="status-options">
-                  <label className="status-chip">
+                <div className={styles.statusOptions}>
+                  <label className={styles.statusChip}>
                     <input type="radio" name="status" value="" defaultChecked={!status} />
                     <span>全部</span>
                   </label>
-                  <label className="status-chip">
+                  <label className={styles.statusChip}>
                     <input type="radio" name="status" value="announced" defaultChecked={status === "announced"} />
                     <span>{mapEventStatusLabel("announced")}</span>
                   </label>
-                  <label className="status-chip">
+                  <label className={styles.statusChip}>
                     <input type="radio" name="status" value="scheduled" defaultChecked={status === "scheduled"} />
                     <span>{mapEventStatusLabel("scheduled")}</span>
                   </label>
-                  <label className="status-chip">
+                  <label className={styles.statusChip}>
                     <input type="radio" name="status" value="completed" defaultChecked={status === "completed"} />
                     <span>{mapEventStatusLabel("completed")}</span>
                   </label>
-                  <label className="status-chip">
+                  <label className={styles.statusChip}>
                     <input type="radio" name="status" value="cancelled" defaultChecked={status === "cancelled"} />
                     <span>{mapEventStatusLabel("cancelled")}</span>
                   </label>
-                  <label className="status-chip">
+                  <label className={styles.statusChip}>
                     <input type="radio" name="status" value="postponed" defaultChecked={status === "postponed"} />
                     <span>{mapEventStatusLabel("postponed")}</span>
                   </label>
                 </div>
               </fieldset>
             </div>
-            <div className="filter-actions">
-              <button type="submit">应用筛选</button>
+            <div className={styles.filterActions}>
+              <button type="submit" className={buttonStyles.button}>
+                应用筛选
+              </button>
               <Link className={`${ghostButtonStyles.button} ${ghostButtonStyles.raised}`} href="/events">
                 清空条件
               </Link>
@@ -190,23 +195,23 @@ export default async function EventsPage({
         </form>
       </SectionCard>
 
-      <SectionCard className="filter-summary">
-        <div className="chip-row">
-          <span className="chip-label">当前筛选：</span>
+      <SectionCard className={styles.filterSummary}>
+        <div className={styles.chipRow}>
+          <span className={styles.chipLabel}>当前筛选：</span>
           {activeFilters.length === 0 ? (
-            <span className="chip muted">暂无筛选条件</span>
+            <span className={`${styles.chip} ${styles.chipMuted}`}>暂无筛选条件</span>
           ) : (
             activeFilters.map((filter) => (
-              <span key={filter.key} className="chip">
+              <span key={filter.key} className={styles.chip}>
                 {filter.label}
-                <Link className="chip-remove" href={buildSearchUrl({ [filter.key]: "" })}>
+                <Link className={styles.chipRemove} href={buildSearchUrl({ [filter.key]: "" })}>
                   ×
                 </Link>
               </span>
             ))
           )}
           {activeFilters.length > 0 ? (
-            <Link className="chip-clear" href="/events">
+            <Link className={styles.chipClear} href="/events">
               清除全部
             </Link>
           ) : null}

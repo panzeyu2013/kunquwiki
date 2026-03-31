@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { login, register } from "../../lib/api-client";
 import ghostButtonStyles from "../../styles/components/ghost-button.module.css";
-import styles from "../../styles/editor-page.module.css";
+import styles from "../../styles/components/editor-shared.module.css";
 import { ActionBar } from "../action-bar";
 
 export function LoginForm() {
@@ -13,20 +13,20 @@ export function LoginForm() {
 
   return (
     <div className={styles.page}>
-      <div className="editor-shell">
-        <div className="editor-page-head">
-          <p className="editor-kicker">Account</p>
-          <h1 className="page-title">{mode === "login" ? "登录" : "注册"}</h1>
-          <p className="editor-lead">进入编辑后台，提交剧目、人物、院团与演出的结构化修改。</p>
+      <div className={styles.editorShell}>
+        <div className={styles.editorPageHead}>
+          <p className={styles.editorKicker}>Account</p>
+          <h1 className={styles.pageTitle}>{mode === "login" ? "登录" : "注册"}</h1>
+          <p className={styles.editorLead}>进入编辑后台，提交剧目、人物、院团与演出的结构化修改。</p>
         </div>
-        <div className="detail-layout editor-layout">
-          <section className="detail-panel editor-panel">
-            <div className="editor-section-head">
+        <div className={`${styles.detailLayout} ${styles.editorLayout}`}>
+          <section className={`${styles.detailPanel} ${styles.editorPanel}`}>
+            <div className={styles.editorSectionHead}>
               <h2>{mode === "login" ? "账号验证" : "创建账号"}</h2>
               <p>{mode === "login" ? "使用已有账号进入编辑工作台。" : "注册后可立即返回站点继续编辑。"}</p>
             </div>
             <form
-              className="edit-form editor-form"
+              className={`${styles.editForm} ${styles.editorForm}`}
               onSubmit={async (event) => {
                 event.preventDefault();
                 setPending(true);
@@ -54,7 +54,7 @@ export function LoginForm() {
                 }
               }}
             >
-              <section className="form-section">
+              <section className={styles.formSection}>
                 {mode === "register" ? (
                   <>
                     <label>
@@ -89,11 +89,11 @@ export function LoginForm() {
                   {mode === "login" ? "切换到注册" : "切换到登录"}
                 </button>
               </ActionBar>
-              {message ? <p className="status-message">{message}</p> : null}
+              {message ? <p className={styles.statusMessage}>{message}</p> : null}
             </form>
           </section>
-          <aside className="detail-panel editor-panel editor-side-panel">
-            <div className="editor-section-head">
+          <aside className={`${styles.detailPanel} ${styles.editorPanel} ${styles.editorSidePanel}`}>
+            <div className={styles.editorSectionHead}>
               <h2>示例账号</h2>
               <p>用于快速进入不同权限身份的后台界面。</p>
             </div>

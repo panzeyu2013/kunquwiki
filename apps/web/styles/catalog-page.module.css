@@ -3,17 +3,17 @@
   gap: 1rem;
 }
 
-.page :global(.page-title) {
+.pageTitle {
   margin: 0 0 0.8rem;
   font-size: clamp(1.65rem, 2.7vw, 2.2rem);
 }
 
-.page :global(.stack) {
+.stack {
   display: grid;
   gap: 0.85rem;
 }
 
-.page :global(.card-grid) {
+.cardGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 0.9rem;
@@ -22,7 +22,7 @@
 
 
 @media (max-width: 860px) {
-  .page :global(.card-grid) {
+  .cardGrid {
     grid-template-columns: 1fr;
   }
 }

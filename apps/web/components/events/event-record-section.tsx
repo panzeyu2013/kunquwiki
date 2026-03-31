@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { RelatedEventRecord } from "@kunquwiki/shared";
 import { formatDateTime } from "../../lib/format";
+
+// Styles
 import tableStyles from "../../styles/components/table.module.css";
+import styles from "../../styles/detail-page.module.css";
 
 export function EventRecordSection({ title, events }: { title: string; events?: RelatedEventRecord[] }) {
   if (!events?.length) {
@@ -9,7 +12,7 @@ export function EventRecordSection({ title, events }: { title: string; events?: 
   }
 
   return (
-    <section className="detail-panel">
+    <section className={styles.detailPanel}>
       <h2>{title}</h2>
       <div className={tableStyles.shell}>
         <table>

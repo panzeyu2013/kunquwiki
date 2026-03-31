@@ -14,6 +14,8 @@ import { getEntityDetailPath } from "../../lib/routes";
 import { excerptText } from "../../lib/text";
 import pillStyles from "../../styles/components/pill.module.css";
 import ghostButtonStyles from "../../styles/components/ghost-button.module.css";
+import buttonStyles from "../../styles/components/button.module.css";
+import styles from "../../styles/editor-page.module.css";
 import { ActionBar } from "../action-bar";
 
 type EditorOptions = Awaited<ReturnType<typeof getEditorOptions>>;
@@ -234,10 +236,10 @@ function SearchCreateSelect({
   return (
     <fieldset className={className}>
       <legend>{label}</legend>
-      <div className="stack">
+      <div className={styles.stack}>
         <input value={query} placeholder={placeholder} onChange={(event) => setQuery(event.target.value)} disabled={disabled || creating} />
         {showOptions ? (
-          <div className="picker-list">
+          <div className={styles.pickerList}>
             {filtered.slice(0, 8).map((item) => (
               <button
                 key={item.id}
@@ -256,6 +258,7 @@ function SearchCreateSelect({
         {showOptions && query.trim() && !filtered.some((item) => item.title === query.trim()) ? (
           <button
             type="button"
+            className={buttonStyles.button}
             disabled={creating}
             onClick={async () => {
               setCreating(true);
@@ -329,16 +332,16 @@ function SearchCreateMultiSelect({
   return (
     <fieldset className={className}>
       <legend>{label}</legend>
-      <div className="stack">
+      <div className={styles.stack}>
         {selectedOptions.length > 0 ? (
-          <div className="multi-select-tags">
+          <div className={styles.multiSelectTags}>
             {selectedOptions.map((item) => (
-              <span key={item.id} className="multi-select-tag">
+              <span key={item.id} className={styles.multiSelectTag}>
                 <span>{item.title}</span>
                 {renderTagMeta ? renderTagMeta(item) : null}
                 <button
                   type="button"
-                  className="tag-remove-button"
+                  className={styles.tagRemoveButton}
                   onClick={() => onRemove(item.id)}
                   disabled={disabled || creating}
                   aria-label={`移除 ${item.title}`}
@@ -349,7 +352,7 @@ function SearchCreateMultiSelect({
             ))}
           </div>
         ) : (
-          <p className="helper-text">尚未选择。</p>
+          <p className={styles.helperText}>尚未选择。</p>
         )}
 
         <input
@@ -360,7 +363,7 @@ function SearchCreateMultiSelect({
         />
 
         {(normalizedQuery.length > 0 || filtered.length > 0) ? (
-          <div className="picker-list">
+          <div className={styles.pickerList}>
             {filtered.map((item) => (
               <button
                 key={item.id}
@@ -379,6 +382,7 @@ function SearchCreateMultiSelect({
             {canCreate ? (
               <button
                 type="button"
+                className={buttonStyles.button}
                 disabled={disabled || creating}
                 onClick={async () => {
                   setCreating(true);
@@ -398,7 +402,7 @@ function SearchCreateMultiSelect({
             ) : null}
 
             {normalizedQuery.length > 0 && filtered.length === 0 && !canCreate ? (
-              <p className="helper-text">没有匹配结果。</p>
+              <p className={styles.helperText}>没有匹配结果。</p>
             ) : null}
           </div>
         ) : null}
@@ -437,15 +441,15 @@ function SearchCreateInlineSelect({
   const canCreate = showOptions && query.trim() && !filtered.some((item) => item.title === query.trim());
 
   return (
-    <div className="inline-select">
+    <div className={styles.inlineSelect}>
       <input value={query} placeholder={placeholder} onChange={(event) => setQuery(event.target.value)} disabled={disabled || creating} />
       {showOptions ? (
-        <div className="inline-picker-list">
+        <div className={styles.inlinePickerList}>
           {filtered.slice(0, 6).map((item) => (
             <button
               key={item.id}
               type="button"
-              className={`${ghostButtonStyles.button} inline-choice ${value === item.id ? "selected" : ""}`}
+              className={`${ghostButtonStyles.button} ${styles.inlineChoice} ${value === item.id ? styles.inlineChoiceSelected : ""}`}
               onClick={() => {
                 onChange(item.id);
                 setQuery(item.title);
@@ -457,7 +461,7 @@ function SearchCreateInlineSelect({
           {canCreate ? (
             <button
               type="button"
-              className={`${ghostButtonStyles.button} inline-choice inline-choice-create`}
+              className={`${ghostButtonStyles.button} ${styles.inlineChoice} ${styles.inlineChoiceCreate}`}
               disabled={creating}
               onClick={async () => {
                 setCreating(true);
@@ -485,7 +489,7 @@ function DraftBadge({ visible }: { visible: boolean }) {
   if (!visible) {
     return null;
   }
-  return <span className="warning-pill">新建占位条目，资料待补充</span>;
+  return <span className={styles.warningPill}>新建占位条目，资料待补充</span>;
 }
 
 function formatDateTimeLabel(value: string) {
@@ -551,18 +555,26 @@ function CollapsibleFormSection({
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   return (
-    <section className={`form-section collapsible-form-section${accent ? " form-section-accent" : ""}`}>
-      <div className="form-section-toolbar">
-        <div className="editor-section-head">
+    <section
+      className={`${styles.formSection} ${styles.collapsibleFormSection}${
+        accent ? ` ${styles.formSectionAccent}` : ""
+      }`}
+    >
+      <div className={styles.formSectionToolbar}>
+        <div className={styles.editorSectionHead}>
           <h3>{title}</h3>
           <p>{description}</p>
         </div>
-        <button type="button" className={`${ghostButtonStyles.button} section-toggle-button`} onClick={() => setExpanded((current) => !current)}>
+        <button
+          type="button"
+          className={`${ghostButtonStyles.button} ${styles.sectionToggleButton}`}
+          onClick={() => setExpanded((current) => !current)}
+        >
           {expanded ? "收起" : "展开"}
         </button>
       </div>
-      {summary ? <p className="section-summary">{summary}</p> : null}
-      {expanded ? <div className="form-section-body">{children}</div> : null}
+      {summary ? <p className={styles.sectionSummary}>{summary}</p> : null}
+      {expanded ? <div className={styles.formSectionBody}>{children}</div> : null}
     </section>
   );
 }
@@ -581,13 +593,18 @@ function DateTimeField({
   className?: string;
 }) {
   return (
-    <label className={`date-time-field${className ? ` ${className}` : ""}`}>
+    <label className={`${styles.dateTimeField}${className ? ` ${className}` : ""}`}>
       <span>{label}</span>
-      <div className="date-time-input-shell">
-        <span className="date-time-prefix">日期时间</span>
-        <input className="date-time-input" type="datetime-local" value={value} onChange={(event) => onChange(event.target.value)} />
+      <div className={styles.dateTimeInputShell}>
+        <span className={styles.dateTimePrefix}>日期时间</span>
+        <input
+          className={styles.dateTimeInput}
+          type="datetime-local"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+        />
       </div>
-      {helper ? <span className="field-helper">{helper}</span> : null}
+      {helper ? <span className={styles.fieldHelper}>{helper}</span> : null}
     </label>
   );
 }
@@ -604,13 +621,13 @@ function IdentityRowEditor({
   const [expanded, setExpanded] = useState(!(item.identityTerm || item.startDate || item.endDate));
 
   return (
-    <section className="structured-card collapsible-structured-card">
-      <div className="structured-card-head structured-card-toolbar">
-        <div className="stack compact-stack">
+    <section className={`${styles.structuredCard} ${styles.collapsibleStructuredCard}`}>
+      <div className={`${styles.structuredCardHead} ${styles.structuredCardToolbar}`}>
+        <div className={`${styles.stack} ${styles.compactStack}`}>
           <strong>身份履历</strong>
-          <p className="structured-card-summary">{buildIdentitySummary(item)}</p>
+          <p className={styles.structuredCardSummary}>{buildIdentitySummary(item)}</p>
         </div>
-        <div className="inline-actions">
+        <div className={styles.inlineActions}>
           <button type="button" className={ghostButtonStyles.button} onClick={() => setExpanded((current) => !current)}>
             {expanded ? "收起" : "展开"}
           </button>
@@ -620,7 +637,7 @@ function IdentityRowEditor({
         </div>
       </div>
       {expanded ? (
-        <div className="structured-grid">
+        <div className={styles.structuredGrid}>
           <label>
             身份
             <input
@@ -678,13 +695,13 @@ function MembershipRowEditor({
   const [expanded, setExpanded] = useState(!(item.troupeEntityId || item.startDate || item.endDate));
 
   return (
-    <section className="structured-card collapsible-structured-card">
-      <div className="structured-card-head structured-card-toolbar">
-        <div className="stack compact-stack">
+    <section className={`${styles.structuredCard} ${styles.collapsibleStructuredCard}`}>
+      <div className={`${styles.structuredCardHead} ${styles.structuredCardToolbar}`}>
+        <div className={`${styles.stack} ${styles.compactStack}`}>
           <strong>院团履历</strong>
-          <p className="structured-card-summary">{buildMembershipSummary(item, options)}</p>
+          <p className={styles.structuredCardSummary}>{buildMembershipSummary(item, options)}</p>
         </div>
-        <div className="inline-actions">
+        <div className={styles.inlineActions}>
           <button type="button" className={ghostButtonStyles.button} onClick={() => setExpanded((current) => !current)}>
             {expanded ? "收起" : "展开"}
           </button>
@@ -694,9 +711,9 @@ function MembershipRowEditor({
         </div>
       </div>
       {expanded ? (
-        <div className="stack">
+        <div className={styles.stack}>
           <SearchCreateSelect
-            className="field-span-full"
+            className={styles.fieldSpanFull}
             label="所属院团"
             options={options.troupes}
             value={item.troupeEntityId}
@@ -711,7 +728,7 @@ function MembershipRowEditor({
             createLabel="创建新院团："
           />
           <DraftBadge visible={Boolean(item.troupeEntityId) && isDraftEntity(item.troupeEntityId)} />
-          <div className="structured-grid">
+          <div className={styles.structuredGrid}>
             <label>
               身份/职务
               <input
@@ -745,7 +762,7 @@ function MembershipRowEditor({
               }
             />
           </div>
-          <label className="checkbox-row">
+          <label className={styles.checkboxRow}>
             <input
               type="checkbox"
               checked={item.isCurrent}
@@ -782,21 +799,21 @@ function EditorSummaryBar({
   entity: EditableEntity | null;
 }) {
   return (
-    <header className="editor-summary-bar">
+    <header className={styles.editorSummaryBar}>
       <div>
         <div className={pillStyles.row}>
           <span className={`${pillStyles.pill} ${pillStyles.strong}`}>{entityTypeLabel}</span>
           <span className={pillStyles.pill}>{loaded ? "已加载" : "加载中"}</span>
         </div>
         <h1>{title || "未命名条目"}</h1>
-        <div className="summary-meta-row">
+        <div className={styles.summaryMetaRow}>
           <span>{modeLabel}</span>
           <span>正文 {bodyLength} 字</span>
           <span>{entity ? (editSummaryFilled ? "已填写编辑说明" : "编辑说明空白") : "创建模式"}</span>
         </div>
       </div>
       {entity ? (
-        <div className="summary-actions">
+        <div className={styles.summaryActions}>
           <Link className={ghostButtonStyles.button} href={entityPath(entity.entityType, entity.slug)}>
             查看条目
           </Link>
@@ -822,8 +839,8 @@ type CastRowProps = {
 
 function CastRow({ cast, options, onUpdate, onRemove, onClearRole, createQuickOption, isDraftEntity, workEntityId }: CastRowProps) {
   return (
-    <div className="cast-row">
-      <div className="cast-fields">
+    <div className={styles.castRow}>
+      <div className={styles.castFields}>
         <label>
           <span>角色</span>
           <SearchCreateInlineSelect
@@ -867,7 +884,7 @@ function CastRow({ cast, options, onUpdate, onRemove, onClearRole, createQuickOp
           <input value={cast.castNote} onChange={(event) => onUpdate({ ...cast, castNote: event.target.value })} />
         </label>
       </div>
-      <div className="cast-actions">
+      <div className={styles.castActions}>
         <button type="button" className={ghostButtonStyles.button} onClick={onClearRole}>
           清空角色
         </button>
@@ -875,11 +892,11 @@ function CastRow({ cast, options, onUpdate, onRemove, onClearRole, createQuickOp
           删除
         </button>
       </div>
-      <div className="cast-row-note">
+      <div className={styles.castRowNote}>
         <DraftBadge visible={Boolean(cast.roleEntityId) && isDraftEntity(cast.roleEntityId)} />
         <DraftBadge visible={Boolean(cast.personEntityId) && isDraftEntity(cast.personEntityId)} />
         {Boolean(cast.personEntityId) && isDraftEntity(cast.personEntityId) ? (
-          <p className="helper-text">演员为占位条目，建议补充信息。</p>
+          <p className={styles.helperText}>演员为占位条目，建议补充信息。</p>
         ) : null}
       </div>
     </div>
@@ -921,17 +938,17 @@ function ProgramBlock({ item, index, options, onUpdate, onRemove, onAddCast, cre
   };
 
   return (
-    <section className="program-block">
-      <div className="program-block-head">
+    <section className={styles.programBlock}>
+      <div className={styles.programBlockHead}>
         <div>
           <strong>节目 {index + 1}</strong>
           <p>{workLabel ?? "未选择剧目"}</p>
         </div>
-        <div className="program-block-meta">
+        <div className={styles.programBlockMeta}>
           <span>顺序 {item.sequenceNo || index + 1}</span>
           <span>{item.durationMinutes ? `${item.durationMinutes} 分钟` : "时长未填"}</span>
         </div>
-        <div className="program-block-actions">
+        <div className={styles.programBlockActions}>
           <button type="button" className={ghostButtonStyles.button} onClick={() => setExpanded((prev) => !prev)}>
             {expanded ? "收起" : "展开"}
           </button>
@@ -941,7 +958,7 @@ function ProgramBlock({ item, index, options, onUpdate, onRemove, onAddCast, cre
         </div>
       </div>
       {expanded ? (
-        <div className="program-block-body">
+        <div className={styles.programBlockBody}>
           <SearchCreateSelect
             label="对应剧目/折子"
             options={combinedWorks}
@@ -953,7 +970,7 @@ function ProgramBlock({ item, index, options, onUpdate, onRemove, onAddCast, cre
             placeholder="搜索已有剧目或折子"
             createLabel="创建剧目："
           />
-          <div className="inline-grid">
+          <div className={styles.inlineGrid}>
             <label>
               顺序
               <input value={item.sequenceNo} onChange={(event) => handleFieldChange("sequenceNo", event.target.value)} />
@@ -971,13 +988,13 @@ function ProgramBlock({ item, index, options, onUpdate, onRemove, onAddCast, cre
             节目备注
             <textarea value={item.notes} onChange={(event) => handleFieldChange("notes", event.target.value)} rows={2} />
           </label>
-          <div className="cast-section">
-            <div className="structured-group-head">
+          <div className={styles.castSection}>
+            <div className={styles.structuredGroupHead}>
               <h5>演员表</h5>
               <p>一行里填写角色、演员和备注，操作更紧凑。</p>
             </div>
             {item.casts.length > 0 ? (
-              <div className="cast-list">
+              <div className={styles.castList}>
                 {item.casts.map((cast) => (
                   <CastRow
                     key={cast.key}
@@ -998,10 +1015,10 @@ function ProgramBlock({ item, index, options, onUpdate, onRemove, onAddCast, cre
                 ))}
               </div>
             ) : (
-              <p className="helper-text">尚未添加演员。</p>
+              <p className={styles.helperText}>尚未添加演员。</p>
             )}
-            <div className="section-actions">
-              <button type="button" className="secondary-button" onClick={onAddCast}>
+            <div className={styles.sectionActions}>
+              <button type="button" className={styles.secondaryButton} onClick={onAddCast}>
                 添加演员
               </button>
             </div>
@@ -1537,7 +1554,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
   }
 
   return (
-    <div className="editor-form-page">
+    <div className={styles.editorFormPage}>
       <EditorSummaryBar
         entityTypeLabel={entityTypeLabel}
         title={title || entity?.title || "未命名条目"}
@@ -1548,9 +1565,9 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
         entity={entity}
       />
 
-      <form className="edit-form editor-form" onSubmit={handleSubmit}>
-        <div className="editor-form-intro">
-          <p className="editor-form-eyebrow">{isCreateMode ? "Full Create" : "Structured Editing"}</p>
+      <form className={`${styles.editForm} ${styles.editorForm}`} onSubmit={handleSubmit}>
+        <div className={styles.editorFormIntro}>
+          <p className={styles.editorFormEyebrow}>{isCreateMode ? "Full Create" : "Structured Editing"}</p>
           <h2>{isCreateMode ? `${entityTypeLabel}完整新建表单` : `${entityTypeLabel}完整编辑表单`}</h2>
           <p>现在所有可编辑内容都通过结构化表单录入，不再要求用户直接编辑 JSON。</p>
         </div>
@@ -1560,8 +1577,8 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
           description="标题与正文会直接进入条目的公开主内容，所有条目都不再单独维护摘要。"
           summary={`${title.trim() || "未命名条目"} · 正文 ${bodyLength} 字`}
         >
-          <div className="form-grid">
-            <label className="field-span-full">
+          <div className={styles.formGrid}>
+            <label className={styles.fieldSpanFull}>
               标题
               <input
                 value={title}
@@ -1569,7 +1586,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                 disabled={pending || (activeEntityType === "work" && formState.workType === "excerpt")}
               />
             </label>
-            <label className="field-span-full">
+            <label className={styles.fieldSpanFull}>
               {bodyLabel}
               <textarea rows={10} value={body} onChange={(event) => setBody(event.target.value)} disabled={pending} />
             </label>
@@ -1583,7 +1600,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
             summary={`${mapWorkTypeLabel(String(formState.workType ?? "full_play"))} · ${String(formState.originalAuthor ?? "").trim() || "原作者未填"} · ${String(formState.durationMinutes ?? "").trim() || "时长未填"} 分钟`}
             defaultExpanded
           >
-            <div className="form-grid">
+            <div className={styles.formGrid}>
               <label>
                 剧目类型
                 <select value={String(formState.workType ?? "full_play")} onChange={(event) => setField("workType", event.target.value)}>
@@ -1615,7 +1632,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                 <input value={String(formState.firstKnownDate ?? "")} onChange={(event) => setField("firstKnownDate", event.target.value)} />
               </label>
               <SearchCreateSelect
-                className="field-span-full"
+                className={styles.fieldSpanFull}
                 label="所属母剧目"
                 options={options.fullWorks}
                 value={String(formState.parentWorkId ?? "")}
@@ -1625,12 +1642,12 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                 createLabel="创建新剧目："
               />
               {formState.workType === "excerpt" ? (
-                <label className="field-span-full">
+                <label className={styles.fieldSpanFull}>
                   折子名称
                   <input value={String(formState.excerptName ?? "")} onChange={(event) => setField("excerptName", event.target.value)} />
                 </label>
               ) : null}
-              <label className="checkbox-row field-span-full">
+              <label className={`${styles.checkboxRow} ${styles.fieldSpanFull}`}>
                 <input
                   type="checkbox"
                   checked={Boolean(formState.isKunquCore)}
@@ -1649,7 +1666,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
             summary={`${String(formState.personTypeNote ?? "").trim() || "人物类型未填"} · ${String(formState.gender ?? "").trim() || "性别未填"} · ${String(formState.hometown ?? "").trim() || "籍贯未填"}`}
             defaultExpanded
           >
-            <div className="form-grid">
+            <div className={styles.formGrid}>
               <label>
                 人物类型说明
                 <input value={String(formState.personTypeNote ?? "")} onChange={(event) => setField("personTypeNote", event.target.value)} />
@@ -1673,12 +1690,12 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                 placeholder="搜索已有城市，没有则创建新城市"
                 createLabel="创建新城市："
               />
-              <label className="checkbox-row field-span-full">
+              <label className={`${styles.checkboxRow} ${styles.fieldSpanFull}`}>
                 <input type="checkbox" checked={Boolean(formState.isLiving)} onChange={(event) => setField("isLiving", event.target.checked)} />
                 在世
               </label>
               <SearchCreateMultiSelect
-                className="field-span-full"
+                className={styles.fieldSpanFull}
                 label="代表剧目"
                 options={options.fullWorks}
                 values={Array.isArray(formState.representativeWorkIds) ? (formState.representativeWorkIds as string[]) : []}
@@ -1689,7 +1706,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                 createLabel="创建新剧目："
               />
               <SearchCreateMultiSelect
-                className="field-span-full"
+                className={styles.fieldSpanFull}
                 label="代表折子戏"
                 options={options.excerpts}
                 values={Array.isArray(formState.representativeExcerptIds) ? (formState.representativeExcerptIds as string[]) : []}
@@ -1709,13 +1726,13 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
               />
             </div>
 
-            <div className="structured-group">
-              <div className="structured-group-head">
+            <div className={styles.structuredGroup}>
+              <div className={styles.structuredGroupHead}>
                 <h4>人物身份履历</h4>
                 <p>按时间补充人物的身份变化，例如演员、教师、导演等。</p>
               </div>
               {Array.isArray(formState.personIdentities) && (formState.personIdentities as PersonIdentityRow[]).length > 0 ? (
-                <div className="structured-list">
+                <div className={styles.structuredList}>
                   {(formState.personIdentities as PersonIdentityRow[]).map((item) => (
                     <IdentityRowEditor
                       key={item.key}
@@ -1726,9 +1743,9 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                   ))}
                 </div>
               ) : (
-                <p className="helper-text">暂无身份履历，可按需添加。</p>
+                <p className={styles.helperText}>暂无身份履历，可按需添加。</p>
               )}
-              <button type="button" onClick={() => appendStructuredRow("personIdentities", emptyIdentityRow())}>
+              <button type="button" className={buttonStyles.button} onClick={() => appendStructuredRow("personIdentities", emptyIdentityRow())}>
                 添加身份履历
               </button>
               <datalist id="identity-options">
@@ -1738,13 +1755,13 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
               </datalist>
             </div>
 
-            <div className="structured-group">
-              <div className="structured-group-head">
+            <div className={styles.structuredGroup}>
+              <div className={styles.structuredGroupHead}>
                 <h4>院团履历</h4>
                 <p>支持直接选择已有院团，不存在时可当场创建占位条目并高亮提醒。</p>
               </div>
               {Array.isArray(formState.troupeMemberships) && (formState.troupeMemberships as TroupeMembershipRow[]).length > 0 ? (
-                <div className="structured-list">
+                <div className={styles.structuredList}>
                   {(formState.troupeMemberships as TroupeMembershipRow[]).map((item) => (
                     <MembershipRowEditor
                       key={item.key}
@@ -1758,9 +1775,9 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                   ))}
                 </div>
               ) : (
-                <p className="helper-text">暂无院团履历，可按需添加。</p>
+                <p className={styles.helperText}>暂无院团履历，可按需添加。</p>
               )}
-              <button type="button" onClick={() => appendStructuredRow("troupeMemberships", emptyMembershipRow())}>
+              <button type="button" className={buttonStyles.button} onClick={() => appendStructuredRow("troupeMemberships", emptyMembershipRow())}>
                 添加院团履历
               </button>
             </div>
@@ -1773,7 +1790,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
             description="院团本体字段全部可编辑。"
             summary={`${mapTroupeTypeLabel(String(formState.troupeType ?? "troupe"))} · ${String(formState.city ?? "").trim() || "城市未填"} · ${String(formState.region ?? "").trim() || "地区未填"}`}
           >
-            <div className="form-grid">
+            <div className={styles.formGrid}>
               <label>
                 院团类型
                 <select value={String(formState.troupeType ?? "troupe")} onChange={(event) => setField("troupeType", event.target.value)}>
@@ -1803,7 +1820,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                 地区
                 <input value={String(formState.region ?? "")} onChange={(event) => setField("region", event.target.value)} />
               </label>
-              <label className="field-span-full">
+              <label className={styles.fieldSpanFull}>
                 官网
                 <input value={String(formState.officialWebsite ?? "")} onChange={(event) => setField("officialWebsite", event.target.value)} />
               </label>
@@ -1817,7 +1834,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
             description="包含场馆坐标、容量、国家与地址信息。"
             summary={`${String(formState.venueType ?? "").trim() || "类型未填"} · ${String(formState.country ?? "").trim() || "国家未填"} · ${String(formState.city ?? "").trim() || "城市未填"}`}
           >
-            <div className="form-grid">
+            <div className={styles.formGrid}>
               <label>
                 场馆类型
                 <input value={String(formState.venueType ?? "")} onChange={(event) => setField("venueType", event.target.value)} />
@@ -1843,7 +1860,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                 地区
                 <input value={String(formState.region ?? "")} onChange={(event) => setField("region", event.target.value)} />
               </label>
-              <label className="field-span-full">
+              <label className={styles.fieldSpanFull}>
                 地址
                 <input value={String(formState.address ?? "")} onChange={(event) => setField("address", event.target.value)} />
               </label>
@@ -1871,7 +1888,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
             accent
             defaultExpanded
           >
-            <div className="form-grid form-grid-wide">
+            <div className={`${styles.formGrid} ${styles.formGridWide}`}>
               <label>
                 演出类型
                 <select value={String(formState.eventType ?? "performance")} onChange={(event) => setField("eventType", event.target.value)}>
@@ -1911,7 +1928,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                 createLabel="创建新剧场："
               />
               <SearchCreateMultiSelect
-                className="field-span-full"
+                className={styles.fieldSpanFull}
                 label="剧团"
                 options={options.troupes}
                 values={Array.isArray(formState.troupeIds) ? (formState.troupeIds as string[]) : []}
@@ -1920,14 +1937,14 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                 onCreate={(name) => createQuickOption("troupe", name, "troupes")}
                 placeholder="搜索已有剧团，没有则创建新剧团"
                 createLabel="创建新剧团："
-                renderTagMeta={(item) => (isDraftEntity(item.id) ? <span className="tag-status-pill">待补充</span> : null)}
+                renderTagMeta={(item) => (isDraftEntity(item.id) ? <span className={styles.tagStatusPill}>待补充</span> : null)}
               />
-              <div className="event-time-panel field-span-full">
-                <div className="event-time-panel-head">
+              <div className={`${styles.eventTimePanel} ${styles.fieldSpanFull}`}>
+                <div className={styles.eventTimePanelHead}>
                   <strong>演出时间</strong>
                   <p>开始与结束时间合并为一个紧凑时间块，填写时更清晰，回看时也更容易比较。</p>
                 </div>
-                <div className="event-time-grid">
+                <div className={styles.eventTimeGrid}>
                   <DateTimeField label="开始时间" value={String(formState.startAt ?? "")} onChange={(value) => setField("startAt", value)} />
                   <DateTimeField
                     label="结束时间"
@@ -1953,19 +1970,19 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                 海报资源 ID
                 <input value={String(formState.posterImageId ?? "")} onChange={(event) => setField("posterImageId", event.target.value)} />
               </label>
-              <label className="field-span-full">
+              <label className={styles.fieldSpanFull}>
                 演出备注
                 <textarea value={String(formState.noteText ?? "")} onChange={(event) => setField("noteText", event.target.value)} />
               </label>
             </div>
 
-            <div className="structured-group programs-panel">
-              <div className="structured-group-head">
+            <div className={`${styles.structuredGroup} ${styles.programsPanel}`}>
+              <div className={styles.structuredGroupHead}>
                 <h4>节目单与演员</h4>
                 <p>按节目折叠，演员以行编辑形式快速补全。</p>
               </div>
               {programItems.length > 0 ? (
-                <div className="programs-list">
+                <div className={styles.programsList}>
                   {programItems.map((item, index) => (
                     <ProgramBlock
                       key={item.key}
@@ -1988,10 +2005,10 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                   ))}
                 </div>
               ) : (
-                <p className="helper-text">尚未添加节目单。</p>
+                <p className={styles.helperText}>尚未添加节目单。</p>
               )}
-              <div className="section-actions">
-                <button type="button" onClick={() => appendStructuredRow("programDetailed", emptyProgramRow())}>
+              <div className={styles.sectionActions}>
+                <button type="button" className={buttonStyles.button} onClick={() => appendStructuredRow("programDetailed", emptyProgramRow())}>
                   添加节目
                 </button>
               </div>
@@ -2001,7 +2018,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
 
         {activeEntityType === "city" ? (
           <CollapsibleFormSection title="城市资料" description="目前城市实体的结构化字段为所属省份。" summary={String(formState.province ?? "").trim() || "省份未填"}>
-            <div className="form-grid">
+            <div className={styles.formGrid}>
               <label>
                 省份
                 <input value={String(formState.province ?? "")} onChange={(event) => setField("province", event.target.value)} />
@@ -2016,7 +2033,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
             description="覆盖条目分类、摘要和正文来源字段。"
             summary={`${mapArticleTypeLabel(String(formState.articleType ?? "term"))} · ${String(formState.difficultyLevel ?? "").trim() || "难度未填"}`}
           >
-            <div className="form-grid">
+            <div className={styles.formGrid}>
               <label>
                 条目类型
                 <select value={String(formState.articleType ?? "term")} onChange={(event) => setField("articleType", event.target.value)}>
@@ -2031,11 +2048,11 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                 难度等级
                 <input value={String(formState.difficultyLevel ?? "")} onChange={(event) => setField("difficultyLevel", event.target.value)} />
               </label>
-              <label className="field-span-full">
+              <label className={styles.fieldSpanFull}>
                 摘要说明
                 <textarea value={String(formState.abstract ?? "")} onChange={(event) => setField("abstract", event.target.value)} />
               </label>
-              <label className="field-span-full">
+              <label className={styles.fieldSpanFull}>
                 正文来源类型
                 <input value={String(formState.bodySourceType ?? "")} onChange={(event) => setField("bodySourceType", event.target.value)} />
               </label>
@@ -2050,8 +2067,8 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
             summary={editSummary.trim() ? "已填写编辑说明" : "编辑说明为空"}
             defaultExpanded={false}
           >
-            <div className="form-grid">
-              <label className="field-span-full">
+            <div className={styles.formGrid}>
+              <label className={styles.fieldSpanFull}>
                 编辑说明
                 <textarea value={editSummary} onChange={(event) => setEditSummary(event.target.value)} disabled={pending} />
               </label>
@@ -2063,7 +2080,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
           <button type="submit" disabled={pending || !loaded || !title.trim()}>
             {pending ? "提交中..." : isCreateMode ? "创建条目" : "提交提案"}
           </button>
-          {message ? <p className="status-message">{message}</p> : null}
+          {message ? <p className={styles.statusMessage}>{message}</p> : null}
         </ActionBar>
       </form>
     </div>

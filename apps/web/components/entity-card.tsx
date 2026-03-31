@@ -1,4 +1,6 @@
 import { ReactNode } from "react";
+
+// Styles
 import styles from "../styles/components/entity-card.module.css";
 
 export function EntityCard({

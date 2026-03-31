@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { getAdminOverviewClient, getAdminUsersClient, updateAdminUserClient } from "../../lib/api-client";
 import { mapUserRoleLabel, mapUserStatusLabel } from "../../lib/labels";
 import pillStyles from "../../styles/components/pill.module.css";
+import sharedStyles from "../../styles/components/editor-shared.module.css";
+import adminStyles from "../../styles/admin-page.module.css";
 
 export function AdminDashboard() {
   const [data, setData] = useState<Awaited<ReturnType<typeof getAdminOverviewClient>> | null>(null);
@@ -77,11 +79,11 @@ export function AdminDashboard() {
         return;
       }
 
-      if (target.closest(".more-actions")) {
+      if (target.closest(`.${adminStyles.moreActions}`)) {
         return;
       }
 
-      document.querySelectorAll<HTMLDetailsElement>("details.more-actions[open]").forEach((detail) => {
+      document.querySelectorAll<HTMLDetailsElement>(`details.${adminStyles.moreActions}[open]`).forEach((detail) => {
         detail.open = false;
       });
     }
@@ -93,11 +95,11 @@ export function AdminDashboard() {
   }, []);
 
   if (message) {
-    return <p className="status-message">{message}</p>;
+    return <p className={sharedStyles.statusMessage}>{message}</p>;
   }
 
   if (!data) {
-    return <p className="status-message">正在加载后台概览...</p>;
+    return <p className={sharedStyles.statusMessage}>正在加载后台概览...</p>;
   }
 
   function getNextRoles(currentRoles: string[], role: string) {
@@ -109,28 +111,28 @@ export function AdminDashboard() {
   }
 
   return (
-    <div className="stack admin-shell">
-      <section className="metrics">
-        <article className="metric-card">
+    <div className={`${sharedStyles.stack} ${adminStyles.adminShell}`}>
+      <section className={adminStyles.metrics}>
+        <article className={adminStyles.metricCard}>
           <span>待审核提案</span>
           <strong>{data.pendingProposals}</strong>
         </article>
-        <article className="metric-card">
+        <article className={adminStyles.metricCard}>
           <span>注册用户</span>
           <strong>{data.totalUsers}</strong>
         </article>
       </section>
-      <div className="detail-layout">
-        <section className="detail-panel editor-panel">
-          <div className="editor-list-head">
+      <div className={sharedStyles.detailLayout}>
+        <section className={`${sharedStyles.detailPanel} ${sharedStyles.editorPanel}`}>
+          <div className={sharedStyles.editorListHead}>
             <div>
               <h2>最近审计日志</h2>
               <p>后台操作和权限变更会记录在这里。</p>
             </div>
           </div>
-          <div className="stack">
+          <div className={sharedStyles.stack}>
             {data.recentAuditLogs.map((log) => (
-              <div key={log.id} className="event-row admin-row-card">
+              <div key={log.id} className={adminStyles.adminRowCard}>
                 <div>
                   <strong>{log.actionType}</strong>
                   <p>{log.actor}</p>
@@ -140,16 +142,16 @@ export function AdminDashboard() {
             ))}
           </div>
         </section>
-        <section className="detail-panel editor-panel">
-          <div className="editor-list-head">
+        <section className={`${sharedStyles.detailPanel} ${sharedStyles.editorPanel}`}>
+          <div className={sharedStyles.editorListHead}>
             <div>
               <h2>最近修订</h2>
               <p>最新修订摘要与编辑者概览。</p>
             </div>
           </div>
-          <div className="stack">
+          <div className={sharedStyles.stack}>
             {data.recentRevisions.map((revision) => (
-              <div key={revision.id} className="event-row admin-row-card">
+              <div key={revision.id} className={adminStyles.adminRowCard}>
                 <div>
                   <strong>r{revision.revisionNo}</strong>
                   <p>{revision.editSummary}</p>
@@ -160,22 +162,22 @@ export function AdminDashboard() {
           </div>
         </section>
       </div>
-      <section className="detail-panel editor-panel compact-user-panel">
-        <div className="editor-list-head compact-head">
+      <section className={`${sharedStyles.detailPanel} ${sharedStyles.editorPanel} ${adminStyles.compactUserPanel}`}>
+        <div className={`${sharedStyles.editorListHead} ${adminStyles.compactHead}`}>
           <div>
             <h2>用户权限管理</h2>
             <p>统一调整账号身份、状态与基础权限。</p>
           </div>
 
-          <div className="toolbar">
+          <div className={adminStyles.toolbar}>
             <input
-              className="search-input"
+              className={adminStyles.searchInput}
               placeholder="搜索用户名 / 邮箱"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
             />
             <select
-              className="filter-select"
+              className={adminStyles.filterSelect}
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value)}
             >
@@ -184,7 +186,7 @@ export function AdminDashboard() {
               <option value="suspended">停用</option>
             </select>
             <select
-              className="filter-select"
+              className={adminStyles.filterSelect}
               value={roleFilter}
               onChange={(event) => setRoleFilter(event.target.value)}
             >
@@ -197,7 +199,7 @@ export function AdminDashboard() {
             </select>
             <button
               type="button"
-              className="mini-button"
+              className={adminStyles.miniButton}
               onClick={() => {
                 setAppliedQuery(searchQuery);
                 setAppliedStatus(statusFilter);
@@ -210,8 +212,8 @@ export function AdminDashboard() {
           </div>
         </div>
 
-        <div className="user-table">
-          <div className="user-table-head">
+        <div className={adminStyles.userTable}>
+          <div className={adminStyles.userTableHead}>
             <span>状态</span>
             <span>用户</span>
             <span>邮箱</span>
@@ -221,34 +223,38 @@ export function AdminDashboard() {
           </div>
 
           {filteredUsers.map((user) => (
-            <div key={user.id} className="user-table-row">
-              <div className="cell">
-                <span className={`status-tag ${user.status}`}>
+            <div key={user.id} className={adminStyles.userTableRow}>
+              <div className={adminStyles.cell}>
+                <span
+                  className={`${adminStyles.statusTag} ${
+                    user.status === "active" ? adminStyles.statusTagActive : adminStyles.statusTagSuspended
+                  }`}
+                >
                   {mapUserStatusLabel(user.status)}
                 </span>
               </div>
 
-              <div className="cell user-cell">
+              <div className={`${adminStyles.cell} ${adminStyles.userCell}`}>
                 <strong>{user.displayName}</strong>
                 <span>@{user.username}</span>
               </div>
 
-              <div className="cell email-cell">{user.email}</div>
+              <div className={`${adminStyles.cell} ${adminStyles.emailCell}`}>{user.email}</div>
 
-              <div className="cell role-cell">
+              <div className={`${adminStyles.cell} ${adminStyles.roleCell}`}>
                 {user.roles.map((role) => (
-                  <span key={role} className="role-tag">
+                  <span key={role} className={adminStyles.roleTag}>
                     {mapUserRoleLabel(role)}
                   </span>
                 ))}
               </div>
 
-              <div className="cell reputation-cell">{user.reputation}</div>
+              <div className={`${adminStyles.cell} ${adminStyles.reputationCell}`}>{user.reputation}</div>
 
-              <div className="cell actions-cell">
+              <div className={`${adminStyles.cell} ${adminStyles.actionsCell}`}>
                 <button
                   type="button"
-                  className={`mini-button ${user.roles.includes("reviewer") ? "active" : ""}`}
+                  className={`${adminStyles.miniButton} ${user.roles.includes("reviewer") ? adminStyles.miniButtonActive : ""}`}
                   onClick={async () => {
                     const nextRoles = getNextRoles(user.roles, "reviewer");
                     await updateAdminUserClient(user.id, {
@@ -262,7 +268,7 @@ export function AdminDashboard() {
 
                 <button
                   type="button"
-                  className={`mini-button ${user.roles.includes("editor") ? "active" : ""}`}
+                  className={`${adminStyles.miniButton} ${user.roles.includes("editor") ? adminStyles.miniButtonActive : ""}`}
                   onClick={async () => {
                     const nextRoles = getNextRoles(user.roles, "editor");
                     await updateAdminUserClient(user.id, {
@@ -276,7 +282,9 @@ export function AdminDashboard() {
 
                 <button
                   type="button"
-                  className={`mini-button danger ${user.status !== "active" ? "active" : ""}`}
+                  className={`${adminStyles.miniButton} ${adminStyles.miniButtonDanger} ${
+                    user.status !== "active" ? adminStyles.miniButtonDangerActive : ""
+                  }`}
                   onClick={async () => {
                     const nextStatus = user.status === "active" ? "suspended" : "active";
                     await updateAdminUserClient(user.id, { status: nextStatus });
@@ -286,9 +294,9 @@ export function AdminDashboard() {
                   {user.status === "active" ? "停用" : "恢复"}
                 </button>
 
-                <details className="more-actions">
+                <details className={adminStyles.moreActions}>
                   <summary>更多</summary>
-                  <div className="dropdown-menu">
+                  <div className={adminStyles.dropdownMenu}>
                     <button
                       type="button"
                       onClick={async () => {

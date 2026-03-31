@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { EventEntity } from "@kunquwiki/shared";
 import { EventRow } from "./event-row";
 import { SectionCard } from "../section-card";
+import styles from "../../styles/detail-page.module.css";
 
 type SortKey = "time" | "updated";
 
@@ -19,12 +20,12 @@ export function EventResults({ events, initialSort }: { events: EventEntity[]; i
   }, [events, sortKey]);
 
   return (
-    <SectionCard className="results-shell">
-      <div className="results-header">
-        <span className="results-count">匹配结果（{events.length}条）</span>
-        <div className="sort-form">
-          <div className="segmented sort-segmented" role="radiogroup" aria-label="排序方式">
-            <label className="segmented-item">
+    <SectionCard className={styles.resultsShell}>
+      <div className={styles.resultsHeader}>
+        <span className={styles.resultsCount}>匹配结果（{events.length}条）</span>
+        <div className={styles.sortForm}>
+          <div className={`${styles.segmented} ${styles.sortSegmented}`} role="radiogroup" aria-label="排序方式">
+            <label className={styles.segmentedItem}>
               <input
                 type="radio"
                 name="sort"
@@ -34,7 +35,7 @@ export function EventResults({ events, initialSort }: { events: EventEntity[]; i
               />
               <span>按时间</span>
             </label>
-            <label className="segmented-item">
+            <label className={styles.segmentedItem}>
               <input
                 type="radio"
                 name="sort"
@@ -47,7 +48,7 @@ export function EventResults({ events, initialSort }: { events: EventEntity[]; i
           </div>
         </div>
       </div>
-      <div className="stack">
+      <div className={styles.stack}>
         {sortedEvents.map((event) => (
           <EventRow key={event.id} event={event} />
         ))}

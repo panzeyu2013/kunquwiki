@@ -1,4 +1,9 @@
-.page :global(.hero) {
+.page {
+  display: grid;
+  gap: 1rem;
+}
+
+.hero {
   padding: 1.6rem 1.7rem;
   background:
     linear-gradient(135deg, rgba(126, 44, 36, 0.94), rgba(106, 38, 32, 0.96)),
@@ -9,21 +14,21 @@
   box-shadow: var(--shadow-lg);
 }
 
-.page :global(.hero p) {
+.hero p {
   max-width: 680px;
   margin-bottom: 0;
   color: rgba(255, 255, 255, 0.82);
   line-height: 1.72;
 }
 
-.page :global(.metrics) {
+.metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 0.9rem;
   margin: 1.1rem 0 1.6rem;
 }
 
-.page :global(.metric-card) {
+.metricCard {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 251, 246, 0.92)),
     var(--paper-solid);
@@ -32,11 +37,11 @@
   box-shadow: var(--shadow-soft);
 }
 
-.page :global(.metric-card) {
+.metricCard {
   padding: 1rem 1.05rem;
 }
 
-.page :global(.metric-card strong) {
+.metricCard strong {
   display: block;
   font-size: 1.55rem;
   margin-top: 0.35rem;
@@ -44,24 +49,23 @@
   letter-spacing: -0.03em;
 }
 
-.page :global(.metric-card span) {
+.metricCard span {
   color: var(--muted);
   font-size: 0.92rem;
 }
 
-
-.page :global(.stack) {
+.stack {
   display: grid;
   gap: 0.85rem;
 }
 
-.page :global(.card-grid) {
+.cardGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 0.9rem;
 }
 
-.page :global(.metric-card:hover) {
+.metricCard:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow);
   border-color: rgba(126, 44, 36, 0.12);
@@ -69,7 +73,7 @@
 
 
 @media (max-width: 860px) {
-  .page :global(.hero) {
+  .hero {
     padding: 1.25rem;
   }
 }

@@ -8,7 +8,7 @@
   box-shadow: var(--shadow-soft);
 }
 
-.form :global(label) {
+.form label {
   display: grid;
   gap: 0.42rem;
   margin-bottom: 0.72rem;
@@ -17,13 +17,13 @@
   font-weight: 600;
 }
 
-.form :global(label:last-child) {
+.form label:last-child {
   margin-bottom: 0;
 }
 
-.form :global(input),
-.form :global(textarea),
-.form :global(select) {
+.form input,
+.form textarea,
+.form select {
   width: 100%;
   padding: 0.68rem 0.8rem;
   border-radius: 12px;
@@ -39,21 +39,21 @@
     background-color var(--transition-fast);
 }
 
-.form :global(input::placeholder),
-.form :global(textarea::placeholder) {
+.form input::placeholder,
+.form textarea::placeholder {
   color: var(--muted-soft);
 }
 
-.form :global(input:hover),
-.form :global(textarea:hover),
-.form :global(select:hover) {
+.form input:hover,
+.form textarea:hover,
+.form select:hover {
   border-color: rgba(126, 44, 36, 0.18);
   background: rgba(255, 255, 255, 0.96);
 }
 
-.form :global(input:focus),
-.form :global(textarea:focus),
-.form :global(select:focus) {
+.form input:focus,
+.form textarea:focus,
+.form select:focus {
   outline: none;
   border-color: rgba(126, 44, 36, 0.32);
   box-shadow:

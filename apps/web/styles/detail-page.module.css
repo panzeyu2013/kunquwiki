@@ -1,17 +1,22 @@
-.page :global(.page-title) {
+.page {
+  display: grid;
+  gap: 1rem;
+}
+
+.page .pageTitle {
   margin: 0 0 0.8rem;
   font-size: clamp(1.65rem, 2.7vw, 2.2rem);
 }
 
-.page :global(.metrics) {
+.page .metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 0.9rem;
   margin: 1.1rem 0 1.6rem;
 }
 
-.page :global(.metric-card),
-.page :global(.detail-panel) {
+.page .metricCard,
+.page .detailPanel {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 251, 246, 0.92)),
     var(--paper-solid);
@@ -20,11 +25,11 @@
   box-shadow: var(--shadow-soft);
 }
 
-.page :global(.metric-card) {
+.page .metricCard {
   padding: 1rem 1.05rem;
 }
 
-.page :global(.metric-card strong) {
+.page .metricCard strong {
   display: block;
   font-size: 1.55rem;
   margin-top: 0.35rem;
@@ -32,22 +37,22 @@
   letter-spacing: -0.03em;
 }
 
-.page :global(.metric-card span) {
+.page .metricCard span {
   color: var(--muted);
   font-size: 0.92rem;
 }
 
-.page :global(.metric-card:hover) {
+.page .metricCard:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow);
   border-color: rgba(126, 44, 36, 0.12);
 }
 
-.page :global(.event-hero) {
+.page .eventHero {
   padding: 1.2rem 1.3rem;
 }
 
-.page :global(.event-header) {
+.page .eventHeader {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -55,43 +60,43 @@
   flex-wrap: wrap;
 }
 
-.page :global(.event-header p) {
+.page .eventHeader p {
   margin: 0;
   color: var(--muted);
   max-width: 42rem;
 }
 
-.page :global(.search-shell) {
+.page .searchShell {
   padding: 1rem 1.1rem;
 }
 
-.page :global(.event-search) {
+.page .eventSearch {
   display: grid;
   gap: 0.9rem;
 }
 
-.page :global(.search-row) {
+.page .searchRow {
   display: flex;
   align-items: center;
   gap: 0.6rem;
 }
 
-.page :global(.search-row > :first-child) {
+.page .searchRow > :first-child {
   flex: 1 1 auto;
 }
 
-.page :global(.filter-input) {
+.page .filterInput {
   height: 44px;
   padding: 0 0.8rem;
   border-radius: 12px;
 }
-.page :global(.filter-toggle-input) {
+.page .filterToggleInput {
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
 
-.page :global(.filter-toggle) {
+.page .filterToggle {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -114,18 +119,18 @@
     border-color var(--transition-fast);
 }
 
-.page :global(.filter-toggle:hover) {
+.page .filterToggle:hover {
   transform: translateY(-1px);
   border-color: rgba(126, 44, 36, 0.2);
   box-shadow: var(--shadow);
 }
 
-.page :global(.search-reset-button) {
+.page .searchResetButton {
   height: 44px;
   padding: 0 0.95rem;
 }
 
-.page :global(.filter-panel) {
+.page .filterPanel {
   display: none;
   padding: 0.9rem;
   border-radius: 16px;
@@ -133,18 +138,18 @@
   border: 1px solid var(--line-soft);
 }
 
-.page :global(.filter-toggle-input:checked + .filter-panel) {
+.page .filterToggleInput:checked + .filterPanel {
   display: grid;
   gap: 0.9rem;
 }
 
-.page :global(.filter-grid) {
+.page .filterGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.85rem;
 }
 
-.page :global(.segmented) {
+.page .segmented {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -157,11 +162,11 @@
   scrollbar-width: none;
 }
 
-.page :global(.segmented::-webkit-scrollbar) {
+.page .segmented::-webkit-scrollbar {
   display: none;
 }
 
-.page :global(.segmented-item) {
+.page .segmentedItem {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -185,34 +190,34 @@
     box-shadow var(--transition-fast);
 }
 
-.page :global(.segmented-item input) {
+.page .segmentedItem input {
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
 
-.page :global(.segmented-item:has(input:checked)) {
+.page .segmentedItem:has(input:checked) {
   background: linear-gradient(180deg, rgba(143, 57, 47, 0.18), rgba(126, 44, 36, 0.08));
   border-color: rgba(126, 44, 36, 0.3);
   color: var(--accent);
   box-shadow: 0 6px 14px rgba(126, 44, 36, 0.12);
 }
 
-.page :global(.segmented-item:hover) {
+.page .segmentedItem:hover {
   border-color: rgba(126, 44, 36, 0.25);
 }
 
-.page :global(.sort-segmented) {
+.page .sortSegmented {
   height: 40px;
   padding: 0.2rem;
 }
 
-.page :global(.sort-segmented .segmented-item) {
+.page .sortSegmented .segmentedItem {
   height: 30px;
   padding: 0 0.8rem;
 }
 
-.page :global(.status-field) {
+.page .statusField {
   margin: 0;
   padding: 0;
   border: none;
@@ -220,7 +225,7 @@
   gap: 0.35rem;
 }
 
-.page :global(.status-field legend) {
+.page .statusField legend {
   padding: 0;
   color: var(--ink);
   font-size: 0.93rem;
@@ -229,14 +234,14 @@
   margin: 0;
 }
 
-.page :global(.status-options) {
+.page .statusOptions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 8px;
   align-items: center;
 }
 
-.page :global(.status-chip) {
+.page .statusChip {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -258,51 +263,51 @@
     box-shadow var(--transition-fast);
 }
 
-.page :global(.status-chip input) {
+.page .statusChip input {
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
 
-.page :global(.status-chip:hover) {
+.page .statusChip:hover {
   border-color: rgba(126, 44, 36, 0.22);
   background: rgba(126, 44, 36, 0.05);
 }
 
-.page :global(.status-chip:has(input:checked)) {
+.page .statusChip:has(input:checked) {
   border-color: rgba(126, 44, 36, 0.35);
   background: rgba(126, 44, 36, 0.1);
   color: var(--accent);
 }
 
-.page :global(.status-chip:focus-within) {
+.page .statusChip:focus-within {
   box-shadow: 0 0 0 2px rgba(126, 44, 36, 0.2);
 }
 
-.page :global(.filter-actions) {
+.page .filterActions {
   display: flex;
   gap: 0.7rem;
   flex-wrap: wrap;
   align-items: center;
 }
 
-.page :global(.filter-summary) {
+.page .filterSummary {
   padding: 0.85rem 1rem;
 }
 
-.page :global(.chip-row) {
+.page .chipRow {
   display: flex;
   flex-wrap: wrap;
   gap: 0.6rem;
   align-items: center;
 }
 
-.page :global(.chip-label) {
+.page .chipLabel {
   font-weight: 700;
   color: var(--ink);
 }
 
-.page :global(.chip) {
+.page .chip {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -315,28 +320,28 @@
   border: 1px solid rgba(126, 44, 36, 0.12);
 }
 
-.page :global(.chip.muted) {
+.page .chipMuted {
   background: rgba(31, 29, 25, 0.06);
   color: var(--muted);
   border-color: rgba(31, 29, 25, 0.08);
 }
 
-.page :global(.chip-remove) {
+.page .chipRemove {
   font-weight: 700;
   color: inherit;
 }
 
-.page :global(.chip-clear) {
+.page .chipClear {
   margin-left: auto;
   font-weight: 600;
   color: var(--accent);
 }
 
-.page :global(.results-shell) {
+.page .resultsShell {
   padding: 1rem 1.1rem;
 }
 
-.page :global(.results-header) {
+.page .resultsHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -345,34 +350,34 @@
   margin-bottom: 0.9rem;
 }
 
-.page :global(.results-count) {
+.page .resultsCount {
   font-weight: 700;
   color: var(--ink);
 }
 
-.page :global(.sort-form) {
+.page .sortForm {
   display: flex;
   gap: 0.6rem;
   align-items: center;
 }
 
 
-.page :global(.detail-layout) {
+.page .detailLayout {
   display: grid;
   grid-template-columns: minmax(0, 2.3fr) minmax(260px, 1fr);
   gap: 0.9rem;
 }
 
-.page :global(.detail-panel) {
+.page .detailPanel {
   padding: 1rem;
 }
 
-.page :global(.detail-panel p),
-.page :global(.detail-panel li) {
+.page .detailPanel p,
+.page .detailPanel li {
   line-height: 1.8;
 }
 
-.page :global(.stack) {
+.page .stack {
   display: grid;
   gap: 0.85rem;
 }
@@ -392,25 +397,25 @@
 }
 
 @media (max-width: 860px) {
-  .page :global(.detail-layout) {
+  .page .detailLayout {
     display: grid;
     grid-template-columns: 1fr;
   }
 
-  .page :global(.search-row) {
+  .page .searchRow {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .page :global(.filter-grid) {
+  .page .filterGrid {
     grid-template-columns: 1fr;
   }
 
-  .page :global(.chip-clear) {
+  .page .chipClear {
     margin-left: 0;
   }
 
-  .page :global(.detail-panel) {
+  .page .detailPanel {
     padding: 0.95rem;
   }
 }

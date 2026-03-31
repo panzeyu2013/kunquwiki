@@ -1,8 +1,11 @@
 import { EntityGrid } from "../../components/entity-grid";
 import { getEntities } from "../../lib/api";
 import Link from "next/link";
-import styles from "../../styles/catalog-page.module.css";
 import { ActionBar } from "../../components/action-bar";
+
+// Styles
+import styles from "../../styles/catalog-page.module.css";
+import buttonStyles from "../../styles/components/button.module.css";
 import formStyles from "../../styles/components/form.module.css";
 
 export default async function PeoplePage({
@@ -16,7 +19,7 @@ export default async function PeoplePage({
   const people = await getEntities({ type: "person", q, city });
   return (
     <div className={styles.page}>
-      <h1 className="page-title">人物库</h1>
+      <h1 className={styles.pageTitle}>人物库</h1>
       <p>收录演员、教师、推广者、学者等与昆曲相关人物。</p>
       <ActionBar>
         <Link href="/create/person">创建人物</Link>
@@ -30,7 +33,9 @@ export default async function PeoplePage({
           城市
           <input name="city" defaultValue={city} placeholder="例如：上海、苏州" />
         </label>
-        <button type="submit">筛选</button>
+        <button type="submit" className={buttonStyles.button}>
+          筛选
+        </button>
       </form>
       <EntityGrid items={people} />
     </div>

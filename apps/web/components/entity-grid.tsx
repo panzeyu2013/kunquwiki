@@ -3,12 +3,15 @@ import { Entity } from "@kunquwiki/shared";
 import { mapEntityTypeLabel } from "../lib/labels";
 import { getEntityDetailPath } from "../lib/routes";
 import { EntityCard, entityCardStyles } from "./entity-card";
+
+// Styles
 import pillStyles from "../styles/components/pill.module.css";
+import styles from "../styles/components/entity-grid.module.css";
 
 export function EntityGrid({ items }: { items: Entity[] }) {
   const visibleItems = items.filter((item) => item.entityType !== "city");
   return (
-    <div className="card-grid">
+    <div className={styles.grid}>
       {visibleItems.map((item) => (
         <EntityCard key={item.id}>
           <div className={pillStyles.row}>
