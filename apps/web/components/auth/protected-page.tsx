@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { ReactNode } from "react";
 import { useAuthUser } from "./use-auth-user";
+
+// Styles
 import styles from "../../styles/components/editor-shared.module.css";
 
 export function ProtectedPage({

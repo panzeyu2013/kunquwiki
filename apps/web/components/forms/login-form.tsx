@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { login, register } from "../../lib/api-client";
+import { ActionBar } from "../action-bar";
+
+// Styles
 import ghostButtonStyles from "../../styles/components/ghost-button.module.css";
 import styles from "../../styles/components/editor-shared.module.css";
-import { ActionBar } from "../action-bar";
 
 export function LoginForm() {
   const [mode, setMode] = useState<"login" | "register">("login");

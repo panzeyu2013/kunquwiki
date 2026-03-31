@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { clearStoredToken } from "../../lib/auth";
 import { useAuthUser } from "./use-auth-user";
+
+// Styles
 import pillStyles from "../../styles/components/pill.module.css";
 import ghostButtonStyles from "../../styles/components/ghost-button.module.css";
 import styles from "../../styles/site-shell.module.css";

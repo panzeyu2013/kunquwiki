@@ -1,5 +1,7 @@
-import "./globals.css";
 import { SiteShell } from "../components/site-shell";
+
+// Styles
+import "./globals.css";
 
 export const dynamic = "force-dynamic";
 

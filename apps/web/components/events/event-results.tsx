@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { EventEntity } from "@kunquwiki/shared";
 import { EventRow } from "./event-row";
 import { SectionCard } from "../section-card";
+
+// Styles
 import styles from "../../styles/detail-page.module.css";
 
 type SortKey = "time" | "updated";

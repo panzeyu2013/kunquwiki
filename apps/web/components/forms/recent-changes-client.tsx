@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getRecentChangesClient } from "../../lib/api-client";
 import { mapReviewStatusLabel } from "../../lib/labels";
+
+// Styles
 import pillStyles from "../../styles/components/pill.module.css";
 import tableStyles from "../../styles/components/table.module.css";
 import styles from "../../styles/components/editor-shared.module.css";

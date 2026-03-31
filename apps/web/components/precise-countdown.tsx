@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { countdownLabelPrecise } from "../lib/format";
+
+// Styles
 import pillStyles from "../styles/components/pill.module.css";
 
 export function PreciseCountdown({ value }: { value: string }) {

@@ -12,11 +12,13 @@ import {
 } from "../../lib/labels";
 import { getEntityDetailPath } from "../../lib/routes";
 import { excerptText } from "../../lib/text";
+import { ActionBar } from "../action-bar";
+
+// Styles
 import pillStyles from "../../styles/components/pill.module.css";
 import ghostButtonStyles from "../../styles/components/ghost-button.module.css";
 import buttonStyles from "../../styles/components/button.module.css";
 import styles from "../../styles/editor-page.module.css";
-import { ActionBar } from "../action-bar";
 
 type EditorOptions = Awaited<ReturnType<typeof getEditorOptions>>;
 type EditableEntity = Awaited<ReturnType<typeof getEntityPublic>>;

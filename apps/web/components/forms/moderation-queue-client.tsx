@@ -12,10 +12,12 @@ import {
   mapUserRoleLabel,
   mapWorkTypeLabel
 } from "../../lib/labels";
+import { ActionBar } from "../action-bar";
+
+// Styles
 import pillStyles from "../../styles/components/pill.module.css";
 import ghostButtonStyles from "../../styles/components/ghost-button.module.css";
 import styles from "../../styles/components/editor-shared.module.css";
-import { ActionBar } from "../action-bar";
 
 type QueueItem = Awaited<ReturnType<typeof getModerationQueueClient>>[number];
 type EditorOptions = Awaited<ReturnType<typeof getEditorOptions>>;

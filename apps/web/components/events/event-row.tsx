@@ -4,6 +4,8 @@ import Link from "next/link";
 import { EventEntity } from "@kunquwiki/shared";
 import { countdownLabel, formatDateTime } from "../../lib/format";
 import { mapEventStatusLabel } from "../../lib/labels";
+
+// Styles
 import styles from "../../styles/components/event-row.module.css";
 
 export function EventRow({ event }: { event: EventEntity }) {

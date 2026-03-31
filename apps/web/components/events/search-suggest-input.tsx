@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { buildApiUrl, withQuery } from "../../lib/api-core";
+
+// Styles
 import styles from "../../styles/components/search-suggest-input.module.css";
 
 type SearchSuggestion = {
