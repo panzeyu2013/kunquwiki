@@ -475,18 +475,12 @@ export class ContentRepository {
       }));
     }
 
-    const rows = await this.prisma.$queryRaw<Array<{
+    const rankedRows = await this.prisma.$queryRaw<Array<{
       entityId: string;
-      entityType: string;
-      title: string;
-      slug: string;
       rank: number;
     }>>(Prisma.sql`
       SELECT
         si."entityId",
-        si."entityType"::text as "entityType",
-        si."title",
-        e."slug",
         GREATEST(
           ts_rank_cd(
             to_tsvector('simple', coalesce(si."title", '') || ' ' || coalesce(si."searchText", '')),
@@ -496,7 +490,6 @@ export class ContentRepository {
           similarity(si."searchText", ${query})
         ) as rank
       FROM "SearchIndex" si
-      JOIN "Entity" e ON e."id" = si."entityId"
       WHERE (
         to_tsvector('simple', coalesce(si."title", '') || ' ' || coalesce(si."searchText", ''))
           @@ plainto_tsquery('simple', ${query})
@@ -510,12 +503,33 @@ export class ContentRepository {
       LIMIT 30
     `);
 
-    return rows.map((item) => ({
-      id: item.entityId,
-      slug: item.slug,
-      title: item.title,
-      entityType: item.entityType
-    }));
+    if (rankedRows.length === 0) {
+      return [];
+    }
+
+    const orderedIds = rankedRows.map((row) => row.entityId);
+    const searchRows = await this.prisma.searchIndex.findMany({
+      where: { entityId: { in: orderedIds } },
+      select: {
+        entityId: true,
+        entityType: true,
+        title: true,
+        entity: {
+          select: { slug: true }
+        }
+      }
+    });
+
+    const byId = new Map(searchRows.map((row) => [row.entityId, row]));
+    return orderedIds
+      .map((id) => byId.get(id))
+      .filter((row): row is NonNullable<typeof row> => Boolean(row))
+      .map((row) => ({
+        id: row.entityId,
+        slug: row.entity.slug,
+        title: row.title,
+        entityType: row.entityType
+      }));
   }
 
   async getRecentChanges() {
@@ -790,6 +804,13 @@ export class ContentRepository {
             editorId: proposal.proposerId,
             reviewerId,
             reviewedAt: new Date()
+          }
+        });
+
+        await tx.user.update({
+          where: { id: proposal.proposerId },
+          data: {
+            reputation: { increment: 1 }
           }
         });
 
