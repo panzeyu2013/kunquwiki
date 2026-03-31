@@ -35,7 +35,9 @@ pip install -r requirements.txt
 
 ## JSON 结构
 
-示例见 `samples/sample_input.json`。基础结构：
+示例见 `samples/sample_input.json` 与 `samples/sample_input_full.json`。
+
+基础结构：
 
 ```json
 {
@@ -52,14 +54,35 @@ pip install -r requirements.txt
 }
 ```
 
-字段说明：
+### 字段说明
 
-- `external_id`：外部系统标识，用于日志与结果回溯
+- `items`：顶层数组，必填
+- `external_id`：外部系统标识，可选，用于回溯
 - `entity_type`：实体类型（`city`/`troupe`/`venue`/`work`/`person`/`article`/`event`/`role`）
-- `title`：条目标题
-- `work_type`：仅 `work` 使用
-- `parent_work_id`：折子戏需要
-- `initial_data`：补充字段（与后端快速创建逻辑一致）
+- `title`：标题，必填
+- `work_type`：仅 `work` 使用，如 `full_play` / `excerpt`
+- `parent_work_id`：折子戏（`work_type=excerpt`）必填
+- `initial_data`：补充字段对象，对应后端快速创建逻辑
+
+### 常见 initial_data 字段示例
+
+- `city`：`province`
+- `troupe`：`troupeType`、`cityId`、`region`、`description`
+- `venue`：`venueType`、`cityId`、`address`、`capacity`
+- `work`：`synopsis`、`plot`、`originalAuthor`、`dynastyPeriod`
+- `person`：`gender`、`birthDate`、`personIdentities`、`troupeMemberships`
+- `event`：`startAt`、`eventType`、`businessStatus`、`cityId`、`venueEntityId`、`troupeIds`
+
+## 如何添加 JSON 文件
+
+1. 在任意目录新建 JSON 文件（推荐放在 `bot/samples/` 或项目数据目录）。
+2. 按上述结构填写 `items`。
+3. 使用命令导入或检查：
+
+```bash
+python main.py import --file ./samples/sample_input.json
+python main.py check --file ./samples/sample_input_full.json --type schema
+```
 
 ## 使用
 

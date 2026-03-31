@@ -9,13 +9,79 @@
       }
     },
     {
+      "external_id": "TROUPE_SHKUN_001",
+      "entity_type": "troupe",
+      "title": "上海昆剧团",
+      "initial_data": {
+        "troupeType": "troupe",
+        "cityId": "<city_entity_id>",
+        "city": "上海",
+        "region": "华东",
+        "description": "示例院团简介"
+      }
+    },
+    {
+      "external_id": "VENUE_SH_001",
+      "entity_type": "venue",
+      "title": "上海大剧院",
+      "initial_data": {
+        "venueType": "theater",
+        "country": "中国",
+        "cityId": "<city_entity_id>",
+        "city": "上海",
+        "address": "黄浦区人民大道300号",
+        "capacity": 1800
+      }
+    },
+    {
       "external_id": "WORK_001",
       "entity_type": "work",
       "title": "牡丹亭",
       "work_type": "full_play",
       "initial_data": {
         "synopsis": "汤显祖名作。",
-        "plot": "杜丽娘游园惊梦。"
+        "plot": "杜丽娘游园惊梦。",
+        "originalAuthor": "汤显祖",
+        "dynastyPeriod": "明"
+      }
+    },
+    {
+      "external_id": "ROLE_001",
+      "entity_type": "role",
+      "title": "柳梦梅",
+      "initial_data": {
+        "workEntityId": "<work_entity_id>",
+        "roleCategory": "生",
+        "description": "剧中男主"
+      }
+    },
+    {
+      "external_id": "PERSON_001",
+      "entity_type": "person",
+      "title": "张三",
+      "initial_data": {
+        "gender": "male",
+        "hometown": "江苏",
+        "birthDate": "1990-01-01",
+        "personIdentities": [
+          {"identityType": "stage", "name": "小生张"}
+        ],
+        "troupeMemberships": [
+          {"troupeEntityId": "<troupe_entity_id>", "title": "演员"}
+        ]
+      }
+    },
+    {
+      "external_id": "EVENT_001",
+      "entity_type": "event",
+      "title": "青春版牡丹亭·上海专场",
+      "initial_data": {
+        "startAt": "2026-04-10T19:30:00+08:00",
+        "eventType": "performance",
+        "businessStatus": "scheduled",
+        "cityId": "<city_entity_id>",
+        "venueEntityId": "<venue_entity_id>",
+        "troupeIds": ["<troupe_entity_id>"]
       }
     }
   ]
