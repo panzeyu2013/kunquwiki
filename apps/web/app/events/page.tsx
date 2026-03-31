@@ -2,7 +2,7 @@ import { getEntities } from "../../lib/api";
 import { EventEntity } from "@kunquwiki/shared";
 import { mapEventStatusLabel } from "../../lib/labels";
 import Link from "next/link";
-import { SearchSuggestInput } from "../../components/events/search-suggest-input";
+import { SearchSuggestInput } from "../../components/search-suggest-input";
 import { EventResults } from "../../components/events/event-results";
 import { SectionCard } from "../../components/section-card";
 import { ActionBar } from "../../components/action-bar";

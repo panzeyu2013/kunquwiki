@@ -13,6 +13,7 @@ import {
 import { getEntityDetailPath } from "../../lib/routes";
 import { excerptText } from "../../lib/text";
 import { ActionBar } from "../action-bar";
+import { SearchSuggestInput, type SearchSuggestion } from "../search-suggest-input";
 
 // Styles
 import pillStyles from "../../styles/components/pill.module.css";
@@ -57,6 +58,15 @@ type EventProgramItemRow = {
   notes: string;
   casts: PerformanceCastRow[];
 };
+
+function toSuggestion(option: EntityOption): SearchSuggestion {
+  return {
+    id: option.id,
+    title: option.title,
+    entityType: "",
+    slug: option.slug ?? ""
+  };
+}
 
 function makeClientKey(prefix: string) {
   const random =
@@ -227,45 +237,53 @@ function SearchCreateSelect({
   const [query, setQuery] = useState("");
   const selected = options.find((item) => item.id === value);
   const [creating, setCreating] = useState(false);
-  const filtered = options.filter((item) => item.title.includes(query.trim()));
+  const normalizedQuery = query.trim();
+  const canCreate =
+    !disabled &&
+    normalizedQuery.length > 0 &&
+    normalizedQuery !== (selected?.title ?? "") &&
+    !options.some((item) => item.title === normalizedQuery);
 
   useEffect(() => {
     setQuery(selected?.title ?? "");
   }, [selected?.title]);
 
-  const showOptions = !disabled && query.trim().length > 0 && query.trim() !== (selected?.title ?? "");
-
   return (
     <fieldset className={className}>
       <legend>{label}</legend>
       <div className={styles.stack}>
-        <input value={query} placeholder={placeholder} onChange={(event) => setQuery(event.target.value)} disabled={disabled || creating} />
-        {showOptions ? (
-          <div className={styles.pickerList}>
-            {filtered.slice(0, 8).map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={ghostButtonStyles.button}
-                onClick={() => {
-                  onChange(item.id);
-                  setQuery(item.title);
-                }}
-              >
-                选择 {item.title}
-              </button>
-            ))}
-          </div>
-        ) : null}
-        {showOptions && query.trim() && !filtered.some((item) => item.title === query.trim()) ? (
+        <SearchSuggestInput
+          value={query}
+          onValueChange={setQuery}
+          onSelect={(item) => {
+            onChange(item.id);
+            setQuery(item.title);
+          }}
+          placeholder={placeholder}
+          minChars={1}
+          shouldSearch={(input) => {
+            const trimmed = input.trim();
+            return trimmed.length > 0 && trimmed !== (selected?.title ?? "");
+          }}
+          getSuggestions={async (input) => {
+            const trimmed = input.trim();
+            if (!trimmed || trimmed === (selected?.title ?? "")) {
+              return [];
+            }
+            return options.filter((item) => item.title.includes(trimmed)).slice(0, 8).map(toSuggestion);
+          }}
+          inputClassName=""
+          disabled={disabled || creating}
+        />
+        {canCreate ? (
           <button
             type="button"
             className={buttonStyles.button}
-            disabled={creating}
+            disabled={creating || disabled}
             onClick={async () => {
               setCreating(true);
               try {
-                const created = await onCreate(query.trim());
+                const created = await onCreate(normalizedQuery);
                 if (created) {
                   onChange(created.id);
                   setQuery(created.title);
@@ -275,7 +293,7 @@ function SearchCreateSelect({
               }
             }}
           >
-            {creating ? "创建中..." : `${createLabel}“${query.trim()}”`}
+            {creating ? "创建中..." : `${createLabel}“${normalizedQuery}”`}
           </button>
         ) : null}
       </div>
@@ -318,16 +336,8 @@ function SearchCreateMultiSelect({
 
   const normalizedQuery = query.trim();
 
-  const filtered = useMemo(() => {
-    if (!normalizedQuery) {
-      return options.filter((item) => !values.includes(item.id)).slice(0, 12);
-    }
-    return options
-      .filter((item) => !values.includes(item.id) && item.title.includes(normalizedQuery))
-      .slice(0, 12);
-  }, [options, values, normalizedQuery]);
-
   const canCreate =
+    !disabled &&
     normalizedQuery.length > 0 &&
     !options.some((item) => item.title === normalizedQuery);
 
@@ -357,56 +367,48 @@ function SearchCreateMultiSelect({
           <p className={styles.helperText}>尚未选择。</p>
         )}
 
-        <input
+        <SearchSuggestInput
           value={query}
+          onValueChange={setQuery}
+          onSelect={(item) => {
+            onAdd(item.id);
+            setQuery("");
+          }}
           placeholder={placeholder}
-          onChange={(event) => setQuery(event.target.value)}
+          minChars={0}
+          allowEmpty
+          getSuggestions={async (input) => {
+            const trimmed = input.trim();
+            const pool = options.filter((item) => !values.includes(item.id));
+            const matches = trimmed
+              ? pool.filter((item) => item.title.includes(trimmed))
+              : pool;
+            return matches.slice(0, 12).map(toSuggestion);
+          }}
+          inputClassName=""
           disabled={disabled || creating}
         />
 
-        {(normalizedQuery.length > 0 || filtered.length > 0) ? (
-          <div className={styles.pickerList}>
-            {filtered.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={ghostButtonStyles.button}
-                onClick={() => {
-                  onAdd(item.id);
+        {canCreate ? (
+          <button
+            type="button"
+            className={buttonStyles.button}
+            disabled={disabled || creating}
+            onClick={async () => {
+              setCreating(true);
+              try {
+                const created = await onCreate(normalizedQuery);
+                if (created) {
+                  onAdd(created.id);
                   setQuery("");
-                }}
-                disabled={disabled || creating}
-              >
-                选择 {item.title}
-              </button>
-            ))}
-
-            {canCreate ? (
-              <button
-                type="button"
-                className={buttonStyles.button}
-                disabled={disabled || creating}
-                onClick={async () => {
-                  setCreating(true);
-                  try {
-                    const created = await onCreate(normalizedQuery);
-                    if (created) {
-                      onAdd(created.id);
-                      setQuery("");
-                    }
-                  } finally {
-                    setCreating(false);
-                  }
-                }}
-              >
-                {creating ? "创建中..." : `${createLabel}“${normalizedQuery}”`}
-              </button>
-            ) : null}
-
-            {normalizedQuery.length > 0 && filtered.length === 0 && !canCreate ? (
-              <p className={styles.helperText}>没有匹配结果。</p>
-            ) : null}
-          </div>
+                }
+              } finally {
+                setCreating(false);
+              }
+            }}
+          >
+            {creating ? "创建中..." : `${createLabel}“${normalizedQuery}”`}
+          </button>
         ) : null}
       </div>
     </fieldset>
@@ -433,55 +435,63 @@ function SearchCreateInlineSelect({
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
   const selected = options.find((item) => item.id === value);
-  const filtered = options.filter((item) => item.title.includes(query.trim()));
+  const normalizedQuery = query.trim();
 
   useEffect(() => {
     setQuery(selected?.title ?? "");
   }, [selected?.title]);
 
-  const showOptions = !disabled && query.trim().length > 0 && query.trim() !== (selected?.title ?? "");
-  const canCreate = showOptions && query.trim() && !filtered.some((item) => item.title === query.trim());
+  const canCreate =
+    !disabled &&
+    normalizedQuery.length > 0 &&
+    normalizedQuery !== (selected?.title ?? "") &&
+    !options.some((item) => item.title === normalizedQuery);
 
   return (
     <div className={styles.inlineSelect}>
-      <input value={query} placeholder={placeholder} onChange={(event) => setQuery(event.target.value)} disabled={disabled || creating} />
-      {showOptions ? (
-        <div className={styles.inlinePickerList}>
-          {filtered.slice(0, 6).map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className={`${ghostButtonStyles.button} ${styles.inlineChoice} ${value === item.id ? styles.inlineChoiceSelected : ""}`}
-              onClick={() => {
-                onChange(item.id);
-                setQuery(item.title);
-              }}
-            >
-              {item.title}
-            </button>
-          ))}
-          {canCreate ? (
-            <button
-              type="button"
-              className={`${ghostButtonStyles.button} ${styles.inlineChoice} ${styles.inlineChoiceCreate}`}
-              disabled={creating}
-              onClick={async () => {
-                setCreating(true);
-                try {
-                  const created = await onCreate(query.trim());
-                  if (created) {
-                    onChange(created.id);
-                    setQuery(created.title);
-                  }
-                } finally {
-                  setCreating(false);
-                }
-              }}
-            >
-              {creating ? "创建中..." : `${createLabel}${query.trim()}`}
-            </button>
-          ) : null}
-        </div>
+      <SearchSuggestInput
+        value={query}
+        onValueChange={setQuery}
+        onSelect={(item) => {
+          onChange(item.id);
+          setQuery(item.title);
+        }}
+        placeholder={placeholder}
+        minChars={1}
+        shouldSearch={(input) => {
+          const trimmed = input.trim();
+          return trimmed.length > 0 && trimmed !== (selected?.title ?? "");
+        }}
+        getSuggestions={async (input) => {
+          const trimmed = input.trim();
+          if (!trimmed || trimmed === (selected?.title ?? "")) {
+            return [];
+          }
+          return options.filter((item) => item.title.includes(trimmed)).slice(0, 6).map(toSuggestion);
+        }}
+        inputClassName=""
+        disabled={disabled || creating}
+      />
+      {canCreate ? (
+        <button
+          type="button"
+          className={`${ghostButtonStyles.button} ${styles.inlineChoice} ${styles.inlineChoiceCreate}`}
+          disabled={creating || disabled}
+          onClick={async () => {
+            setCreating(true);
+            try {
+              const created = await onCreate(normalizedQuery);
+              if (created) {
+                onChange(created.id);
+                setQuery(created.title);
+              }
+            } finally {
+              setCreating(false);
+            }
+          }}
+        >
+          {creating ? "创建中..." : `${createLabel}${normalizedQuery}`}
+        </button>
       ) : null}
     </div>
   );
