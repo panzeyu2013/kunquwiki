@@ -1181,6 +1181,20 @@ export class ContentRepository {
     return entity;
   }
 
+  async findEntityByTypeAndTitle(entityType: EntityType, title: string) {
+    return this.prisma.entity.findFirst({
+      where: {
+        entityType,
+        title
+      },
+      select: {
+        id: true,
+        slug: true,
+        title: true
+      }
+    });
+  }
+
   private async ensureStoredEntityTitle(
     db: Prisma.TransactionClient | PrismaClient,
     entityType: EntityType,

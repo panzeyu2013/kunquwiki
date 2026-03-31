@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "external_id": "CITY_SH_001",
+      "entity_type": "city",
+      "title": "上海",
+      "initial_data": {
+        "province": "上海市"
+      }
+    },
+    {
+      "external_id": "WORK_001",
+      "entity_type": "work",
+      "title": "牡丹亭",
+      "work_type": "full_play",
+      "initial_data": {
+        "synopsis": "汤显祖名作。",
+        "plot": "杜丽娘游园惊梦。"
+      }
+    }
+  ]
+}

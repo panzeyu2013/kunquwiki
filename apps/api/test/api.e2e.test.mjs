@@ -13,6 +13,9 @@ import { seedDatabase } from "../dist/prisma/seed.js";
 
 process.env.DATABASE_URL = "postgresql://kunquwiki:kunquwiki@localhost:5432/kunquwiki?schema=public";
 process.env.JWT_SECRET = "change-me-in-production";
+process.env.BOT_API_ENABLED = "true";
+process.env.BOT_API_TOKEN = "test-bot-token";
+process.env.BOT_ACTOR_USERNAME = "bot";
 
 const schemaPath = path.resolve(process.cwd(), "apps/api/prisma/schema.prisma");
 
@@ -209,6 +212,53 @@ test("P0 API flows work end-to-end", async (t) => {
     const fallbackRevision = revisions.body.find((item) => item.entityId === proposal.body.entityId);
     assert.ok(fallbackRevision);
     assert.match(fallbackRevision.editSummary, /^.+ \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} UTC$/);
+  });
+
+  await t.test("bot api supports health check and dry-run import", async () => {
+    const health = await request(server)
+      .get("/api/bot/check/health")
+      .set("X-Bot-Token", process.env.BOT_API_TOKEN)
+      .expect(200);
+    assert.equal(health.body.ok, true);
+
+    const schemaCheck = await request(server)
+      .post("/api/bot/check")
+      .set("X-Bot-Token", process.env.BOT_API_TOKEN)
+      .send({
+        checkType: "schema",
+        items: [
+          {
+            externalId: "CITY_TEST",
+            entityType: "city",
+            title: "测试城市"
+          }
+        ]
+      })
+      .expect(201);
+    assert.equal(schemaCheck.body.passed, true);
+
+    const dryRun = await request(server)
+      .post("/api/bot/import")
+      .set("X-Bot-Token", process.env.BOT_API_TOKEN)
+      .send({
+        items: [
+          {
+            externalId: "CITY_TEST",
+            entityType: "city",
+            title: "测试城市",
+            initialData: { province: "测试省" }
+          }
+        ],
+        options: {
+          dryRun: true,
+          upsert: true
+        }
+      })
+      .expect(201);
+
+    assert.equal(dryRun.body.summary.total, 1);
+    assert.equal(dryRun.body.summary.failedCount, 0);
+    assert.equal(dryRun.body.results[0].message, "dry_run");
   });
 
   await t.test("approved event edits keep the original slug stable", async () => {
