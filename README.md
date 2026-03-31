@@ -204,7 +204,6 @@ kunquwiki/
 - `plot`
 - `durationMinutes`
 - `firstKnownDate`
-- `isKunquCore`
 
 #### `Person`
 

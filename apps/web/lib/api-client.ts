@@ -86,7 +86,6 @@ export function getEntityPublic(slug: string) {
     parentWorkId?: string;
     durationMinutes?: number;
     firstKnownDate?: string;
-    isKunquCore?: boolean;
     roles?: string[];
     personTypeNote?: string;
     troupeIds?: string[];

@@ -72,9 +72,13 @@ export class SearchIndexService {
                 }
               }
             },
-            troupe: {
+            troupes: {
               include: {
-                entity: true
+                troupe: {
+                  include: {
+                    entity: true
+                  }
+                }
               }
             },
             programItems: {
@@ -97,7 +101,7 @@ export class SearchIndexService {
             },
             participants: {
               include: {
-                troupe: {
+                person: {
                   include: {
                     entity: true
                   }
@@ -122,8 +126,8 @@ export class SearchIndexService {
       entity.event?.city?.entity.title,
       entity.event?.venue?.entity.title,
       entity.event?.venue?.cityRecord?.entity.title,
-      entity.event?.troupe?.entity.title,
-      ...(entity.event?.participants.map((item) => item.troupe?.entity.title).filter(Boolean) ?? []),
+      ...(entity.event?.troupes.map((item) => item.troupe?.entity.title).filter(Boolean) ?? []),
+      ...(entity.event?.participants.map((item) => item.person?.entity.title).filter(Boolean) ?? []),
       ...(entity.event?.programItems.map((item) => item.work?.entity.title).filter(Boolean) ?? []),
       ...(entity.event?.programItems.flatMap((item) => item.casts.map((cast) => cast.person?.entity.title)).filter(Boolean) ?? [])
     ];

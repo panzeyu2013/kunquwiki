@@ -48,7 +48,6 @@ function emptyState(entityType: string) {
         excerptName: "",
         durationMinutes: "",
         firstKnownDate: "",
-        isKunquCore: true
       };
     case "person":
       return {
@@ -295,7 +294,6 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
             loadedEntity.workType === "excerpt" ? loadedEntity.title.split("·").slice(1).join("·") || loadedEntity.title : "";
           nextState.durationMinutes = loadedEntity.durationMinutes ? String(loadedEntity.durationMinutes) : "";
           nextState.firstKnownDate = loadedEntity.firstKnownDate ?? "";
-          nextState.isKunquCore = loadedEntity.isKunquCore ?? true;
           break;
         case "person":
           nextState.personTypeNote = loadedEntity.personTypeNote ?? "";
@@ -510,7 +508,6 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
         payload.parentWorkId = formState.parentWorkId || null;
         payload.durationMinutes = formState.durationMinutes ? Number(formState.durationMinutes) : null;
         payload.firstKnownDate = formState.firstKnownDate;
-        payload.isKunquCore = formState.isKunquCore;
         break;
       case "person":
         payload.bio = body;

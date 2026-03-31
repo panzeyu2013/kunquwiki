@@ -121,7 +121,6 @@ function renderWorkReview(payload: Record<string, unknown>, options: EditorOptio
         { label: "体裁说明", value: formatValue(payload.genreNote) },
         { label: "时长", value: typeof payload.durationMinutes === "number" ? `${payload.durationMinutes} 分钟` : "未填写" },
         { label: "最早可考时间", value: formatValue(payload.firstKnownDate) },
-        { label: "昆曲核心剧目", value: formatValue(payload.isKunquCore) }
       ])}
       {renderSummaryBlock(
         "代表内容",

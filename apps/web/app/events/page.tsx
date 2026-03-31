@@ -37,7 +37,7 @@ export default async function EventsPage({
     q ? { key: "q", label: `关键词：${q}` } : null,
     city ? { key: "city", label: `城市：${city}` } : null,
     troupe ? { key: "troupe", label: `剧团：${troupe}` } : null,
-    person ? { key: "person", label: `演员：${person}` } : null,
+    person ? { key: "person", label: `人物：${person}` } : null,
     work ? { key: "work", label: `剧目：${work}` } : null,
     venue ? { key: "venue", label: `剧场：${venue}` } : null,
     status ? { key: "status", label: `状态：${statusLabel}` } : null
@@ -121,14 +121,14 @@ export default async function EventsPage({
                 />
               </label>
               <label>
-                演员
+                人物
                 <SearchSuggestInput
                   name="person"
                   type="person"
                   minChars={1}
                   inputClassName={styles.filterInput}
                   defaultValue={person}
-                  placeholder="例如：张军"
+                  placeholder="例如：张军（参与者或卡司）"
                 />
               </label>
               <label>

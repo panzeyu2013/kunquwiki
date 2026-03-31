@@ -17,12 +17,11 @@ export async function seedDatabase() {
     prisma.discussionPost.deleteMany(),
     prisma.discussionThread.deleteMany(),
     prisma.performanceCast.deleteMany(),
+    prisma.eventTroupe.deleteMany(),
     prisma.eventParticipant.deleteMany(),
     prisma.eventProgramItem.deleteMany(),
-    prisma.eventSession.deleteMany(),
     prisma.personTroupeMembership.deleteMany(),
     prisma.personIdentity.deleteMany(),
-    prisma.workRole.deleteMany(),
     prisma.entityRelation.deleteMany(),
     prisma.entitySourceRef.deleteMany(),
     prisma.source.deleteMany(),
@@ -37,7 +36,6 @@ export async function seedDatabase() {
     prisma.troupe.deleteMany(),
     prisma.venue.deleteMany(),
     prisma.role.deleteMany(),
-    prisma.lineage.deleteMany(),
     prisma.topic.deleteMany(),
     prisma.entityAlias.deleteMany(),
     prisma.entity.deleteMany(),
@@ -506,34 +504,6 @@ export async function seedDatabase() {
     }
   });
 
-  await prisma.eventSession.createMany({
-    data: [
-      {
-        eventEntityId: event1.id,
-        sessionTitle: "晚场",
-        startAt: new Date("2026-04-10T19:30:00+08:00"),
-        endAt: new Date("2026-04-10T22:00:00+08:00"),
-        venueEntityId: venue1.id,
-        status: EventStatus.scheduled
-      },
-      {
-        eventEntityId: event2.id,
-        sessionTitle: "纪念专场",
-        startAt: new Date("2026-05-18T19:00:00+08:00"),
-        endAt: new Date("2026-05-18T21:30:00+08:00"),
-        venueEntityId: venue2.id,
-        status: EventStatus.scheduled
-      },
-      {
-        eventEntityId: event3.id,
-        sessionTitle: "讲座场",
-        startAt: new Date("2025-12-12T19:00:00+08:00"),
-        endAt: new Date("2025-12-12T21:00:00+08:00"),
-        status: EventStatus.completed
-      }
-    ]
-  });
-
   await prisma.eventProgramItem.createMany({
     data: [
       {
@@ -559,20 +529,16 @@ export async function seedDatabase() {
     ]
   });
 
-  await prisma.eventParticipant.createMany({
+  await prisma.eventTroupe.createMany({
     data: [
       {
         eventEntityId: event1.id,
         troupeEntityId: troupe1.id,
-        participationRole: "performer",
-        creditedAs: "上海昆剧团",
         sortOrder: 0
       },
       {
         eventEntityId: event2.id,
         troupeEntityId: troupe2.id,
-        participationRole: "performer",
-        creditedAs: "苏州昆剧院",
         sortOrder: 0
       }
     ]

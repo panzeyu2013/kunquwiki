@@ -73,14 +73,6 @@ export function WorkFields({ formState, options, setField, createQuickOption }: 
             <input value={String(formState.excerptName ?? "")} onChange={(event) => setField("excerptName", event.target.value)} />
           </label>
         ) : null}
-        <label className={`${styles.checkboxRow} ${styles.fieldSpanFull}`}>
-          <input
-            type="checkbox"
-            checked={Boolean(formState.isKunquCore)}
-            onChange={(event) => setField("isKunquCore", event.target.checked)}
-          />
-          昆曲核心剧目
-        </label>
       </div>
     </CollapsibleFormSection>
   );

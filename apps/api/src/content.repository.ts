@@ -43,12 +43,16 @@ const entityInclude = {
           entity: true
         }
       },
-      troupe: {
+      troupes: {
         include: {
-          entity: true
-        }
+          troupe: {
+            include: {
+              entity: true
+            }
+          }
+        },
+        orderBy: { sortOrder: "asc" }
       },
-      sessions: true,
       programItems: {
         include: {
           work: {
@@ -63,11 +67,6 @@ const entityInclude = {
       participants: {
         include: {
           person: {
-            include: {
-              entity: true
-            }
-          },
-          troupe: {
             include: {
               entity: true
             }
@@ -262,8 +261,8 @@ export class ContentRepository {
                 ...(troupe
                   ? [
                       {
-                        OR: [
-                          {
+                        troupes: {
+                          some: {
                             troupe: {
                               entity: {
                                 title: {
@@ -272,31 +271,35 @@ export class ContentRepository {
                                 }
                               }
                             }
-                          },
-                          {
-                            participants: {
-                              some: {
-                                troupe: {
-                                  entity: {
-                                    title: {
-                                      contains: troupe,
-                                      mode: "insensitive"
-                                    }
-                                  }
-                                }
-                              }
-                            }
                           }
-                        ]
+                        }
                       }
                     ]
                   : []),
                 ...(person
                   ? [
                       {
-                        programItems: {
-                          some: {
-                            casts: {
+                        OR: [
+                          {
+                            programItems: {
+                              some: {
+                                casts: {
+                                  some: {
+                                    person: {
+                                      entity: {
+                                        title: {
+                                          contains: person,
+                                          mode: "insensitive"
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          {
+                            participants: {
                               some: {
                                 person: {
                                   entity: {
@@ -309,7 +312,7 @@ export class ContentRepository {
                               }
                             }
                           }
-                        }
+                        ]
                       }
                     ]
                   : []),
@@ -368,28 +371,28 @@ export class ContentRepository {
                           {
                             participants: {
                               some: {
-                                OR: [
-                                  {
-                                    person: {
-                                      entity: {
-                                        title: {
-                                          contains: q,
-                                          mode: "insensitive"
-                                        }
-                                      }
-                                    }
-                                  },
-                                  {
-                                    troupe: {
-                                      entity: {
-                                        title: {
-                                          contains: q,
-                                          mode: "insensitive"
-                                        }
-                                      }
+                                person: {
+                                  entity: {
+                                    title: {
+                                      contains: q,
+                                      mode: "insensitive"
                                     }
                                   }
-                                ]
+                                }
+                              }
+                            }
+                          },
+                          {
+                            troupes: {
+                              some: {
+                                troupe: {
+                                  entity: {
+                                    title: {
+                                      contains: q,
+                                      mode: "insensitive"
+                                    }
+                                  }
+                                }
                               }
                             }
                           },
@@ -742,13 +745,6 @@ export class ContentRepository {
           typeof payload.title === "string"
             ? await this.ensureStoredEntityTitle(tx, proposal.entity.entityType, payload.title, proposal.entityId)
             : proposal.entity.title;
-        const currentEvent =
-          proposal.entity.entityType === "event"
-            ? await tx.event.findUnique({
-                where: { entityId: proposal.entityId },
-                include: { participants: { where: { troupeEntityId: { not: null } }, orderBy: { sortOrder: "asc" } } }
-              })
-            : null;
         const nextSlug = proposal.entity.slug;
 
         await tx.entity.update({
@@ -1108,7 +1104,6 @@ export class ContentRepository {
                   plot: this.toNullableString(initialData.plot) ?? bodyMarkdown,
                   durationMinutes: this.toNullableInt(initialData.durationMinutes),
                   firstKnownDate: this.toNullableString(initialData.firstKnownDate),
-                  isKunquCore: typeof initialData.isKunquCore === "boolean" ? initialData.isKunquCore : true
                 }
               }
             }
@@ -1224,13 +1219,8 @@ export class ContentRepository {
       if (entity.event?.cityEntityId) {
         await this.collectEntityCandidate(entity.event.cityEntityId, candidates);
       }
-      if (entity.event?.troupeEntityId) {
-        await this.collectEntityCandidate(entity.event.troupeEntityId, candidates);
-      }
-      for (const participant of entity.event?.participants ?? []) {
-        if (participant.troupeEntityId) {
-          await this.collectEntityCandidate(participant.troupeEntityId, candidates);
-        }
+      for (const troupeLink of entity.event?.troupes ?? []) {
+        await this.collectEntityCandidate(troupeLink.troupeEntityId, candidates);
       }
       for (const item of entity.event?.programItems ?? []) {
         if (item.workEntityId) {
@@ -1291,6 +1281,13 @@ export class ContentRepository {
       for (const cast of relatedEvents) {
         await this.collectEntityCandidate(cast.programItem.eventEntityId, candidates);
       }
+      const participantEvents = await this.prisma.eventParticipant.findMany({
+        where: { personEntityId: entity.id },
+        take: 5
+      });
+      for (const participant of participantEvents) {
+        await this.collectEntityCandidate(participant.eventEntityId, candidates);
+      }
     }
 
     if (entity.entityType === "troupe") {
@@ -1304,7 +1301,7 @@ export class ContentRepository {
       for (const member of members) {
         await this.collectEntityCandidate(member.personEntityId, candidates);
       }
-      const events = await this.prisma.eventParticipant.findMany({
+      const events = await this.prisma.eventTroupe.findMany({
         where: { troupeEntityId: entity.id },
         take: 5
       });
@@ -1350,11 +1347,17 @@ export class ContentRepository {
 
     const where: Prisma.EventWhereInput =
       entity.entityType === "person"
-        ? { startAt: dateFilter, programItems: { some: { casts: { some: { personEntityId: entity.id } } } } }
+        ? {
+            startAt: dateFilter,
+            OR: [
+              { programItems: { some: { casts: { some: { personEntityId: entity.id } } } } },
+              { participants: { some: { personEntityId: entity.id } } }
+            ]
+          }
         : entity.entityType === "troupe"
           ? {
               startAt: dateFilter,
-              OR: [{ troupeEntityId: entity.id }, { participants: { some: { troupeEntityId: entity.id } } }]
+              troupes: { some: { troupeEntityId: entity.id } }
             }
           : entity.entityType === "venue"
             ? { startAt: dateFilter, venueEntityId: entity.id }
@@ -1374,9 +1377,7 @@ export class ContentRepository {
         entity: true,
         city: { include: { entity: true } },
         venue: { include: { entity: true } },
-        troupe: { include: { entity: true } },
-        participants: {
-          where: { troupeEntityId: { not: null } },
+        troupes: {
           include: { troupe: { include: { entity: true } } },
           orderBy: { sortOrder: "asc" }
         }
@@ -1388,10 +1389,7 @@ export class ContentRepository {
     return events.map((event) => {
       const troupeNames = Array.from(
         new Set(
-          [
-            event.troupe?.entity.title ?? null,
-            ...event.participants.map((participant) => participant.troupe?.entity.title ?? null)
-          ].filter((name): name is string => Boolean(name))
+          event.troupes.map((link) => link.troupe?.entity.title ?? null).filter((name): name is string => Boolean(name))
         )
       );
       return {
@@ -1464,7 +1462,6 @@ export class ContentRepository {
             ...(typeof payload.durationMinutes === "number" ? { durationMinutes: payload.durationMinutes } : {}),
             ...(payload.durationMinutes === null ? { durationMinutes: null } : {}),
             ...(typeof payload.firstKnownDate === "string" ? { firstKnownDate: payload.firstKnownDate } : {}),
-            ...(typeof payload.isKunquCore === "boolean" ? { isKunquCore: payload.isKunquCore } : {})
           }
         });
         break;
@@ -1619,11 +1616,6 @@ export class ContentRepository {
             ...(typeof payload.venueEntityId === "string" || payload.venueEntityId === null
               ? { venueEntityId: typeof payload.venueEntityId === "string" && payload.venueEntityId.length > 0 ? payload.venueEntityId : null }
               : {}),
-            ...(Array.isArray(payload.troupeIds)
-              ? { troupeEntityId: this.toStringArray(payload.troupeIds)[0] ?? null }
-              : typeof payload.troupeId === "string" || payload.troupeId === null
-                ? { troupeEntityId: typeof payload.troupeId === "string" && payload.troupeId.length > 0 ? payload.troupeId : null }
-                : {}),
             ...(typeof payload.ticketUrl === "string" ? { ticketUrl: payload.ticketUrl } : {}),
             ...(typeof payload.duration === "string" ? { durationText: payload.duration } : {}),
             ...(typeof payload.durationText === "string" ? { durationText: payload.durationText } : {}),
@@ -1634,25 +1626,23 @@ export class ContentRepository {
         });
 
         if (Array.isArray(payload.troupeIds)) {
-          await tx.eventParticipant.deleteMany({ where: { eventEntityId: entityId, troupeEntityId: { not: null }, personEntityId: null } });
+          await tx.eventTroupe.deleteMany({ where: { eventEntityId: entityId } });
           const troupeIds = this.toStringArray(payload.troupeIds);
           if (troupeIds.length > 0) {
-            await tx.eventParticipant.createMany({
+            await tx.eventTroupe.createMany({
               data: troupeIds.map((troupeId, index) => ({
                 eventEntityId: entityId,
                 troupeEntityId: troupeId,
-                participationRole: "performer",
                 sortOrder: index
               }))
             });
           }
         } else if (typeof payload.troupeId === "string" && payload.troupeId.length > 0) {
-          await tx.eventParticipant.deleteMany({ where: { eventEntityId: entityId, troupeEntityId: { not: null }, personEntityId: null } });
-          await tx.eventParticipant.create({
+          await tx.eventTroupe.deleteMany({ where: { eventEntityId: entityId } });
+          await tx.eventTroupe.create({
             data: {
               eventEntityId: entityId,
               troupeEntityId: payload.troupeId,
-              participationRole: "performer",
               sortOrder: 0
             }
           });
@@ -1982,7 +1972,6 @@ export class ContentRepository {
           plot: entity.work?.plot ?? entity.content?.bodyMarkdown ?? "待补充",
           durationMinutes: entity.work?.durationMinutes ?? undefined,
           firstKnownDate: entity.work?.firstKnownDate ?? undefined,
-          isKunquCore: entity.work?.isKunquCore ?? true
         };
       case "person":
         return {
@@ -2049,14 +2038,7 @@ export class ContentRepository {
           endAt: entity.event?.endAt?.toISOString(),
           cityId: entity.event?.cityEntityId ?? undefined,
           venueId: entity.event?.venueEntityId ?? undefined,
-          troupeIds: Array.from(
-            new Set(
-              [
-                entity.event?.troupeEntityId ?? null,
-                ...((entity.event?.participants ?? []).map((item) => item.troupeEntityId ?? null) ?? [])
-              ].filter((item): item is string => Boolean(item))
-            )
-          ),
+          troupeIds: (entity.event?.troupes ?? []).map((link) => link.troupeEntityId),
           ticketUrl: entity.event?.ticketUrl ?? undefined,
           duration: entity.event?.durationText ?? undefined,
           ticketStatus: entity.event?.ticketStatus ?? undefined,

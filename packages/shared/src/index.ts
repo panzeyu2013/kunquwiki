@@ -7,7 +7,6 @@ export type EntityType =
   | "city"
   | "article"
   | "role"
-  | "lineage"
   | "topic";
 
 export type PublishStatus = "draft" | "published" | "archived" | "pending_review";

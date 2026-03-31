@@ -8,7 +8,6 @@ export function mapEntityTypeLabel(value: string) {
     city: "城市",
     article: "知识条目",
     role: "角色",
-    lineage: "传承",
     topic: "专题"
   };
   return labels[value] ?? value;

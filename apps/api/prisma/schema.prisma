@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// 实体类型
 enum EntityType {
   work
   person
@@ -16,10 +17,10 @@ enum EntityType {
   city
   article
   role
-  lineage
   topic
 }
 
+// 发布状态
 enum PublishStatus {
   draft
   published
@@ -27,6 +28,7 @@ enum PublishStatus {
   pending_review
 }
 
+// 活动状态
 enum EventStatus {
   announced
   scheduled
@@ -35,18 +37,21 @@ enum EventStatus {
   postponed
 }
 
+// 审核状态
 enum ReviewStatus {
   pending
   approved
   rejected
 }
 
+// 用户状态
 enum UserStatus {
   active
   suspended
   pending
 }
 
+// 用户角色（权限身份，与 Role 实体无关）
 enum UserRole {
   visitor
   bot
@@ -55,19 +60,18 @@ enum UserRole {
   admin
 }
 
-enum AssetType {
-  image
-  video
-  audio
-  document
-}
-
+// 提案状态
 enum ProposalStatus {
   pending
   approved
   rejected
 }
 
+// =====================
+// 实体模块
+// =====================
+
+// 用户
 model User {
   id              String           @id @default(cuid())
   username        String           @unique
@@ -90,15 +94,16 @@ model User {
   discussionThreads DiscussionThread[]
 }
 
+// 统一实体总表
 model Entity {
   id             String             @id @default(cuid())
   entityType     EntityType
-  slug           String             @unique
+  slug           String             @unique // 路径标识
   title          String
   subtitle       String?
-  status         PublishStatus      @default(draft)
-  visibility     String             @default("public")
-  coverImageId   String?
+  status         PublishStatus      @default(draft) // 发布状态
+  visibility     String             @default("public") // 可见性
+  coverImageId   String?            // 封面素材占位
   createdById    String
   updatedById    String
   publishedAt    DateTime?
@@ -117,7 +122,6 @@ model Entity {
   city           City?
   article        Article?
   roleRecord     Role?
-  lineage        Lineage?
   topic          Topic?
   sourceRefs     EntitySourceRef[]
   proposalRefs   EditProposal[]
@@ -127,16 +131,7 @@ model Entity {
   discussionThreads DiscussionThread[]
 }
 
-model City {
-  entityId    String   @id
-  province    String
-  entity      Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
-  bornPeople  Person[] @relation("PersonBirthCity")
-  troupes     Troupe[]
-  venues      Venue[]
-  events      Event[]
-}
-
+// 实体别名
 model EntityAlias {
   id        String   @id @default(cuid())
   entityId  String
@@ -146,23 +141,23 @@ model EntityAlias {
   entity    Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
 }
 
+// 实体内容（可渲染 Markdown）
 model EntityContent {
   id           String   @id @default(cuid())
   entityId      String   @unique
-  bodyMarkdown  String
-  infoboxJson   Json?
-  tocJson       Json?
+  bodyMarkdown  String   // 正文 Markdown
   updatedAt     DateTime @updatedAt
   entity        Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
 }
 
+// 修订记录（审核通过时写入）
 model EntityRevision {
   id                String       @id @default(cuid())
   entityId          String
   revisionNo        Int
   title             String
   bodyMarkdown      String?
-  structuredDataJson Json?
+  structuredDataJson Json?       // 提案结构化快照
   editSummary       String
   reviewStatus      ReviewStatus @default(pending)
   editorId          String
@@ -176,9 +171,21 @@ model EntityRevision {
   @@unique([entityId, revisionNo])
 }
 
+// 城市
+model City {
+  entityId    String   @id
+  province    String
+  entity      Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  bornPeople  Person[] @relation("PersonBirthCity")
+  troupes     Troupe[]
+  venues      Venue[]
+  events      Event[]
+}
+
+// 剧目/作品
 model Work {
   entityId        String   @id
-  workType        String
+  workType        String   // full_play / excerpt / adapted_piece
   parentWorkId    String?
   originalAuthor  String?
   dynastyPeriod   String?
@@ -187,14 +194,16 @@ model Work {
   plot            String
   durationMinutes Int?
   firstKnownDate  String?
-  isKunquCore     Boolean  @default(true)
   entity          Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  parentWork      Work?    @relation("WorkParent", fields: [parentWorkId], references: [entityId])
+  childWorks      Work[]   @relation("WorkParent")
   eventProgramItems EventProgramItem[]
 }
 
+// 人物（演员/研究者等真实人物，与 User 无关）
 model Person {
   entityId        String   @id
-  personTypeNote  String?
+  personTypeNote  String? // 人物类型说明
   gender          String?
   birthDate       DateTime?
   deathDate       DateTime?
@@ -210,6 +219,7 @@ model Person {
   performanceCasts PerformanceCast[]
 }
 
+// 院团
 model Troupe {
   entityId        String   @id
   troupeType      String
@@ -223,10 +233,10 @@ model Troupe {
   entity          Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
   cityRecord      City?    @relation(fields: [cityEntityId], references: [entityId])
   memberships     PersonTroupeMembership[]
-  leadEvents      Event[]  @relation("EventLeadTroupe")
-  eventParticipants EventParticipant[]
+  eventTroupes    EventTroupe[]
 }
 
+// 场馆
 model Venue {
   entityId    String   @id
   venueType   String
@@ -244,6 +254,7 @@ model Venue {
   events      Event[]
 }
 
+// 演出/活动
 model Event {
   entityId        String      @id
   eventType       String
@@ -253,7 +264,6 @@ model Event {
   timezone        String      @default("Asia/Shanghai")
   cityEntityId    String?
   venueEntityId   String?
-  troupeEntityId  String?
   organizerText   String?
   ticketUrl       String?
   durationText    String?
@@ -264,24 +274,12 @@ model Event {
   entity          Entity      @relation(fields: [entityId], references: [id], onDelete: Cascade)
   city            City?       @relation(fields: [cityEntityId], references: [entityId])
   venue           Venue?      @relation(fields: [venueEntityId], references: [entityId])
-  troupe          Troupe?     @relation("EventLeadTroupe", fields: [troupeEntityId], references: [entityId])
-  sessions        EventSession[]
   programItems    EventProgramItem[]
+  troupes         EventTroupe[]
   participants   EventParticipant[]
 }
 
-model EventSession {
-  id            String      @id @default(cuid())
-  eventEntityId String
-  sessionTitle  String?
-  startAt       DateTime
-  endAt         DateTime?
-  venueEntityId String?
-  status        EventStatus
-  notes         String?
-  event         Event       @relation(fields: [eventEntityId], references: [entityId], onDelete: Cascade)
-}
-
+// 文章/词条
 model Article {
   entityId        String   @id
   articleType     String
@@ -291,21 +289,17 @@ model Article {
   entity          Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
 }
 
+// 角色（剧中角色/行当等，与 UserRole 无关）
 model Role {
   entityId       String   @id
-  workEntityId   String?
-  roleCategory   String?
+  workEntityId   String?  // 关联剧目（可空）
+  roleCategory   String?  // 角色类别/行当
   description    String?
   entity         Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  performanceCasts PerformanceCast[]
 }
 
-model Lineage {
-  entityId      String   @id
-  lineageType   String
-  description   String
-  entity        Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
-}
-
+// 专题
 model Topic {
   entityId      String   @id
   topicType     String
@@ -314,6 +308,11 @@ model Topic {
   entity        Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
 }
 
+// =====================
+// 关系模块
+// =====================
+
+// 人物身份/头衔
 model PersonIdentity {
   id               String   @id @default(cuid())
   personEntityId   String
@@ -323,6 +322,7 @@ model PersonIdentity {
   person           Person   @relation(fields: [personEntityId], references: [entityId], onDelete: Cascade)
 }
 
+// 人员与院团关系
 model PersonTroupeMembership {
   id              String   @id @default(cuid())
   personEntityId  String
@@ -335,17 +335,10 @@ model PersonTroupeMembership {
   troupe          Troupe   @relation(fields: [troupeEntityId], references: [entityId], onDelete: Cascade)
 }
 
-model WorkRole {
-  id           String   @id @default(cuid())
-  workEntityId String
-  roleEntityId String
-  sortOrder    Int      @default(0)
-}
-
+// 节目单条目
 model EventProgramItem {
   id              String   @id @default(cuid())
   eventEntityId   String
-  sessionId       String?
   workEntityId    String?
   titleOverride   String?
   sequenceNo      Int
@@ -356,6 +349,7 @@ model EventProgramItem {
   casts           PerformanceCast[]
 }
 
+// 演出卡司（节目单条目中的演员/角色）
 model PerformanceCast {
   id                 String           @id @default(cuid())
   eventProgramItemId String
@@ -363,23 +357,33 @@ model PerformanceCast {
   personEntityId     String?
   castNote           String?
   programItem        EventProgramItem @relation(fields: [eventProgramItemId], references: [id], onDelete: Cascade)
+  role               Role?            @relation(fields: [roleEntityId], references: [entityId])
   person             Person?          @relation(fields: [personEntityId], references: [entityId])
 }
 
+// 活动参与者（与节目单并行的参与名单）
 model EventParticipant {
   id                String   @id @default(cuid())
   eventEntityId     String
-  sessionId         String?
   personEntityId    String?
-  troupeEntityId    String?
   participationRole String
   creditedAs        String?
   sortOrder         Int      @default(0)
   event             Event    @relation(fields: [eventEntityId], references: [entityId], onDelete: Cascade)
   person            Person?  @relation(fields: [personEntityId], references: [entityId])
-  troupe            Troupe?  @relation(fields: [troupeEntityId], references: [entityId])
 }
 
+// 活动-剧团关系（不区分角色）
+model EventTroupe {
+  id            String   @id @default(cuid())
+  eventEntityId String
+  troupeEntityId String
+  sortOrder     Int      @default(0)
+  event         Event    @relation(fields: [eventEntityId], references: [entityId], onDelete: Cascade)
+  troupe        Troupe   @relation(fields: [troupeEntityId], references: [entityId], onDelete: Cascade)
+}
+
+// 实体关系（可用于代表作、关联条目等）
 model EntityRelation {
   id             String   @id @default(cuid())
   fromEntityId   String
@@ -391,6 +395,7 @@ model EntityRelation {
   toEntity       Entity   @relation("EntityRelationTo", fields: [toEntityId], references: [id], onDelete: Cascade)
 }
 
+// 来源
 model Source {
   id               String            @id @default(cuid())
   sourceType       String
@@ -405,6 +410,7 @@ model Source {
   entityRefs       EntitySourceRef[]
 }
 
+// 实体与来源的引用关系
 model EntitySourceRef {
   id           String   @id @default(cuid())
   entityId      String
@@ -416,24 +422,13 @@ model EntitySourceRef {
   source        Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
 }
 
-model MediaAsset {
-  id              String    @id @default(cuid())
-  assetType       AssetType
-  fileUrl         String
-  thumbnailUrl    String?
-  sourceId        String?
-  copyrightStatus String
-  altText         String?
-  uploadedById    String
-  createdAt       DateTime  @default(now())
-}
-
+// 编辑提案（提交后进入审核队列）
 model EditProposal {
   id             String         @id @default(cuid())
   entityId       String
   proposerId     String
   proposalType   String
-  payloadJson    Json
+  payloadJson    Json           // 提案内容快照（审核时回放并写回）
   status         ProposalStatus @default(pending)
   reviewerId     String?
   reviewComment  String?
@@ -444,6 +439,7 @@ model EditProposal {
   reviewer       User?          @relation("ProposalReviewer", fields: [reviewerId], references: [id])
 }
 
+// 讨论主题
 model DiscussionThread {
   id          String          @id @default(cuid())
   entityId    String
@@ -456,6 +452,7 @@ model DiscussionThread {
   posts       DiscussionPost[]
 }
 
+// 讨论回复
 model DiscussionPost {
   id         String           @id @default(cuid())
   threadId    String
@@ -466,6 +463,7 @@ model DiscussionPost {
   author      User            @relation(fields: [authorId], references: [id])
 }
 
+// 搜索索引（派生数据）
 model SearchIndex {
   id          String   @id @default(cuid())
   entityId     String   @unique
@@ -476,13 +474,43 @@ model SearchIndex {
   entity       Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
 }
 
+// 审计日志
 model AuditLog {
   id          String   @id @default(cuid())
   actorId      String
   actionType   String
   targetType   String
   targetId     String
-  payloadJson  Json?
+  payloadJson  Json?   // 审计上下文
   createdAt    DateTime @default(now())
   actor        User     @relation(fields: [actorId], references: [id])
 }
+
+// NOTE: Lineage 当前未接入业务逻辑，先注释保留定义。
+// model Lineage {
+//   entityId      String   @id
+//   lineageType   String
+//   description   String
+//   entity        Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+// }
+
+// NOTE: MediaAsset currently has no verified usage in code.
+// Keep the definition here for future activation if needed.
+// enum AssetType {
+//   image
+//   video
+//   audio
+//   document
+// }
+//
+// model MediaAsset {
+//   id              String    @id @default(cuid())
+//   assetType       AssetType
+//   fileUrl         String
+//   thumbnailUrl    String?
+//   sourceId        String?
+//   copyrightStatus String
+//   altText         String?
+//   uploadedById    String
+//   createdAt       DateTime  @default(now())
+// }
