@@ -6,8 +6,9 @@ import {
   mapEntityTypeLabel,
   mapEventStatusLabel,
   mapEventTypeLabel,
+  mapIdentityLabel,
+  mapProposalStatusLabel,
   mapProposalTypeLabel,
-  mapReviewStatusLabel,
   mapTroupeTypeLabel,
   mapUserRoleLabel,
   mapWorkTypeLabel
@@ -149,7 +150,7 @@ function renderPersonReview(payload: Record<string, unknown>, options: EditorOpt
       ])}
       {renderSummaryBlock("人物身份履历", "逐条查看人物的身份变化。", identities.map((item, index) => {
         const row = item as Record<string, unknown>;
-        return `记录 ${index + 1}: ${formatValue(row.identityTerm)}，${formatDateTime(row.startDate)} 至 ${formatDateTime(row.endDate)}`;
+        return `记录 ${index + 1}: ${mapIdentityLabel(formatValue(row.identityTerm))}，${formatDateTime(row.startDate)} 至 ${formatDateTime(row.endDate)}`;
       }))}
       {renderSummaryBlock("院团履历", "核对人物和院团之间的关系。", memberships.map((item, index) => {
         const row = item as Record<string, unknown>;
@@ -329,7 +330,7 @@ export function ModerationQueueClient() {
         <article key={item.id} className={`${styles.detailPanel} ${styles.editorRecordCard}`}>
           <div className={styles.editorRecordTop}>
             <div className={pillStyles.row}>
-              <span className={`${pillStyles.pill} ${pillStyles.strong}`}>{mapReviewStatusLabel(item.status)}</span>
+              <span className={`${pillStyles.pill} ${pillStyles.strong}`}>{mapProposalStatusLabel(item.status)}</span>
               <span className={pillStyles.pill}>{mapProposalTypeLabel(item.proposalType)}</span>
               <span className={pillStyles.pill}>{mapEntityTypeLabel(item.entity.entityType)}</span>
             </div>

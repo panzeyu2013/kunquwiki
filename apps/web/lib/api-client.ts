@@ -3,6 +3,14 @@
 import { getStoredToken, setStoredToken } from "./auth";
 import { apiBase, buildApiUrl, readApiError, withQuery } from "./api-core";
 import { normalizeSlugPathSegment } from "./slug";
+import type {
+  ArticleType,
+  EventStatus,
+  EventType,
+  IdentityOption,
+  TroupeType,
+  WorkType
+} from "@kunquwiki/shared";
 
 async function request<T>(path: string, init?: RequestInit, useAuth = false): Promise<T> {
   const headers = new Headers(init?.headers);
@@ -79,7 +87,7 @@ export function getEntityPublic(slug: string) {
     plot?: string;
     bio?: string;
     description?: string;
-    workType?: string;
+    workType?: WorkType;
     originalAuthor?: string;
     dynastyPeriod?: string;
     genreNote?: string;
@@ -89,7 +97,7 @@ export function getEntityPublic(slug: string) {
     roles?: string[];
     personTypeNote?: string;
     troupeIds?: string[];
-    troupeType?: string;
+    troupeType?: TroupeType;
     foundedDate?: string;
     dissolvedDate?: string;
     cityId?: string;
@@ -107,7 +115,7 @@ export function getEntityPublic(slug: string) {
     deathDate?: string;
     hometown?: string;
     birthCityId?: string;
-    isLiving?: boolean;
+    isLiving?: boolean | null;
     personIdentities?: Array<{ id?: string; identityTerm?: string; startDate?: string; endDate?: string }>;
     troupeMemberships?: Array<{
       id?: string;
@@ -119,7 +127,7 @@ export function getEntityPublic(slug: string) {
     }>;
     representativeWorkIds?: string[];
     representativeExcerptIds?: string[];
-    eventType?: string;
+    eventType?: EventType;
     businessStatus?: string;
     startAt?: string;
     endAt?: string;
@@ -129,7 +137,7 @@ export function getEntityPublic(slug: string) {
     ticketStatus?: string;
     noteText?: string;
     posterImageId?: string;
-    program?: Array<{ workId?: string; workType?: string }>;
+    program?: Array<{ workId?: string; workType?: WorkType }>;
     programDetailed?: Array<{
       id?: string;
       workEntityId?: string;
@@ -140,7 +148,7 @@ export function getEntityPublic(slug: string) {
       casts?: Array<{ id?: string; roleEntityId?: string; personEntityId?: string; castNote?: string }>;
     }>;
     abstract?: string;
-    articleType?: string;
+    articleType?: ArticleType;
     difficultyLevel?: string;
     bodySourceType?: string;
     province?: string;
@@ -171,12 +179,12 @@ export function listPublicEntities(type: string) {
 
 export function getEditorOptions(entityType?: string, excludeEntityId?: string) {
   return request<{
-    identityOptions: string[];
-    workTypeOptions: string[];
-    troupeTypeOptions: string[];
-    articleTypeOptions: string[];
-    eventTypeOptions: string[];
-    eventStatusOptions: string[];
+    identityOptions: IdentityOption[];
+    workTypeOptions: WorkType[];
+    troupeTypeOptions: TroupeType[];
+    articleTypeOptions: ArticleType[];
+    eventTypeOptions: EventType[];
+    eventStatusOptions: EventStatus[];
     works: Array<{ id: string; slug: string; title: string }>;
     fullWorks: Array<{ id: string; slug: string; title: string }>;
     excerpts: Array<{ id: string; slug: string; title: string }>;
@@ -191,7 +199,7 @@ export function getEditorOptions(entityType?: string, excludeEntityId?: string) 
 export function createQuickEntityClient(input: {
   entityType: string;
   title: string;
-  workType?: string;
+  workType?: WorkType;
   parentWorkId?: string;
   initialData?: Record<string, unknown>;
 }) {

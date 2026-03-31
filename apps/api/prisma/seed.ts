@@ -1,11 +1,16 @@
 import {
+  ArticleType,
   EntityType,
   EventStatus,
+  EventType,
+  IdentityTerm,
   PrismaClient,
   ProposalStatus,
   PublishStatus,
   ReviewStatus,
-  UserRole
+  TroupeType,
+  UserRole,
+  WorkType
 } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
 
@@ -207,7 +212,7 @@ export async function seedDatabase() {
     nested: {
       work: {
         create: {
-          workType: "full_play",
+          workType: WorkType.full_play,
           originalAuthor: "汤显祖",
           dynastyPeriod: "明",
           synopsis: "以梦与情为线索展开的传奇作品。",
@@ -228,7 +233,7 @@ export async function seedDatabase() {
     nested: {
       work: {
         create: {
-          workType: "excerpt",
+          workType: WorkType.excerpt,
           parentWorkId: work1.id,
           originalAuthor: "汤显祖",
           dynastyPeriod: "明",
@@ -250,7 +255,7 @@ export async function seedDatabase() {
     nested: {
       work: {
         create: {
-          workType: "full_play",
+          workType: WorkType.full_play,
           originalAuthor: "洪昇",
           dynastyPeriod: "清",
           synopsis: "以爱情与兴亡互相映照。",
@@ -271,8 +276,8 @@ export async function seedDatabase() {
     nested: {
       troupe: {
         create: {
-          troupeType: "troupe",
-          cityEntityId: cityShanghai.id,
+          troupeType: TroupeType.troupe,
+          cityRecord: { connect: { entityId: cityShanghai.id } },
           city: "上海",
           region: "上海",
           description: "以上海为核心阵地，长期活跃于全国演出与传播。"
@@ -292,8 +297,8 @@ export async function seedDatabase() {
     nested: {
       troupe: {
         create: {
-          troupeType: "troupe",
-          cityEntityId: citySuzhou.id,
+          troupeType: TroupeType.troupe,
+          cityRecord: { connect: { entityId: citySuzhou.id } },
           city: "苏州",
           region: "江苏",
           description: "围绕昆曲发源地文化语境开展演出、传承与传播。"
@@ -314,7 +319,7 @@ export async function seedDatabase() {
       person: {
         create: {
           gender: "男",
-          birthCityEntityId: cityShanghai.id,
+          birthCity: { connect: { entityId: cityShanghai.id } },
           bio: "活跃于舞台演出、跨界合作与昆曲推广。"
         }
       }
@@ -333,7 +338,7 @@ export async function seedDatabase() {
       person: {
         create: {
           gender: "女",
-          birthCityEntityId: citySuzhou.id,
+          birthCity: { connect: { entityId: citySuzhou.id } },
           bio: "长期从事舞台演出与人才培养。"
         }
       }
@@ -342,10 +347,10 @@ export async function seedDatabase() {
 
   await prisma.personIdentity.createMany({
     data: [
-      { personEntityId: person1.id, identityTerm: "演员" },
-      { personEntityId: person1.id, identityTerm: "推广者" },
-      { personEntityId: person2.id, identityTerm: "演员" },
-      { personEntityId: person2.id, identityTerm: "教师" }
+      { personEntityId: person1.id, identityTerm: IdentityTerm.actor },
+      { personEntityId: person1.id, identityTerm: IdentityTerm.promoter },
+      { personEntityId: person2.id, identityTerm: IdentityTerm.actor },
+      { personEntityId: person2.id, identityTerm: IdentityTerm.teacher }
     ]
   });
 
@@ -387,7 +392,7 @@ export async function seedDatabase() {
       venue: {
         create: {
           venueType: "theater",
-          cityEntityId: cityShanghai.id,
+          cityRecord: { connect: { entityId: cityShanghai.id } },
           region: "上海",
           city: "上海",
           address: "上海市黄浦区人民大道300号",
@@ -410,7 +415,7 @@ export async function seedDatabase() {
       venue: {
         create: {
           venueType: "theater",
-          cityEntityId: citySuzhou.id,
+          cityRecord: { connect: { entityId: citySuzhou.id } },
           region: "江苏",
           city: "苏州",
           address: "苏州市姑苏区宫巷",
@@ -432,13 +437,12 @@ export async function seedDatabase() {
     nested: {
       event: {
         create: {
-          eventType: "performance",
+          eventType: EventType.performance,
           businessStatus: EventStatus.scheduled,
           startAt: new Date("2026-04-10T19:30:00+08:00"),
           endAt: new Date("2026-04-10T22:00:00+08:00"),
-          cityEntityId: cityShanghai.id,
-          venueEntityId: venue1.id,
-          troupeEntityId: troupe1.id,
+          city: { connect: { entityId: cityShanghai.id } },
+          venue: { connect: { entityId: venue1.id } },
           organizerText: "上海昆剧团",
           ticketUrl: "https://example.com/ticket/mudanting-shanghai",
           durationText: "2小时30分钟",
@@ -461,13 +465,12 @@ export async function seedDatabase() {
     nested: {
       event: {
         create: {
-          eventType: "memorial",
+          eventType: EventType.memorial,
           businessStatus: EventStatus.announced,
           startAt: new Date("2026-05-18T19:00:00+08:00"),
           endAt: new Date("2026-05-18T21:30:00+08:00"),
-          cityEntityId: citySuzhou.id,
-          venueEntityId: venue2.id,
-          troupeEntityId: troupe2.id,
+          city: { connect: { entityId: citySuzhou.id } },
+          venue: { connect: { entityId: venue2.id } },
           organizerText: "苏州昆剧院",
           durationText: "2小时30分钟",
           ticketStatus: "待开票",
@@ -489,11 +492,11 @@ export async function seedDatabase() {
     nested: {
       event: {
         create: {
-          eventType: "lecture",
+          eventType: EventType.lecture,
           businessStatus: EventStatus.completed,
           startAt: new Date("2025-12-12T19:00:00+08:00"),
           endAt: new Date("2025-12-12T21:00:00+08:00"),
-          cityEntityId: cityBeijing.id,
+          city: { connect: { entityId: cityBeijing.id } },
           organizerText: "昆曲推广小组",
           durationText: "2小时",
           ticketStatus: "已结束",
@@ -555,7 +558,7 @@ export async function seedDatabase() {
     nested: {
       article: {
         create: {
-          articleType: "term",
+          articleType: ArticleType.term,
           abstract: "昆曲表演中的人物类型与表演分工系统。"
         }
       }

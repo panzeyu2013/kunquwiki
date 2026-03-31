@@ -12,6 +12,12 @@ export type EntityType =
 export type PublishStatus = "draft" | "published" | "archived" | "pending_review";
 export type EventStatus = "announced" | "scheduled" | "completed" | "cancelled" | "postponed";
 export type ReviewStatus = "pending" | "approved" | "rejected";
+export type WorkType = "full_play" | "excerpt" | "adapted_piece";
+export type TroupeType = "troupe" | "school" | "research_org";
+export type EventType = "performance" | "festival" | "lecture" | "memorial";
+export type ArticleType = "term" | "costume" | "music" | "history" | "technique";
+export type IdentityOption = "actor" | "teacher" | "director" | "writer" | "researcher" | "promoter";
+
 
 export interface BaseEntity {
   id: string;
@@ -34,7 +40,7 @@ export interface BaseEntity {
 
 export interface WorkEntity extends BaseEntity {
   entityType: "work";
-  workType: "full_play" | "excerpt" | "adapted_piece";
+  workType: WorkType;
   originalAuthor?: string;
   dynastyPeriod?: string;
   parentWorkId?: string;
@@ -44,7 +50,7 @@ export interface WorkEntity extends BaseEntity {
 
 export interface PersonEntity extends BaseEntity {
   entityType: "person";
-  roles: string[];
+  roles: IdentityOption[];
   gender?: string;
   birthCityId?: string;
   troupeIds: string[];
@@ -58,7 +64,7 @@ export interface TroupeEntity extends BaseEntity {
   cityId?: string;
   city: string;
   region: string;
-  troupeType: "troupe" | "school" | "research_org";
+  troupeType: TroupeType;
   description: string;
   officialWebsite?: string;
 }
@@ -82,7 +88,7 @@ export interface ProgramItem {
   id: string;
   title: string;
   workId?: string;
-  workType?: "full_play" | "excerpt" | "adapted_piece";
+  workType?: WorkType;
   sequenceNo: number;
   durationMinutes?: number;
   casts?: Array<{
@@ -95,7 +101,7 @@ export interface ProgramItem {
 
 export interface EventEntity extends BaseEntity {
   entityType: "event";
-  eventType: "performance" | "festival" | "lecture" | "memorial";
+  eventType: EventType;
   businessStatus: EventStatus;
   startAt: string;
   endAt?: string;
@@ -112,7 +118,7 @@ export interface EventEntity extends BaseEntity {
 
 export interface ArticleEntity extends BaseEntity {
   entityType: "article";
-  articleType: "term" | "costume" | "music" | "history" | "technique";
+  articleType: ArticleType;
   body: string;
 }
 

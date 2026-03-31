@@ -15,6 +15,7 @@ import {
   type QuickCreatedOption,
   type TroupeMembershipRow
 } from "../shared";
+import { mapIdentityLabel } from "../../../../lib/labels";
 
 // Styles
 import styles from "../../../../styles/editor-page.module.css";
@@ -39,7 +40,7 @@ type PersonFieldsProps = {
 };
 
 function buildIdentitySummary(item: PersonIdentityRow) {
-  const identity = item.identityTerm.trim() || "未填写身份";
+  const identity = mapIdentityLabel(item.identityTerm.trim()) || "未填写身份";
   const period = `${formatDateTimeLabel(item.startDate)} - ${formatDateTimeLabel(item.endDate)}`;
   return `${identity} · ${period}`;
 }
@@ -267,7 +268,11 @@ export function PersonFields({
           createLabel="创建新城市："
         />
         <label className={`${styles.checkboxRow} ${styles.fieldSpanFull}`}>
-          <input type="checkbox" checked={Boolean(formState.isLiving)} onChange={(event) => setField("isLiving", event.target.checked)} />
+          <input
+            type="checkbox"
+            checked={formState.isLiving === true}
+            onChange={(event) => setField("isLiving", event.target.checked ? true : null)}
+          />
           在世
         </label>
         <SearchCreateMultiSelect
@@ -326,7 +331,7 @@ export function PersonFields({
         </button>
         <datalist id="identity-options">
           {options.identityOptions.map((item) => (
-            <option key={item} value={item} />
+            <option key={item} value={item} label={mapIdentityLabel(item)} />
           ))}
         </datalist>
       </div>

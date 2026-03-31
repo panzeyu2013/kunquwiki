@@ -1,5 +1,17 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
-import { EntityType, EventStatus, Prisma, PrismaClient, ProposalStatus, PublishStatus } from "@prisma/client";
+import {
+  ArticleType,
+  EntityType,
+  EventStatus,
+  EventType,
+  IdentityTerm,
+  Prisma,
+  PrismaClient,
+  ProposalStatus,
+  PublishStatus,
+  TroupeType,
+  WorkType
+} from "@prisma/client";
 import { PrismaService } from "./prisma.service";
 import { SearchIndexService } from "./search-index.service";
 
@@ -841,18 +853,31 @@ export class ContentRepository {
     ]);
 
     const [fullWorks, excerpts] = await Promise.all([
-      this.listEntityOptions("work", excludeEntityId, { work: { workType: "full_play" } }),
-      this.listEntityOptions("work", excludeEntityId, { work: { workType: "excerpt" } })
+      this.listEntityOptions("work", excludeEntityId, { work: { workType: WorkType.full_play } }),
+      this.listEntityOptions("work", excludeEntityId, { work: { workType: WorkType.excerpt } })
     ]);
 
     return {
       entityType,
-      identityOptions: ["演员", "教师", "导演", "编剧", "研究者", "推广者"],
-      workTypeOptions: ["full_play", "excerpt", "adapted_piece"],
-      troupeTypeOptions: ["troupe", "school", "research_org", "theater_org"],
-      articleTypeOptions: ["term", "costume", "music", "history", "technique"],
-      eventTypeOptions: ["performance", "festival", "lecture", "memorial"],
-      eventStatusOptions: ["announced", "scheduled", "completed", "cancelled", "postponed"],
+      identityOptions: [
+        IdentityTerm.actor,
+        IdentityTerm.teacher,
+        IdentityTerm.director,
+        IdentityTerm.writer,
+        IdentityTerm.researcher,
+        IdentityTerm.promoter
+      ],
+      workTypeOptions: [WorkType.full_play, WorkType.excerpt, WorkType.adapted_piece],
+      troupeTypeOptions: [TroupeType.troupe, TroupeType.school, TroupeType.research_org],
+      articleTypeOptions: [ArticleType.term, ArticleType.costume, ArticleType.music, ArticleType.history, ArticleType.technique],
+      eventTypeOptions: [EventType.performance, EventType.festival, EventType.lecture, EventType.memorial],
+      eventStatusOptions: [
+        EventStatus.announced,
+        EventStatus.scheduled,
+        EventStatus.completed,
+        EventStatus.cancelled,
+        EventStatus.postponed
+      ],
       works,
       fullWorks,
       excerpts,
@@ -930,9 +955,9 @@ export class ContentRepository {
     const trimmedTitle = input.title.trim();
     const normalizedType = input.entityType;
     let finalTitle = trimmedTitle;
-    let workType = input.workType;
+    let workType = input.workType as WorkType | undefined;
 
-    if (normalizedType === "work" && input.workType === "excerpt") {
+    if (normalizedType === "work" && input.workType === WorkType.excerpt) {
       if (!input.parentWorkId) {
         throw new NotFoundException("折子戏需要先选择所属剧目");
       }
@@ -943,7 +968,7 @@ export class ContentRepository {
         throw new NotFoundException("所属剧目不存在");
       }
       finalTitle = `${parent.title}·${trimmedTitle}`;
-      workType = "excerpt";
+      workType = WorkType.excerpt;
     }
 
     if (normalizedType !== "event") {
@@ -972,7 +997,10 @@ export class ContentRepository {
         : "待补充");
     const initialStartAt =
       typeof initialData.startAt === "string" && initialData.startAt.length > 0 ? new Date(initialData.startAt) : new Date();
-    const initialEventType = typeof initialData.eventType === "string" && initialData.eventType.length > 0 ? initialData.eventType : "performance";
+    const initialEventType =
+      typeof initialData.eventType === "string" && initialData.eventType.length > 0
+        ? (initialData.eventType as EventType)
+        : EventType.performance;
     const initialEventStatus =
       typeof initialData.businessStatus === "string" && initialData.businessStatus.length > 0 ? initialData.businessStatus : EventStatus.scheduled;
     const initialTroupeIds = Array.isArray(initialData.troupeIds)
@@ -1016,7 +1044,7 @@ export class ContentRepository {
           ? {
               troupe: {
                 create: {
-                  troupeType: this.toNullableString(initialData.troupeType) ?? "troupe",
+                  troupeType: (this.toNullableString(initialData.troupeType) as TroupeType | null) ?? TroupeType.troupe,
                   foundedDate: this.toNullableDate(initialData.foundedDate),
                   dissolvedDate: this.toNullableDate(initialData.dissolvedDate),
                   cityEntityId: this.toNullableString(initialData.cityId),
@@ -1057,7 +1085,12 @@ export class ContentRepository {
                   hometown: this.toNullableString(initialData.hometown),
                   birthCityEntityId: this.toNullableString(initialData.birthCityId),
                   bio: this.toNullableString(initialData.bio) ?? bodyMarkdown,
-                  isLiving: typeof initialData.isLiving === "boolean" ? initialData.isLiving : true,
+                  isLiving:
+                    typeof initialData.isLiving === "boolean"
+                      ? initialData.isLiving
+                      : this.toNullableDate(initialData.deathDate)
+                        ? false
+                        : null,
                   identities: {
                     create: this.toPersonIdentities(this.toObjectArray(initialData.personIdentities))
                   },
@@ -1072,7 +1105,7 @@ export class ContentRepository {
           ? {
               article: {
                 create: {
-                  articleType: this.toNullableString(initialData.articleType) ?? "term",
+                  articleType: (this.toNullableString(initialData.articleType) as ArticleType | null) ?? ArticleType.term,
                   abstract: this.toNullableString(initialData.abstract) ?? this.excerptText(bodyMarkdown),
                   difficultyLevel: this.toNullableString(initialData.difficultyLevel),
                   bodySourceType: this.toNullableString(initialData.bodySourceType)
@@ -1095,7 +1128,7 @@ export class ContentRepository {
           ? {
               work: {
                 create: {
-                  workType: workType ?? "full_play",
+                  workType: workType ?? WorkType.full_play,
                   parentWorkId: input.parentWorkId ?? null,
                   originalAuthor: this.toNullableString(initialData.originalAuthor),
                   dynastyPeriod: this.toNullableString(initialData.dynastyPeriod),
@@ -1446,7 +1479,7 @@ export class ContentRepository {
         await tx.work.update({
           where: { entityId },
           data: {
-            ...(typeof payload.workType === "string" ? { workType: payload.workType } : {}),
+            ...(typeof payload.workType === "string" ? { workType: payload.workType as WorkType } : {}),
             ...(typeof payload.parentWorkId === "string" || payload.parentWorkId === null
               ? { parentWorkId: typeof payload.parentWorkId === "string" && payload.parentWorkId.length > 0 ? payload.parentWorkId : null }
               : {}),
@@ -1466,26 +1499,47 @@ export class ContentRepository {
         });
         break;
       case "person": {
+        const deathDateInput = payload.deathDate;
+        const isLivingInput = payload.isLiving;
+        const nextDeathDate =
+          typeof deathDateInput === "string" ? new Date(deathDateInput) : deathDateInput === null ? null : undefined;
+        const nextIsLiving =
+          typeof isLivingInput === "boolean" ? isLivingInput : isLivingInput === null ? null : undefined;
+
+        const personData: Prisma.PersonUpdateInput = {
+          ...(typeof payload.personTypeNote === "string" ? { personTypeNote: payload.personTypeNote } : {}),
+          ...(typeof payload.gender === "string" ? { gender: payload.gender } : {}),
+          ...(typeof payload.birthDate === "string" ? { birthDate: new Date(payload.birthDate) } : {}),
+          ...(payload.birthDate === null ? { birthDate: null } : {}),
+          ...(typeof payload.hometown === "string" ? { hometown: payload.hometown } : {}),
+          ...(typeof payload.birthCityId === "string" || payload.birthCityId === null
+            ? { birthCityEntityId: typeof payload.birthCityId === "string" && payload.birthCityId.length > 0 ? payload.birthCityId : null }
+            : {}),
+          ...(typeof payload.bio === "string"
+            ? { bio: payload.bio }
+            : typeof payload.bodyMarkdown === "string"
+              ? { bio: payload.bodyMarkdown }
+              : {})
+        };
+
+        if (nextDeathDate !== undefined) {
+          personData.deathDate = nextDeathDate;
+        }
+        if (nextIsLiving !== undefined) {
+          personData.isLiving = nextIsLiving;
+        }
+
+        if (typeof deathDateInput === "string") {
+          personData.isLiving = false;
+        }
+
+        if ((nextIsLiving === true || nextIsLiving === null) && deathDateInput === undefined) {
+          personData.deathDate = null;
+        }
+
         await tx.person.update({
           where: { entityId },
-          data: {
-            ...(typeof payload.personTypeNote === "string" ? { personTypeNote: payload.personTypeNote } : {}),
-            ...(typeof payload.gender === "string" ? { gender: payload.gender } : {}),
-            ...(typeof payload.birthDate === "string" ? { birthDate: new Date(payload.birthDate) } : {}),
-            ...(payload.birthDate === null ? { birthDate: null } : {}),
-            ...(typeof payload.deathDate === "string" ? { deathDate: new Date(payload.deathDate) } : {}),
-            ...(payload.deathDate === null ? { deathDate: null } : {}),
-            ...(typeof payload.hometown === "string" ? { hometown: payload.hometown } : {}),
-            ...(typeof payload.birthCityId === "string" || payload.birthCityId === null
-              ? { birthCityEntityId: typeof payload.birthCityId === "string" && payload.birthCityId.length > 0 ? payload.birthCityId : null }
-              : {}),
-            ...(typeof payload.bio === "string"
-              ? { bio: payload.bio }
-              : typeof payload.bodyMarkdown === "string"
-                ? { bio: payload.bodyMarkdown }
-                : {}),
-            ...(typeof payload.isLiving === "boolean" ? { isLiving: payload.isLiving } : {})
-          }
+          data: personData
         });
 
         if (Array.isArray(payload.personIdentities)) {
@@ -1503,7 +1557,7 @@ export class ContentRepository {
             await tx.personIdentity.createMany({
               data: identities.map((identity) => ({
                 personEntityId: entityId,
-                identityTerm: identity
+                identityTerm: identity as IdentityTerm
               }))
             });
           }
@@ -1556,7 +1610,7 @@ export class ContentRepository {
         await tx.troupe.update({
           where: { entityId },
           data: {
-            ...(typeof payload.troupeType === "string" ? { troupeType: payload.troupeType } : {}),
+            ...(typeof payload.troupeType === "string" ? { troupeType: payload.troupeType as TroupeType } : {}),
             ...(typeof payload.foundedDate === "string" ? { foundedDate: new Date(payload.foundedDate) } : {}),
             ...(payload.foundedDate === null ? { foundedDate: null } : {}),
             ...(typeof payload.dissolvedDate === "string" ? { dissolvedDate: new Date(payload.dissolvedDate) } : {}),
@@ -1605,7 +1659,7 @@ export class ContentRepository {
         await tx.event.update({
           where: { entityId },
           data: {
-            ...(typeof payload.eventType === "string" ? { eventType: payload.eventType } : {}),
+            ...(typeof payload.eventType === "string" ? { eventType: payload.eventType as EventType } : {}),
             ...(typeof payload.businessStatus === "string" ? { businessStatus: payload.businessStatus as EventStatus } : {}),
             ...(typeof payload.startAt === "string" ? { startAt: new Date(payload.startAt) } : {}),
             ...(typeof payload.endAt === "string" ? { endAt: new Date(payload.endAt) } : {}),
@@ -1719,7 +1773,7 @@ export class ContentRepository {
         await tx.article.update({
           where: { entityId },
           data: {
-            ...(typeof payload.articleType === "string" ? { articleType: payload.articleType } : {}),
+            ...(typeof payload.articleType === "string" ? { articleType: payload.articleType as ArticleType } : {}),
             ...(typeof payload.abstract === "string" ? { abstract: payload.abstract } : {}),
             ...(typeof payload.difficultyLevel === "string" ? { difficultyLevel: payload.difficultyLevel } : {}),
             ...(typeof payload.bodySourceType === "string" ? { bodySourceType: payload.bodySourceType } : {})
@@ -1800,11 +1854,13 @@ export class ContentRepository {
   private toPersonIdentities(items: Record<string, unknown>[]) {
     return items
       .map((item) => ({
-        identityTerm: this.toNullableString(item.identityTerm),
+        identityTerm: this.toNullableString(item.identityTerm) as IdentityTerm | null,
         startDate: this.toNullableDate(item.startDate),
         endDate: this.toNullableDate(item.endDate)
       }))
-      .filter((item): item is { identityTerm: string; startDate: Date | null; endDate: Date | null } => Boolean(item.identityTerm));
+      .filter(
+        (item): item is { identityTerm: IdentityTerm; startDate: Date | null; endDate: Date | null } => Boolean(item.identityTerm)
+      );
   }
 
   private toTroupeMemberships(items: Record<string, unknown>[]) {
@@ -1963,7 +2019,7 @@ export class ContentRepository {
       case "work":
         return {
           ...base,
-          workType: entity.work?.workType ?? "full_play",
+          workType: entity.work?.workType ?? WorkType.full_play,
           originalAuthor: entity.work?.originalAuthor ?? undefined,
           dynastyPeriod: entity.work?.dynastyPeriod ?? undefined,
           genreNote: entity.work?.genreNote ?? undefined,
@@ -1983,7 +2039,7 @@ export class ContentRepository {
           deathDate: entity.person?.deathDate?.toISOString(),
           hometown: entity.person?.hometown ?? undefined,
           birthCityId: entity.person?.birthCityEntityId ?? undefined,
-          isLiving: entity.person?.isLiving ?? true,
+          isLiving: entity.person?.isLiving ?? undefined,
           troupeIds: entity.person?.troupeMemberships.map((item) => item.troupeEntityId) ?? [],
           personIdentities: (entity.person?.identities ?? []).map((item) => ({
             id: item.id,
@@ -2011,7 +2067,7 @@ export class ContentRepository {
           dissolvedDate: entity.troupe?.dissolvedDate?.toISOString(),
           city: entity.troupe?.city ?? "",
           region: entity.troupe?.region ?? "",
-          troupeType: entity.troupe?.troupeType ?? "troupe",
+          troupeType: entity.troupe?.troupeType ?? TroupeType.troupe,
           officialWebsite: entity.troupe?.officialWebsite ?? undefined,
           description: entity.troupe?.description ?? entity.content?.bodyMarkdown ?? "待补充"
         };
@@ -2032,7 +2088,7 @@ export class ContentRepository {
       case "event":
         return {
           ...base,
-          eventType: entity.event?.eventType ?? "performance",
+          eventType: entity.event?.eventType ?? EventType.performance,
           businessStatus: entity.event?.businessStatus ?? EventStatus.announced,
           startAt: entity.event?.startAt.toISOString() ?? entity.createdAt.toISOString(),
           endAt: entity.event?.endAt?.toISOString(),
@@ -2049,7 +2105,7 @@ export class ContentRepository {
             id: item.id,
             title: item.titleOverride ?? item.work?.entity.title ?? "未命名节目",
             workId: item.workEntityId ?? undefined,
-            workType: item.work?.workType as "full_play" | "excerpt" | "adapted_piece" | undefined,
+            workType: item.work?.workType as WorkType | undefined,
             sequenceNo: item.sequenceNo,
             durationMinutes: item.durationMinutes ?? undefined,
             casts: (item.casts ?? []).map((cast) => ({
@@ -2082,7 +2138,7 @@ export class ContentRepository {
       case "article":
         return {
           ...base,
-          articleType: entity.article?.articleType ?? "term",
+          articleType: entity.article?.articleType ?? ArticleType.term,
           abstract: entity.article?.abstract ?? undefined,
           difficultyLevel: entity.article?.difficultyLevel ?? undefined,
           bodySourceType: entity.article?.bodySourceType ?? undefined,

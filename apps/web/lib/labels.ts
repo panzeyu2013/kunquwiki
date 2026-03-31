@@ -77,8 +77,7 @@ export function mapTroupeTypeLabel(value: string) {
   const labels: Record<string, string> = {
     troupe: "院团",
     school: "院校",
-    research_org: "研究机构",
-    theater_org: "剧场机构"
+    research_org: "研究机构"
   };
   return labels[value] ?? value;
 }
@@ -89,6 +88,18 @@ export function mapParticipationRoleLabel(value: string) {
     organizer: "主办",
     guest: "嘉宾",
     host: "主持"
+  };
+  return labels[value] ?? value;
+}
+
+export function mapIdentityLabel(value: string) {
+  const labels: Record<string, string> = {
+    actor: "演员",
+    teacher: "教师",
+    director: "导演",
+    writer: "编剧",
+    researcher: "研究者",
+    promoter: "推广者"
   };
   return labels[value] ?? value;
 }
@@ -116,6 +127,15 @@ export function mapUserStatusLabel(value: string) {
 export function mapProposalTypeLabel(value: string) {
   const labels: Record<string, string> = {
     content_update: "内容修改"
+  };
+  return labels[value] ?? value;
+}
+
+export function mapProposalStatusLabel(value: string) {
+  const labels: Record<string, string> = {
+    pending: "待审核",
+    approved: "已通过",
+    rejected: "已驳回"
   };
   return labels[value] ?? value;
 }

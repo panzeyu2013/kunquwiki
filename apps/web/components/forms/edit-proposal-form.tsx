@@ -58,7 +58,7 @@ function emptyState(entityType: string) {
         deathDate: "",
         hometown: "",
         birthCityId: "",
-        isLiving: true,
+        isLiving: null,
         personIdentities: [] as PersonIdentityRow[],
         troupeMemberships: [] as TroupeMembershipRow[]
       };
@@ -302,7 +302,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
           nextState.deathDate = loadedEntity.deathDate ? loadedEntity.deathDate.slice(0, 16) : "";
           nextState.hometown = loadedEntity.hometown ?? "";
           nextState.birthCityId = loadedEntity.birthCityId ?? "";
-          nextState.isLiving = loadedEntity.isLiving ?? true;
+          nextState.isLiving = loadedEntity.isLiving ?? null;
           nextState.representativeWorkIds = loadedEntity.representativeWorkIds ?? [];
           nextState.representativeExcerptIds = loadedEntity.representativeExcerptIds ?? [];
           nextState.personIdentities =
@@ -517,7 +517,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
         payload.deathDate = formState.deathDate ? new Date(String(formState.deathDate)).toISOString() : null;
         payload.hometown = formState.hometown;
         payload.birthCityId = formState.birthCityId || null;
-        payload.isLiving = formState.isLiving;
+        payload.isLiving = formState.isLiving ?? null;
         payload.personIdentities = (Array.isArray(formState.personIdentities) ? (formState.personIdentities as PersonIdentityRow[]) : []).map((item) => ({
           identityTerm: item.identityTerm,
           startDate: item.startDate ? new Date(item.startDate).toISOString() : null,

@@ -4,6 +4,7 @@ import { PersonEntity } from "@kunquwiki/shared";
 import { getEntity } from "../../../lib/api";
 import { EventRecordSection } from "../../../components/events/event-record-section";
 import { ReferenceList } from "../../../components/reference-list";
+import { mapIdentityLabel } from "../../../lib/labels";
 import { RelatedEntities } from "../../../components/related-entities";
 import { MarkdownContent } from "../../../components/markdown-content";
 import { ActionBar } from "../../../components/action-bar";
@@ -33,7 +34,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ s
           <div className={pillStyles.row}>
             {person.roles.map((role) => (
               <span key={role} className={pillStyles.pill}>
-                {role}
+                {mapIdentityLabel(role)}
               </span>
             ))}
           </div>
