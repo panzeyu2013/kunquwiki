@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TroupeEntity } from "@kunquwiki/shared";
 import { getEntity } from "../../../lib/api";
-import { EventRecordSection } from "../../../components/event-record-section";
+import { EventRecordSection } from "../../../components/events/event-record-section";
 import { ReferenceList } from "../../../components/reference-list";
 import { RelatedEntities } from "../../../components/related-entities";
 import { mapTroupeTypeLabel } from "../../../lib/labels";

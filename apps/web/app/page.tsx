@@ -1,5 +1,5 @@
 import { EntityGrid } from "../components/entity-grid";
-import { EventList } from "../components/event-list";
+import { EventList } from "../components/events/event-list";
 import { SectionCard } from "../components/section-card";
 import { getHomeData } from "../lib/api";
 import styles from "../styles/home-page.module.css";

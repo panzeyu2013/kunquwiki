@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { RelatedEventRecord } from "@kunquwiki/shared";
-import { formatDateTime } from "../lib/format";
+import { formatDateTime } from "../../lib/format";
 
 export function EventRecordSection({ title, events }: { title: string; events?: RelatedEventRecord[] }) {
   if (!events?.length) {

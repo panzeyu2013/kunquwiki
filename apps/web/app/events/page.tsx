@@ -1,10 +1,10 @@
-import { EventList } from "../../components/event-list";
 import { getEntities } from "../../lib/api";
 import { EventEntity } from "@kunquwiki/shared";
 import { mapEventStatusLabel } from "../../lib/labels";
 import Link from "next/link";
-import { SectionCard } from "../../components/section-card";
 import styles from "../../styles/detail-page.module.css";
+import { SearchSuggestInput } from "../../components/events/search-suggest-input";
+import { EventResults } from "../../components/events/event-results";
 
 export default async function EventsPage({
   searchParams
@@ -19,61 +19,194 @@ export default async function EventsPage({
   const person = typeof params.person === "string" ? params.person : "";
   const work = typeof params.work === "string" ? params.work : "";
   const venue = typeof params.venue === "string" ? params.venue : "";
+  const sort = typeof params.sort === "string" ? params.sort : "time";
   const entities = await getEntities({ type: "event", q, city, status, troupe, person, work, venue });
   const events = entities as EventEntity[];
+  const hasAdvancedFilters = Boolean(city || troupe || person || work || venue || status);
+  const statusLabel = status
+    ? mapEventStatusLabel(status as "announced" | "scheduled" | "completed" | "cancelled" | "postponed")
+    : "";
+  const activeFilters: Array<{ key: string; label: string }> = [
+    q ? { key: "q", label: `关键词：${q}` } : null,
+    city ? { key: "city", label: `城市：${city}` } : null,
+    troupe ? { key: "troupe", label: `剧团：${troupe}` } : null,
+    person ? { key: "person", label: `演员：${person}` } : null,
+    work ? { key: "work", label: `剧目：${work}` } : null,
+    venue ? { key: "venue", label: `剧场：${venue}` } : null,
+    status ? { key: "status", label: `状态：${statusLabel}` } : null
+  ].filter((item): item is { key: string; label: string } => Boolean(item));
+
+  const buildSearchUrl = (overrides: Partial<Record<string, string | undefined>>) => {
+    const next = new URLSearchParams();
+    const base: Record<string, string> = { q, city, status, troupe, person, work, venue, sort };
+    Object.entries(base).forEach(([key, value]) => {
+      const overrideValue = overrides.hasOwnProperty(key) ? overrides[key] : value;
+      if (typeof overrideValue === "string" && overrideValue.trim().length > 0) {
+        next.set(key, overrideValue);
+      }
+    });
+    const qs = next.toString();
+    return qs ? `/events?${qs}` : "/events";
+  };
 
   return (
     <div className={styles.page}>
-      <section className="section-card">
-        <div className="section-card-header">
-          <h2>演出库</h2>
+      <section className="section-card event-hero">
+        <div className="event-header">
+          <div>
+            <h2 className="page-title">演出库</h2>
+            <p>按时间管理和公开浏览昆曲演出、纪念活动、讲座与专题项目。</p>
+          </div>
           <div className="actions">
             <Link href="/create/event">创建演出</Link>
           </div>
         </div>
-        <p>按时间管理和公开浏览昆曲演出、纪念活动、讲座与专题项目。</p>
-        <form className="edit-form" action="/events">
-          <label>
-            关键词
-            <input name="q" defaultValue={q} placeholder="搜索演出标题或摘要" />
-          </label>
-          <label>
-            城市
-            <input name="city" defaultValue={city} placeholder="例如：上海、苏州" />
-          </label>
-          <label>
-            剧团
-            <input name="troupe" defaultValue={troupe} placeholder="例如：上海昆剧团" />
-          </label>
-          <label>
-            演员
-            <input name="person" defaultValue={person} placeholder="例如：张军" />
-          </label>
-          <label>
-            剧目或折子戏
-            <input name="work" defaultValue={work} placeholder="例如：牡丹亭、牡丹亭·游园惊梦" />
-          </label>
-          <label>
-            剧场
-            <input name="venue" defaultValue={venue} placeholder="例如：上海大剧院" />
-          </label>
-          <label>
-            状态
-            <select name="status" defaultValue={status}>
-              <option value="">全部</option>
-              <option value="announced">{mapEventStatusLabel("announced")}</option>
-              <option value="scheduled">{mapEventStatusLabel("scheduled")}</option>
-              <option value="completed">{mapEventStatusLabel("completed")}</option>
-              <option value="cancelled">{mapEventStatusLabel("cancelled")}</option>
-              <option value="postponed">{mapEventStatusLabel("postponed")}</option>
-            </select>
-          </label>
-          <button type="submit">筛选</button>
+      </section>
+
+      <section className="section-card search-shell">
+        <form action="/events" className="event-search">
+          <div className="search-row">
+            <SearchSuggestInput
+              name="q"
+              type="event"
+              defaultValue={q}
+              placeholder="搜索演出标题、摘要或关键词"
+            />
+            <input type="hidden" name="sort" value={sort} />
+            <label className="filter-toggle" htmlFor="event-filter-toggle">
+              筛选
+            </label>
+            <Link className="ghost-button search-reset-button" href="/events">
+              重置
+            </Link>
+          </div>
+          <input
+            id="event-filter-toggle"
+            className="filter-toggle-input"
+            type="checkbox"
+            defaultChecked={hasAdvancedFilters}
+          />
+          <div className="filter-panel">
+            <div className="filter-grid">
+              <label>
+                城市
+                <SearchSuggestInput
+                  name="city"
+                  type="city"
+                  minChars={1}
+                  inputClassName="filter-input"
+                  defaultValue={city}
+                  placeholder="例如：上海、苏州"
+                />
+              </label>
+              <label>
+                剧团
+                <SearchSuggestInput
+                  name="troupe"
+                  type="troupe"
+                  minChars={1}
+                  inputClassName="filter-input"
+                  defaultValue={troupe}
+                  placeholder="例如：上海昆剧团"
+                />
+              </label>
+              <label>
+                演员
+                <SearchSuggestInput
+                  name="person"
+                  type="person"
+                  minChars={1}
+                  inputClassName="filter-input"
+                  defaultValue={person}
+                  placeholder="例如：张军"
+                />
+              </label>
+              <label>
+                剧目或折子戏
+                <SearchSuggestInput
+                  name="work"
+                  type="work"
+                  minChars={1}
+                  inputClassName="filter-input"
+                  defaultValue={work}
+                  placeholder="例如：牡丹亭、牡丹亭·游园惊梦"
+                />
+              </label>
+              <label>
+                剧场
+                <SearchSuggestInput
+                  name="venue"
+                  type="venue"
+                  minChars={1}
+                  inputClassName="filter-input"
+                  defaultValue={venue}
+                  placeholder="例如：上海大剧院"
+                />
+              </label>
+              <fieldset className="status-field">
+                <legend>状态</legend>
+                <div className="status-options">
+                  <label className="status-chip">
+                    <input type="radio" name="status" value="" defaultChecked={!status} />
+                    <span>全部</span>
+                  </label>
+                  <label className="status-chip">
+                    <input type="radio" name="status" value="announced" defaultChecked={status === "announced"} />
+                    <span>{mapEventStatusLabel("announced")}</span>
+                  </label>
+                  <label className="status-chip">
+                    <input type="radio" name="status" value="scheduled" defaultChecked={status === "scheduled"} />
+                    <span>{mapEventStatusLabel("scheduled")}</span>
+                  </label>
+                  <label className="status-chip">
+                    <input type="radio" name="status" value="completed" defaultChecked={status === "completed"} />
+                    <span>{mapEventStatusLabel("completed")}</span>
+                  </label>
+                  <label className="status-chip">
+                    <input type="radio" name="status" value="cancelled" defaultChecked={status === "cancelled"} />
+                    <span>{mapEventStatusLabel("cancelled")}</span>
+                  </label>
+                  <label className="status-chip">
+                    <input type="radio" name="status" value="postponed" defaultChecked={status === "postponed"} />
+                    <span>{mapEventStatusLabel("postponed")}</span>
+                  </label>
+                </div>
+              </fieldset>
+            </div>
+            <div className="filter-actions">
+              <button type="submit">应用筛选</button>
+              <Link className="ghost-button" href="/events">
+                清空条件
+              </Link>
+            </div>
+          </div>
         </form>
       </section>
-      <SectionCard title="匹配结果">
-        <EventList events={events} />
-      </SectionCard>
+
+      <section className="section-card filter-summary">
+        <div className="chip-row">
+          <span className="chip-label">当前筛选：</span>
+          {activeFilters.length === 0 ? (
+            <span className="chip muted">暂无筛选条件</span>
+          ) : (
+            activeFilters.map((filter) => (
+              <span key={filter.key} className="chip">
+                {filter.label}
+                <Link className="chip-remove" href={buildSearchUrl({ [filter.key]: "" })}>
+                  ×
+                </Link>
+              </span>
+            ))
+          )}
+          {activeFilters.length > 0 ? (
+            <Link className="chip-clear" href="/events">
+              清除全部
+            </Link>
+          ) : null}
+        </div>
+      </section>
+
+      <EventResults events={events} initialSort={sort} />
     </div>
   );
 }

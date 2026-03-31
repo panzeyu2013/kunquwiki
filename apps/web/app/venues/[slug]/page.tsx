@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { VenueEntity } from "@kunquwiki/shared";
 import { getEntity } from "../../../lib/api";
-import { EventRecordSection } from "../../../components/event-record-section";
+import { EventRecordSection } from "../../../components/events/event-record-section";
 import { RelatedEntities } from "../../../components/related-entities";
 import { MarkdownContent } from "../../../components/markdown-content";
 import styles from "../../../styles/detail-page.module.css";
