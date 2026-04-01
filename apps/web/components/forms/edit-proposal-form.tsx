@@ -596,6 +596,13 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
     setPending(true);
     setMessage(null);
     try {
+      const confirmMessage = isCreateMode
+        ? `确认提交创建提案「${title.trim() || "未命名条目"}」？`
+        : `确认提交编辑提案「${title.trim() || entity?.title || "未命名条目"}」？`;
+      if (!window.confirm(confirmMessage)) {
+        setPending(false);
+        return;
+      }
       const payload = await buildPayload();
       if (isCreateMode) {
         await submitCreateProposal({

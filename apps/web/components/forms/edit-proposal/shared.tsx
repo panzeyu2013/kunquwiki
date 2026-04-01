@@ -153,6 +153,9 @@ export function SearchCreateSelect({
             className={buttonStyles.button}
             disabled={creating || disabled}
             onClick={async () => {
+              if (!window.confirm(`确认创建占位条目「${normalizedQuery}」？`)) {
+                return;
+              }
               setCreating(true);
               try {
                 const created = await onCreate(normalizedQuery);
@@ -252,6 +255,9 @@ export function SearchCreateMultiSelect({
             className={buttonStyles.button}
             disabled={disabled || creating}
             onClick={async () => {
+              if (!window.confirm(`确认创建占位条目「${normalizedQuery}」？`)) {
+                return;
+              }
               setCreating(true);
               try {
                 const created = await onCreate(normalizedQuery);
@@ -327,6 +333,9 @@ export function SearchCreateInlineSelect({
           className={`${ghostButtonStyles.button} ${styles.inlineChoice} ${styles.inlineChoiceCreate}`}
           disabled={creating || disabled}
           onClick={async () => {
+            if (!window.confirm(`确认创建占位条目「${normalizedQuery}」？`)) {
+              return;
+            }
             setCreating(true);
             try {
               const created = await onCreate(normalizedQuery);

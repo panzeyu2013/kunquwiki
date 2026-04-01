@@ -358,6 +358,10 @@ export function ModerationQueueClient() {
             <button
               type="button"
               onClick={async () => {
+                const label = item.entity?.title ?? String(item.payloadJson.title ?? "未命名条目");
+                if (!window.confirm(`确认通过提案「${label}」？`)) {
+                  return;
+                }
                 await reviewProposal(item.id, "approved", "前台审核通过");
                 await loadQueue();
               }}
@@ -368,6 +372,10 @@ export function ModerationQueueClient() {
               type="button"
               className={ghostButtonStyles.button}
               onClick={async () => {
+                const label = item.entity?.title ?? String(item.payloadJson.title ?? "未命名条目");
+                if (!window.confirm(`确认驳回提案「${label}」？`)) {
+                  return;
+                }
                 await reviewProposal(item.id, "rejected", "前台审核驳回");
                 await loadQueue();
               }}
