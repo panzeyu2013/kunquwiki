@@ -296,6 +296,10 @@ export function getAdminUsersClient() {
   >("/admin/users", undefined, true);
 }
 
+export function deleteEntityClient(entityId: string) {
+  return request(`/admin/entities/${entityId}`, { method: "DELETE" }, true);
+}
+
 export function updateAdminUserClient(
   id: string,
   input: { roles?: string[]; status?: string; reputation?: number }

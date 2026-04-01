@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { EntityType } from "@prisma/client";
-import { createQuickEntity, findEntityByTypeAndTitle, getEditorOptions } from "./content/content.editor";
+import { createQuickEntity, deleteEntity, findEntityByTypeAndTitle, getEditorOptions } from "./content/content.editor";
 import { createEntityProposal, createProposal, reviewProposal } from "./content/content.proposals";
 import {
   getAdminOverview,
@@ -93,5 +93,9 @@ export class ContentRepository {
 
   async findEntityByTypeAndTitle(entityType: EntityType, title: string) {
     return findEntityByTypeAndTitle(this.prisma, entityType, title);
+  }
+
+  async deleteEntity(entityId: string, actorId: string) {
+    return deleteEntity(this.prisma, entityId, actorId);
   }
 }

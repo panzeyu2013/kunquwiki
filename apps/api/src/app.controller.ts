@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Param, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Query } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { AppService } from "./app.service";
 import { CreateEntityProposalDto, CreateProposalDto, QuickCreateEntityDto, ReviewProposalDto, UpdateUserAccessDto } from "./dto";
@@ -130,6 +130,16 @@ export class AppController {
     const user = await this.authService.requireActiveUser(authorization);
     this.authService.assertAdminRole(user.roles);
     return this.authService.updateUserAccess(id, body, user.id);
+  }
+
+  @Delete("admin/entities/:id")
+  async deleteEntity(
+    @Param("id") id: string,
+    @Headers("authorization") authorization: string | undefined
+  ) {
+    const user = await this.authService.requireActiveUser(authorization);
+    this.authService.assertAdminRole(user.roles);
+    return this.appService.deleteEntity(id, user.id);
   }
 
   @Post("entities/:slug/proposals")

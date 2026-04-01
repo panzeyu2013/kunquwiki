@@ -392,3 +392,46 @@ export async function findEntityByTypeAndTitle(prisma: PrismaService, entityType
     }
   });
 }
+
+/**
+ * 删除指定实体及其级联数据，仅用于管理员操作。
+ *
+ * 输入：
+ * - `prisma`: 主 Prisma service。
+ * - `entityId`: 待删除实体 ID。
+ * - `actorId`: 执行删除的管理员 ID。
+ *
+ * 输出：
+ * - 返回被删除实体的 `{ id, slug, title, entityType }`。
+ */
+export async function deleteEntity(prisma: PrismaService, entityId: string, actorId: string) {
+  return prisma.$transaction(async (tx) => {
+    const entity = await tx.entity.findUnique({
+      where: { id: entityId },
+      select: { id: true, slug: true, title: true, entityType: true }
+    });
+    if (!entity) {
+      throw new NotFoundException(`Entity ${entityId} not found`);
+    }
+
+    const deleted = await tx.entity.delete({
+      where: { id: entityId },
+      select: { id: true, slug: true, title: true, entityType: true }
+    });
+
+    await tx.auditLog.create({
+      data: {
+        actorId,
+        actionType: "entity.delete",
+        targetType: deleted.entityType,
+        targetId: deleted.id,
+        payloadJson: {
+          slug: deleted.slug,
+          title: deleted.title
+        }
+      }
+    });
+
+    return deleted;
+  });
+}

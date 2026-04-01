@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { createQuickEntityClient, getEditorOptions, getEntityPublic, submitCreateProposal, submitProposal } from "../../lib/api-client";
-import { getEntityDetailPath } from "../../lib/routes";
+import { createQuickEntityClient, deleteEntityClient, getEditorOptions, getEntityPublic, submitCreateProposal, submitProposal } from "../../lib/api-client";
+import { getEntityCollectionPath, getEntityDetailPath } from "../../lib/routes";
+import { useAuthUser } from "../auth/use-auth-user";
 import { ActionBar } from "../action-bar";
 import type { WorkType } from "@kunquwiki/shared";
 import {
@@ -29,6 +30,7 @@ import { WorkFields } from "./edit-proposal/types/work-fields";
 
 // Styles
 import styles from "../../styles/editor-page.module.css";
+import ghostButtonStyles from "../../styles/components/ghost-button.module.css";
 
 function emptyState(entityType: string) {
   const base: Record<string, unknown> = {
@@ -144,6 +146,7 @@ function buildEventTitle(input: {
 }
 
 export function EditProposalForm({ slug, entityType }: { slug?: string; entityType?: string }) {
+  const { hasRole } = useAuthUser();
   const [entity, setEntity] = useState<EditableEntity | null>(null);
   const [options, setOptions] = useState<EditorOptions | null>(null);
   const [title, setTitle] = useState("");
@@ -625,6 +628,28 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
     }
   }
 
+  async function handleDelete() {
+    if (!entity?.id || !activeEntityType) {
+      return;
+    }
+    const confirmed = window.confirm(`确认删除条目「${entity.title}」？该操作不可撤销。`);
+    if (!confirmed) {
+      return;
+    }
+
+    setPending(true);
+    setMessage(null);
+    try {
+      await deleteEntityClient(entity.id);
+      const target = getEntityCollectionPath(activeEntityType) ?? "/";
+      window.location.href = target;
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "删除失败");
+    } finally {
+      setPending(false);
+    }
+  }
+
   return (
     <div className={styles.editorFormPage}>
       <EditorSummaryBar
@@ -735,6 +760,16 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
           <button type="submit" disabled={pending || !loaded || !title.trim()}>
             {pending ? "提交中..." : isCreateMode ? "创建条目" : "提交提案"}
           </button>
+          {!isCreateMode && hasRole("admin") ? (
+            <button
+              type="button"
+              className={ghostButtonStyles.button}
+              onClick={handleDelete}
+              disabled={pending || !entity?.id}
+            >
+              删除条目
+            </button>
+          ) : null}
           {message ? <p className={styles.statusMessage}>{message}</p> : null}
         </ActionBar>
       </form>

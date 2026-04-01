@@ -66,4 +66,8 @@ export class AppService {
   createQuickEntity(input: QuickCreateEntityDto, createdById: string) {
     return this.repository.createQuickEntity(input, createdById);
   }
+
+  deleteEntity(entityId: string, actorId: string) {
+    return this.repository.deleteEntity(entityId, actorId);
+  }
 }
