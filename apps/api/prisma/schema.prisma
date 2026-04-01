@@ -171,13 +171,6 @@ model Entity {
   incomingRelations EntityRelation[] @relation("EntityRelationTo")
   discussionThreads DiscussionThread[]
 
-  @@unique([id, entityType])
-  @@index([entityType])
-  @@index([status])
-  @@index([publishedAt])
-  @@index([createdAt])
-  @@index([createdById])
-  @@index([updatedById])
 }
 
 // 实体别名
@@ -190,7 +183,6 @@ model EntityAlias {
   entity    Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
 
   @@unique([entityId, alias, aliasType])
-  @@index([entityId])
 }
 
 // 实体内容（可渲染 Markdown）
@@ -221,11 +213,6 @@ model EntityRevision {
   reviewer          User?        @relation("RevisionReviewer", fields: [reviewerId], references: [id])
 
   @@unique([entityId, revisionNo])
-  @@index([entityId])
-  @@index([editorId])
-  @@index([reviewerId])
-  @@index([reviewStatus])
-  @@index([createdAt])
 }
 
 // 城市
@@ -233,14 +220,12 @@ model City {
   entityId    String   @id
   entityType  EntityType @default(city)
   province    String
-  entity      Entity   @relation(fields: [entityId, entityType], references: [id, entityType], onDelete: Cascade)
+  entity      Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
   bornPeople  Person[] @relation("PersonBirthCity")
   troupes     Troupe[]
   venues      Venue[]
   events      Event[]
 
-  @@index([entityType])
-  @@unique([entityId, entityType])
 }
 
 // 剧目/作品
@@ -256,15 +241,12 @@ model Work {
   plot            String
   durationMinutes Int?
   firstKnownDate  String?
-  entity          Entity   @relation(fields: [entityId, entityType], references: [id, entityType], onDelete: Cascade)
-  parentWork      Work?    @relation("WorkParent", fields: [parentWorkId], references: [entityId])
+  entity          Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  parentWork      Work?    @relation("WorkParent", fields: [parentWorkId], references: [entityId], onDelete: SetNull)
   childWorks      Work[]   @relation("WorkParent")
+  roles           Role[]
   eventProgramItems EventProgramItem[]
 
-  @@index([entityType])
-  @@index([parentWorkId])
-  @@index([workType])
-  @@unique([entityId, entityType])
 }
 
 // 人物（演员/研究者等真实人物，与 User 无关）
@@ -275,20 +257,16 @@ model Person {
   gender          String?
   birthDate       DateTime?
   deathDate       DateTime?
-  hometown        String?
   birthCityEntityId String?
   bio             String
   isLiving        Boolean?
-  entity          Entity   @relation(fields: [entityId, entityType], references: [id, entityType], onDelete: Cascade)
-  birthCity       City?    @relation("PersonBirthCity", fields: [birthCityEntityId], references: [entityId])
+  entity          Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  birthCity       City?    @relation("PersonBirthCity", fields: [birthCityEntityId], references: [entityId], onDelete: SetNull)
   identities      PersonIdentity[]
   troupeMemberships PersonTroupeMembership[]
   eventParticipants EventParticipant[]
   performanceCasts PerformanceCast[]
 
-  @@index([entityType])
-  @@index([birthCityEntityId])
-  @@unique([entityId, entityType])
 }
 
 // 院团
@@ -303,15 +281,11 @@ model Troupe {
   region          String?
   description     String
   officialWebsite String?
-  entity          Entity   @relation(fields: [entityId, entityType], references: [id, entityType], onDelete: Cascade)
-  cityRecord      City?    @relation(fields: [cityEntityId], references: [entityId])
+  entity          Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  cityRecord      City?    @relation(fields: [cityEntityId], references: [entityId], onDelete: SetNull)
   memberships     PersonTroupeMembership[]
   eventTroupes    EventTroupe[]
 
-  @@index([entityType])
-  @@index([cityEntityId])
-  @@index([troupeType])
-  @@unique([entityId, entityType])
 }
 
 // 场馆
@@ -328,14 +302,10 @@ model Venue {
   longitude   Decimal?
   capacity    Int?
   description String?
-  entity      Entity   @relation(fields: [entityId, entityType], references: [id, entityType], onDelete: Cascade)
-  cityRecord  City?    @relation(fields: [cityEntityId], references: [entityId])
+  entity      Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  cityRecord  City?    @relation(fields: [cityEntityId], references: [entityId], onDelete: SetNull)
   events      Event[]
 
-  @@index([entityType])
-  @@index([cityEntityId])
-  @@index([venueType])
-  @@unique([entityId, entityType])
 }
 
 // 演出/活动
@@ -356,19 +326,13 @@ model Event {
   noteText        String?
   posterImageId   String?
   lastVerifiedAt  DateTime?
-  entity          Entity      @relation(fields: [entityId, entityType], references: [id, entityType], onDelete: Cascade)
-  city            City?       @relation(fields: [cityEntityId], references: [entityId])
-  venue           Venue?      @relation(fields: [venueEntityId], references: [entityId])
+  entity          Entity      @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  city            City?       @relation(fields: [cityEntityId], references: [entityId], onDelete: SetNull)
+  venue           Venue?      @relation(fields: [venueEntityId], references: [entityId], onDelete: SetNull)
   programItems    EventProgramItem[]
   troupes         EventTroupe[]
   participants   EventParticipant[]
 
-  @@index([entityType])
-  @@index([cityEntityId])
-  @@index([venueEntityId])
-  @@index([businessStatus])
-  @@index([startAt])
-  @@unique([entityId, entityType])
 }
 
 // 文章/词条
@@ -379,11 +343,8 @@ model Article {
   abstract        String?
   difficultyLevel String?
   bodySourceType  String?
-  entity          Entity   @relation(fields: [entityId, entityType], references: [id, entityType], onDelete: Cascade)
+  entity          Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
 
-  @@index([entityType])
-  @@index([articleType])
-  @@unique([entityId, entityType])
 }
 
 // 角色（剧中角色/行当等，与 UserRole 无关）
@@ -393,13 +354,10 @@ model Role {
   workEntityId   String?  // 关联剧目（可空）
   roleCategory   String?  // 角色类别/行当
   description    String?
-  entity         Entity   @relation(fields: [entityId, entityType], references: [id, entityType], onDelete: Cascade)
+  entity         Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  work           Work?    @relation(fields: [workEntityId], references: [entityId], onDelete: SetNull)
   performanceCasts PerformanceCast[]
 
-  @@index([entityType])
-  @@index([workEntityId])
-  @@index([roleCategory])
-  @@unique([entityId, entityType])
 }
 
 // 专题
@@ -409,11 +367,8 @@ model Topic {
   topicType     String
   heroText      String?
   layoutJson    Json?
-  entity        Entity   @relation(fields: [entityId, entityType], references: [id, entityType], onDelete: Cascade)
+  entity        Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
 
-  @@index([entityType])
-  @@index([topicType])
-  @@unique([entityId, entityType])
 }
 
 // =====================
@@ -428,9 +383,6 @@ model PersonIdentity {
   startDate        DateTime?
   endDate          DateTime?
   person           Person   @relation(fields: [personEntityId], references: [entityId], onDelete: Cascade)
-
-  @@unique([personEntityId, identityTerm, startDate, endDate])
-  @@index([personEntityId])
 }
 
 // 人员与院团关系
@@ -444,10 +396,6 @@ model PersonTroupeMembership {
   isCurrent       Boolean  @default(false)
   person          Person   @relation(fields: [personEntityId], references: [entityId], onDelete: Cascade)
   troupe          Troupe   @relation(fields: [troupeEntityId], references: [entityId], onDelete: Cascade)
-
-  @@unique([personEntityId, troupeEntityId, startDate, endDate])
-  @@index([personEntityId])
-  @@index([troupeEntityId])
 }
 
 // 节目单条目
@@ -460,12 +408,10 @@ model EventProgramItem {
   durationMinutes Int?
   notes           String?
   event           Event    @relation(fields: [eventEntityId], references: [entityId], onDelete: Cascade)
-  work            Work?    @relation(fields: [workEntityId], references: [entityId])
+  work            Work?    @relation(fields: [workEntityId], references: [entityId], onDelete: SetNull)
   casts           PerformanceCast[]
 
   @@unique([eventEntityId, sequenceNo])
-  @@index([eventEntityId])
-  @@index([workEntityId])
 }
 
 // 演出卡司（节目单条目中的演员/角色）
@@ -476,13 +422,10 @@ model PerformanceCast {
   personEntityId     String?
   castNote           String?
   programItem        EventProgramItem @relation(fields: [eventProgramItemId], references: [id], onDelete: Cascade)
-  role               Role?            @relation(fields: [roleEntityId], references: [entityId])
-  person             Person?          @relation(fields: [personEntityId], references: [entityId])
+  role               Role?            @relation(fields: [roleEntityId], references: [entityId], onDelete: Cascade)
+  person             Person?          @relation(fields: [personEntityId], references: [entityId], onDelete: Cascade)
 
-  @@unique([eventProgramItemId, roleEntityId, personEntityId, castNote])
-  @@index([eventProgramItemId])
-  @@index([personEntityId])
-  @@index([roleEntityId])
+  @@unique([eventProgramItemId, roleEntityId, personEntityId])
 }
 
 // 活动参与者（与节目单并行的参与名单）
@@ -494,11 +437,9 @@ model EventParticipant {
   creditedAs        String?
   sortOrder         Int      @default(0)
   event             Event    @relation(fields: [eventEntityId], references: [entityId], onDelete: Cascade)
-  person            Person?  @relation(fields: [personEntityId], references: [entityId])
+  person            Person?  @relation(fields: [personEntityId], references: [entityId], onDelete: Cascade)
 
-  @@unique([eventEntityId, personEntityId, participationRole, creditedAs])
-  @@index([eventEntityId])
-  @@index([personEntityId])
+  @@unique([eventEntityId, personEntityId, participationRole])
 }
 
 // 活动-剧团关系（不区分角色）
@@ -511,8 +452,6 @@ model EventTroupe {
   troupe        Troupe   @relation(fields: [troupeEntityId], references: [entityId], onDelete: Cascade)
 
   @@unique([eventEntityId, troupeEntityId])
-  @@index([eventEntityId])
-  @@index([troupeEntityId])
 }
 
 // 实体关系（可用于代表作、关联条目等）
@@ -527,8 +466,6 @@ model EntityRelation {
   toEntity       Entity   @relation("EntityRelationTo", fields: [toEntityId], references: [id], onDelete: Cascade)
 
   @@unique([fromEntityId, toEntityId, relationType])
-  @@index([fromEntityId])
-  @@index([toEntityId])
 }
 
 // 来源
@@ -545,9 +482,6 @@ model Source {
   notes            String?
   entityRefs       EntitySourceRef[]
 
-  @@index([publicationDate])
-  @@index([sourceType])
-  @@index([reliabilityLevel])
 }
 
 // 实体与来源的引用关系
@@ -562,8 +496,6 @@ model EntitySourceRef {
   source        Source   @relation(fields: [sourceId], references: [id], onDelete: Cascade)
 
   @@unique([entityId, sourceId])
-  @@index([entityId])
-  @@index([sourceId])
 }
 
 // 编辑提案（提交后进入审核队列）
@@ -582,11 +514,6 @@ model EditProposal {
   proposer       User           @relation("ProposalAuthor", fields: [proposerId], references: [id])
   reviewer       User?          @relation("ProposalReviewer", fields: [reviewerId], references: [id])
 
-  @@index([entityId])
-  @@index([proposerId])
-  @@index([reviewerId])
-  @@index([status])
-  @@index([createdAt])
 }
 
 // 讨论主题
@@ -601,10 +528,6 @@ model DiscussionThread {
   createdBy   User            @relation(fields: [createdById], references: [id])
   posts       DiscussionPost[]
 
-  @@index([entityId])
-  @@index([createdById])
-  @@index([status])
-  @@index([createdAt])
 }
 
 // 讨论回复
@@ -617,9 +540,6 @@ model DiscussionPost {
   thread      DiscussionThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
   author      User            @relation(fields: [authorId], references: [id])
 
-  @@index([threadId])
-  @@index([authorId])
-  @@index([createdAt])
 }
 
 // 搜索索引（派生数据）
@@ -632,8 +552,6 @@ model SearchIndex {
   updatedAt    DateTime @updatedAt
   entity       Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
 
-  @@index([entityType])
-  @@index([updatedAt])
 }
 
 // 审计日志
@@ -647,10 +565,6 @@ model AuditLog {
   createdAt    DateTime @default(now())
   actor        User     @relation(fields: [actorId], references: [id])
 
-  @@index([actorId])
-  @@index([createdAt])
-  @@index([actionType])
-  @@index([targetType])
 }
 
 // NOTE: Lineage 当前未接入业务逻辑，先注释保留定义。

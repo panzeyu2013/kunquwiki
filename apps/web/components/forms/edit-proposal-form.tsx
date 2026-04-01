@@ -5,6 +5,7 @@ import { createQuickEntityClient, getEditorOptions, getEntityPublic, submitPropo
 import { getEntityDetailPath } from "../../lib/routes";
 import { excerptText } from "../../lib/text";
 import { ActionBar } from "../action-bar";
+import type { WorkType } from "@kunquwiki/shared";
 import {
   CollapsibleFormSection,
   EditorSummaryBar,
@@ -56,7 +57,6 @@ function emptyState(entityType: string) {
         gender: "",
         birthDate: "",
         deathDate: "",
-        hometown: "",
         birthCityId: "",
         isLiving: null,
         personIdentities: [] as PersonIdentityRow[],
@@ -214,7 +214,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
     nextEntityType: string,
     name: string,
     targetList: keyof NonNullable<EditorOptions>,
-    extra?: { workType?: string; parentWorkId?: string; initialData?: Record<string, unknown> }
+    extra?: { workType?: WorkType; parentWorkId?: string; initialData?: Record<string, unknown> }
   ) {
     const created = await createQuickEntityClient({
       entityType: nextEntityType,
@@ -300,7 +300,6 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
           nextState.gender = loadedEntity.gender ?? "";
           nextState.birthDate = loadedEntity.birthDate ? loadedEntity.birthDate.slice(0, 16) : "";
           nextState.deathDate = loadedEntity.deathDate ? loadedEntity.deathDate.slice(0, 16) : "";
-          nextState.hometown = loadedEntity.hometown ?? "";
           nextState.birthCityId = loadedEntity.birthCityId ?? "";
           nextState.isLiving = loadedEntity.isLiving ?? null;
           nextState.representativeWorkIds = loadedEntity.representativeWorkIds ?? [];
@@ -515,7 +514,6 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
         payload.gender = formState.gender;
         payload.birthDate = formState.birthDate ? new Date(String(formState.birthDate)).toISOString() : null;
         payload.deathDate = formState.deathDate ? new Date(String(formState.deathDate)).toISOString() : null;
-        payload.hometown = formState.hometown;
         payload.birthCityId = formState.birthCityId || null;
         payload.isLiving = formState.isLiving ?? null;
         payload.personIdentities = (Array.isArray(formState.personIdentities) ? (formState.personIdentities as PersonIdentityRow[]) : []).map((item) => ({
@@ -613,7 +611,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
         const created = await createQuickEntityClient({
           entityType: activeEntityType,
           title,
-          workType: typeof payload.workType === "string" ? payload.workType : undefined,
+          workType: typeof payload.workType === "string" ? (payload.workType as WorkType) : undefined,
           parentWorkId: typeof payload.parentWorkId === "string" ? payload.parentWorkId : undefined,
           initialData: payload
         });

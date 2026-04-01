@@ -215,7 +215,6 @@ kunquwiki/
 - `gender`
 - `birthDate`
 - `deathDate`
-- `hometown`
 - `birthCityEntityId`
 - `bio`
 - `isLiving`

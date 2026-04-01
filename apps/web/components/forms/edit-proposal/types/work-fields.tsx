@@ -1,6 +1,7 @@
 "use client";
 
 import { mapWorkTypeLabel } from "../../../../lib/labels";
+import type { WorkType } from "@kunquwiki/shared";
 import { SearchCreateSelect, type EditorOptions, type QuickCreatedOption, CollapsibleFormSection } from "../shared";
 
 // Styles
@@ -14,7 +15,7 @@ type WorkFieldsProps = {
     entityType: string,
     name: string,
     targetList: keyof NonNullable<EditorOptions>,
-    extra?: { workType?: string; parentWorkId?: string; initialData?: Record<string, unknown> }
+    extra?: { workType?: WorkType; parentWorkId?: string; initialData?: Record<string, unknown> }
   ) => Promise<QuickCreatedOption | void>;
 };
 
@@ -63,7 +64,7 @@ export function WorkFields({ formState, options, setField, createQuickOption }: 
           options={options.fullWorks}
           value={String(formState.parentWorkId ?? "")}
           onChange={(value) => setField("parentWorkId", value)}
-          onCreate={(name) => createQuickOption("work", name, "fullWorks", { workType: "full_play" })}
+          onCreate={(name) => createQuickOption("work", name, "fullWorks", { workType: "full_play" as WorkType })}
           placeholder="搜索已有剧目，没有则创建新剧目"
           createLabel="创建新剧目："
         />

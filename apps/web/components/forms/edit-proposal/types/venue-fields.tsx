@@ -1,6 +1,7 @@
 "use client";
 
 import { CollapsibleFormSection, SearchCreateSelect, type EditorOptions, type QuickCreatedOption } from "../shared";
+import type { WorkType } from "@kunquwiki/shared";
 
 // Styles
 import styles from "../../../../styles/editor-page.module.css";
@@ -13,7 +14,7 @@ type VenueFieldsProps = {
     entityType: string,
     name: string,
     targetList: keyof NonNullable<EditorOptions>,
-    extra?: { workType?: string; parentWorkId?: string; initialData?: Record<string, unknown> }
+    extra?: { workType?: WorkType; parentWorkId?: string; initialData?: Record<string, unknown> }
   ) => Promise<QuickCreatedOption | void>;
 };
 

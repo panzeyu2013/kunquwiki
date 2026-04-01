@@ -145,7 +145,7 @@ function renderPersonReview(payload: Record<string, unknown>, options: EditorOpt
         { label: "性别", value: formatValue(payload.gender) },
         { label: "出生时间", value: formatDateTime(payload.birthDate) },
         { label: "去世时间", value: formatDateTime(payload.deathDate) },
-        { label: "家乡", value: formatValue(payload.hometown) },
+        { label: "出生地", value: resolveEntityLabel(payload.birthCityId, options, "城市") },
         { label: "在世", value: formatValue(payload.isLiving) }
       ])}
       {renderSummaryBlock("人物身份履历", "逐条查看人物的身份变化。", identities.map((item, index) => {

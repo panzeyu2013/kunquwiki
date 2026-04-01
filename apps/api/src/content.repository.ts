@@ -995,10 +995,11 @@ export class ContentRepository {
       (normalizedType !== "event" && typeof initialData.description === "string" && initialData.description.trim().length > 0
         ? initialData.description
         : "待补充");
-    const initialStartAt =
+    const parsedStartAt =
       typeof initialData.startAt === "string"
         ? this.parseDateForCreate(initialData.startAt, "startAt", true)
-        : new Date();
+        : null;
+    const initialStartAt = parsedStartAt ?? new Date();
     const initialEventType =
       typeof initialData.eventType === "string" && initialData.eventType.length > 0
         ? (initialData.eventType as EventType)
@@ -1084,7 +1085,6 @@ export class ContentRepository {
                   gender: this.toNullableString(initialData.gender),
                   birthDate: this.parseDateForCreate(initialData.birthDate, "birthDate"),
                   deathDate: this.parseDateForCreate(initialData.deathDate, "deathDate"),
-                  hometown: this.toNullableString(initialData.hometown),
                   birthCityEntityId: this.toNullableString(initialData.birthCityId),
                   bio: this.toNullableString(initialData.bio) ?? bodyMarkdown,
                   isLiving:
@@ -1515,7 +1515,6 @@ export class ContentRepository {
           ...(typeof payload.birthDate === "string" || payload.birthDate === null
             ? { birthDate: this.parseDateForUpdate(payload.birthDate, "birthDate") }
             : {}),
-          ...(typeof payload.hometown === "string" ? { hometown: payload.hometown } : {}),
           ...(typeof payload.birthCityId === "string" || payload.birthCityId === null
             ? { birthCityEntityId: typeof payload.birthCityId === "string" && payload.birthCityId.length > 0 ? payload.birthCityId : null }
             : {}),
@@ -1662,23 +1661,40 @@ export class ContentRepository {
         });
         break;
       case "event": {
+        const nextCityId =
+          typeof payload.cityId === "string"
+            ? payload.cityId
+            : payload.cityId === null
+              ? null
+              : undefined;
+        const nextVenueId =
+          typeof payload.venueEntityId === "string"
+            ? payload.venueEntityId
+            : payload.venueEntityId === null
+              ? null
+              : undefined;
+        const nextStartAt =
+          typeof payload.startAt === "string" ? this.parseDateForUpdate(payload.startAt, "startAt") : undefined;
+
         await tx.event.update({
           where: { entityId },
           data: {
             ...(typeof payload.eventType === "string" ? { eventType: payload.eventType as EventType } : {}),
             ...(typeof payload.businessStatus === "string" ? { businessStatus: payload.businessStatus as EventStatus } : {}),
-            ...(typeof payload.startAt === "string" || payload.startAt === null
-              ? { startAt: this.parseDateForUpdate(payload.startAt, "startAt") }
-              : {}),
+            ...(nextStartAt instanceof Date ? { startAt: nextStartAt } : {}),
             ...(typeof payload.endAt === "string" || payload.endAt === null
               ? { endAt: this.parseDateForUpdate(payload.endAt, "endAt") }
               : {}),
-            ...(typeof payload.cityId === "string" || payload.cityId === null
-              ? { cityEntityId: typeof payload.cityId === "string" && payload.cityId.length > 0 ? payload.cityId : null }
-              : {}),
-            ...(typeof payload.venueEntityId === "string" || payload.venueEntityId === null
-              ? { venueEntityId: typeof payload.venueEntityId === "string" && payload.venueEntityId.length > 0 ? payload.venueEntityId : null }
-              : {}),
+            ...(nextCityId === undefined
+              ? {}
+              : nextCityId
+                ? { city: { connect: { entityId: nextCityId } } }
+                : { city: { disconnect: true } }),
+            ...(nextVenueId === undefined
+              ? {}
+              : nextVenueId
+                ? { venue: { connect: { entityId: nextVenueId } } }
+                : { venue: { disconnect: true } }),
             ...(typeof payload.ticketUrl === "string" ? { ticketUrl: payload.ticketUrl } : {}),
             ...(typeof payload.duration === "string" ? { durationText: payload.duration } : {}),
             ...(typeof payload.durationText === "string" ? { durationText: payload.durationText } : {}),
@@ -2088,7 +2104,6 @@ export class ContentRepository {
           gender: entity.person?.gender ?? undefined,
           birthDate: entity.person?.birthDate?.toISOString(),
           deathDate: entity.person?.deathDate?.toISOString(),
-          hometown: entity.person?.hometown ?? undefined,
           birthCityId: entity.person?.birthCityEntityId ?? undefined,
           isLiving: entity.person?.isLiving ?? undefined,
           troupeIds: entity.person?.troupeMemberships.map((item) => item.troupeEntityId) ?? [],

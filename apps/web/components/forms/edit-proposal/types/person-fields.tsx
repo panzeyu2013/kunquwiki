@@ -16,6 +16,7 @@ import {
   type TroupeMembershipRow
 } from "../shared";
 import { mapIdentityLabel } from "../../../../lib/labels";
+import type { WorkType } from "@kunquwiki/shared";
 
 // Styles
 import styles from "../../../../styles/editor-page.module.css";
@@ -34,7 +35,7 @@ type PersonFieldsProps = {
     entityType: string,
     name: string,
     targetList: keyof NonNullable<EditorOptions>,
-    extra?: { workType?: string; parentWorkId?: string; initialData?: Record<string, unknown> }
+    extra?: { workType?: WorkType; parentWorkId?: string; initialData?: Record<string, unknown> }
   ) => Promise<QuickCreatedOption | void>;
   isDraftEntity: (id: string) => boolean;
 };
@@ -236,11 +237,14 @@ export function PersonFields({
   createQuickOption,
   isDraftEntity
 }: PersonFieldsProps) {
+  const birthCityId = String(formState.birthCityId ?? "").trim();
+  const birthCityLabel = birthCityId.length > 0 ? options.cities.find((item) => item.id === birthCityId)?.title ?? "出生地已选" : "出生地未填";
+
   return (
     <CollapsibleFormSection
       title="人物资料"
       description="人物履历和院团履历现在都通过行编辑器录入，不再直接暴露 JSON。"
-      summary={`${String(formState.personTypeNote ?? "").trim() || "人物类型未填"} · ${String(formState.gender ?? "").trim() || "性别未填"} · ${String(formState.hometown ?? "").trim() || "籍贯未填"}`}
+      summary={`${String(formState.personTypeNote ?? "").trim() || "人物类型未填"} · ${String(formState.gender ?? "").trim() || "性别未填"} · ${birthCityLabel}`}
       defaultExpanded
     >
       <div className={styles.formGrid}>
@@ -254,10 +258,6 @@ export function PersonFields({
         </label>
         <DateTimeField label="出生时间" value={String(formState.birthDate ?? "")} onChange={(value) => setField("birthDate", value)} />
         <DateTimeField label="去世时间" value={String(formState.deathDate ?? "")} onChange={(value) => setField("deathDate", value)} />
-        <label>
-          籍贯/家乡
-          <input value={String(formState.hometown ?? "")} onChange={(event) => setField("hometown", event.target.value)} />
-        </label>
         <SearchCreateSelect
           label="出生地"
           options={options.cities}
@@ -282,7 +282,7 @@ export function PersonFields({
           values={Array.isArray(formState.representativeWorkIds) ? (formState.representativeWorkIds as string[]) : []}
           onAdd={(id) => toggleArrayField("representativeWorkIds", id)}
           onRemove={(id) => toggleArrayField("representativeWorkIds", id)}
-          onCreate={(name) => createQuickOption("work", name, "fullWorks", { workType: "full_play" })}
+          onCreate={(name) => createQuickOption("work", name, "fullWorks", { workType: "full_play" as WorkType })}
           placeholder="搜索已有剧目"
           createLabel="创建新剧目："
         />
@@ -295,7 +295,7 @@ export function PersonFields({
           onRemove={(id) => toggleArrayField("representativeExcerptIds", id)}
           onCreate={(name) =>
             createQuickOption("work", name, "excerpts", {
-              workType: "excerpt",
+              workType: "excerpt" as WorkType,
               parentWorkId:
                 Array.isArray(formState.representativeWorkIds) && typeof formState.representativeWorkIds[0] === "string"
                   ? String(formState.representativeWorkIds[0])
@@ -318,7 +318,9 @@ export function PersonFields({
               <IdentityRowEditor
                 key={item.key}
                 item={item}
-                onUpdate={(updater) => updateStructuredRow("personIdentities", item.key, updater)}
+                onUpdate={(updater) =>
+                  updateStructuredRow("personIdentities", item.key, (row) => updater(row as PersonIdentityRow))
+                }
                 onRemove={() => removeStructuredRow("personIdentities", item.key)}
               />
             ))}
@@ -348,7 +350,9 @@ export function PersonFields({
                 key={item.key}
                 item={item}
                 options={options}
-                onUpdate={(updater) => updateStructuredRow("troupeMemberships", item.key, updater)}
+                onUpdate={(updater) =>
+                  updateStructuredRow("troupeMemberships", item.key, (row) => updater(row as TroupeMembershipRow))
+                }
                 onRemove={() => removeStructuredRow("troupeMemberships", item.key)}
                 onCreateTroupe={(name) => createQuickOption("troupe", name, "troupes")}
                 isDraftEntity={isDraftEntity}

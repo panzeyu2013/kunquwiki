@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { mapEventStatusLabel, mapEventTypeLabel } from "../../../../lib/labels";
+import type { WorkType } from "@kunquwiki/shared";
 import {
   CollapsibleFormSection,
   DateTimeField,
@@ -38,7 +39,7 @@ type EventFieldsProps = {
     entityType: string,
     name: string,
     targetList: keyof NonNullable<EditorOptions>,
-    extra?: { workType?: string; parentWorkId?: string; initialData?: Record<string, unknown> }
+    extra?: { workType?: WorkType; parentWorkId?: string; initialData?: Record<string, unknown> }
   ) => Promise<QuickCreatedOption | void>;
   isDraftEntity: (id: string) => boolean;
 };
@@ -62,7 +63,7 @@ type CastRowProps = {
     entityType: string,
     name: string,
     targetList: keyof NonNullable<EditorOptions>,
-    extra?: { workType?: string; parentWorkId?: string; initialData?: Record<string, unknown> }
+    extra?: { workType?: WorkType; parentWorkId?: string; initialData?: Record<string, unknown> }
   ) => Promise<QuickCreatedOption | void>;
   isDraftEntity: (id: string) => boolean;
   workEntityId?: string;
@@ -145,7 +146,7 @@ type ProgramBlockProps = {
     entityType: string,
     name: string,
     targetList: keyof NonNullable<EditorOptions>,
-    extra?: { workType?: string; parentWorkId?: string; initialData?: Record<string, unknown> }
+    extra?: { workType?: WorkType; parentWorkId?: string; initialData?: Record<string, unknown> }
   ) => Promise<QuickCreatedOption | void>;
   isDraftEntity: (id: string) => boolean;
 };
@@ -200,7 +201,7 @@ function ProgramBlock({ item, index, options, onUpdate, onRemove, onAddCast, cre
             options={combinedWorks}
             value={item.workEntityId}
             onChange={(value) => handleFieldChange("workEntityId", value)}
-            onCreate={(name) => createQuickOption("work", name, "fullWorks", { workType: "full_play" })}
+            onCreate={(name) => createQuickOption("work", name, "fullWorks", { workType: "full_play" as WorkType })}
             placeholder="搜索已有剧目或折子"
             createLabel="创建剧目："
           />

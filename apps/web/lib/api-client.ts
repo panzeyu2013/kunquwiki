@@ -113,7 +113,6 @@ export function getEntityPublic(slug: string) {
     gender?: string;
     birthDate?: string;
     deathDate?: string;
-    hometown?: string;
     birthCityId?: string;
     isLiving?: boolean | null;
     personIdentities?: Array<{ id?: string; identityTerm?: string; startDate?: string; endDate?: string }>;

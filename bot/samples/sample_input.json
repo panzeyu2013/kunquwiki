@@ -61,7 +61,6 @@
       "title": "张三",
       "initial_data": {
         "gender": "male",
-        "hometown": "江苏",
         "birthDate": "1990-01-01",
         "personIdentities": [
           {"identityType": "stage", "name": "小生张"}

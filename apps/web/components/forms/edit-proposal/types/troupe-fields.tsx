@@ -1,6 +1,7 @@
 "use client";
 
 import { mapTroupeTypeLabel } from "../../../../lib/labels";
+import type { WorkType } from "@kunquwiki/shared";
 import { CollapsibleFormSection, DateTimeField, SearchCreateSelect, type EditorOptions, type QuickCreatedOption } from "../shared";
 
 // Styles
@@ -14,7 +15,7 @@ type TroupeFieldsProps = {
     entityType: string,
     name: string,
     targetList: keyof NonNullable<EditorOptions>,
-    extra?: { workType?: string; parentWorkId?: string; initialData?: Record<string, unknown> }
+    extra?: { workType?: WorkType; parentWorkId?: string; initialData?: Record<string, unknown> }
   ) => Promise<QuickCreatedOption | void>;
 };
 
