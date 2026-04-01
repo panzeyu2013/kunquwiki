@@ -11,6 +11,16 @@ type TokenPayload = {
   roles: UserRole[];
 };
 
+type ActiveUser = {
+  id: string;
+  username: string;
+  displayName: string;
+  email: string;
+  roles: UserRole[];
+  status: UserStatus;
+  reputation: number;
+};
+
 @Injectable()
 export class AuthService {
   constructor(private readonly prisma: PrismaService) {}
@@ -24,7 +34,7 @@ export class AuthService {
           displayName: input.displayName,
           email: input.email,
           passwordHash,
-          roles: [UserRole.editor]
+          roles: [UserRole.visitor]
         }
       });
 
@@ -74,7 +84,7 @@ export class AuthService {
     return jwt.verify(token, secret) as TokenPayload;
   }
 
-  async getCurrentUser(authorization?: string) {
+  async requireActiveUser(authorization?: string): Promise<ActiveUser> {
     const payload = this.verifyToken(authorization);
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
@@ -97,39 +107,46 @@ export class AuthService {
       throw new UnauthorizedException("Account is not active");
     }
 
-    return user;
+    return {
+      ...user,
+      roles: this.normalizeRoles(user.roles)
+    };
   }
 
-  assertReviewerRole(payload: TokenPayload) {
-    if (!this.hasRole(payload, UserRole.reviewer) && !this.hasRole(payload, UserRole.admin)) {
+  async getCurrentUser(authorization?: string) {
+    return this.requireActiveUser(authorization);
+  }
+
+  assertReviewerRole(roles: UserRole[]) {
+    if (!this.hasRole(roles, UserRole.reviewer) && !this.hasRole(roles, UserRole.admin)) {
       throw new UnauthorizedException("Reviewer role required");
     }
   }
 
-  assertEditorRole(payload: TokenPayload) {
-    if (!this.hasRole(payload, UserRole.editor) && !this.hasRole(payload, UserRole.admin)) {
+  assertEditorRole(roles: UserRole[]) {
+    if (!this.hasRole(roles, UserRole.editor) && !this.hasRole(roles, UserRole.admin)) {
       throw new UnauthorizedException("Editor role required");
     }
   }
 
-  assertAutomationRole(payload: TokenPayload) {
+  assertAutomationRole(roles: UserRole[]) {
     if (
-      !this.hasRole(payload, "bot" as UserRole) &&
-      !this.hasRole(payload, UserRole.editor) &&
-      !this.hasRole(payload, UserRole.admin)
+      !this.hasRole(roles, "bot" as UserRole) &&
+      !this.hasRole(roles, UserRole.editor) &&
+      !this.hasRole(roles, UserRole.admin)
     ) {
       throw new UnauthorizedException("Bot, editor, or admin role required");
     }
   }
 
-  assertAdminRole(payload: TokenPayload) {
-    if (!this.hasRole(payload, UserRole.admin)) {
+  assertAdminRole(roles: UserRole[]) {
+    if (!this.hasRole(roles, UserRole.admin)) {
       throw new UnauthorizedException("Admin role required");
     }
   }
 
-  hasRole(payload: Pick<TokenPayload, "roles">, role: UserRole) {
-    return payload.roles.includes(role);
+  hasRole(roles: UserRole[], role: UserRole) {
+    return roles.includes(role);
   }
 
   async listUsers() {

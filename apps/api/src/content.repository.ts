@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import {
   ArticleType,
   EntityType,
@@ -996,7 +996,9 @@ export class ContentRepository {
         ? initialData.description
         : "待补充");
     const initialStartAt =
-      typeof initialData.startAt === "string" && initialData.startAt.length > 0 ? new Date(initialData.startAt) : new Date();
+      typeof initialData.startAt === "string"
+        ? this.parseDateForCreate(initialData.startAt, "startAt", true)
+        : new Date();
     const initialEventType =
       typeof initialData.eventType === "string" && initialData.eventType.length > 0
         ? (initialData.eventType as EventType)
@@ -1045,8 +1047,8 @@ export class ContentRepository {
               troupe: {
                 create: {
                   troupeType: (this.toNullableString(initialData.troupeType) as TroupeType | null) ?? TroupeType.troupe,
-                  foundedDate: this.toNullableDate(initialData.foundedDate),
-                  dissolvedDate: this.toNullableDate(initialData.dissolvedDate),
+                  foundedDate: this.parseDateForCreate(initialData.foundedDate, "foundedDate"),
+                  dissolvedDate: this.parseDateForCreate(initialData.dissolvedDate, "dissolvedDate"),
                   cityEntityId: this.toNullableString(initialData.cityId),
                   city: this.toNullableString(initialData.city) ?? "",
                   region: this.toNullableString(initialData.region) ?? "",
@@ -1080,15 +1082,15 @@ export class ContentRepository {
                 create: {
                   personTypeNote: this.toNullableString(initialData.personTypeNote),
                   gender: this.toNullableString(initialData.gender),
-                  birthDate: this.toNullableDate(initialData.birthDate),
-                  deathDate: this.toNullableDate(initialData.deathDate),
+                  birthDate: this.parseDateForCreate(initialData.birthDate, "birthDate"),
+                  deathDate: this.parseDateForCreate(initialData.deathDate, "deathDate"),
                   hometown: this.toNullableString(initialData.hometown),
                   birthCityEntityId: this.toNullableString(initialData.birthCityId),
                   bio: this.toNullableString(initialData.bio) ?? bodyMarkdown,
                   isLiving:
                     typeof initialData.isLiving === "boolean"
                       ? initialData.isLiving
-                      : this.toNullableDate(initialData.deathDate)
+                      : this.parseDateForCreate(initialData.deathDate, "deathDate")
                         ? false
                         : null,
                   identities: {
@@ -1149,7 +1151,9 @@ export class ContentRepository {
                   businessStatus: initialEventStatus as EventStatus,
                   startAt: initialStartAt,
                   endAt:
-                    typeof initialData.endAt === "string" && initialData.endAt.length > 0 ? new Date(initialData.endAt) : null,
+                    typeof initialData.endAt === "string"
+                      ? this.parseDateForCreate(initialData.endAt, "endAt")
+                      : null,
                   cityEntityId:
                     typeof initialData.cityId === "string" && initialData.cityId.length > 0 ? initialData.cityId : null,
                   venueEntityId:
@@ -1501,16 +1505,16 @@ export class ContentRepository {
       case "person": {
         const deathDateInput = payload.deathDate;
         const isLivingInput = payload.isLiving;
-        const nextDeathDate =
-          typeof deathDateInput === "string" ? new Date(deathDateInput) : deathDateInput === null ? null : undefined;
+        const nextDeathDate = this.parseDateForUpdate(deathDateInput, "deathDate");
         const nextIsLiving =
           typeof isLivingInput === "boolean" ? isLivingInput : isLivingInput === null ? null : undefined;
 
         const personData: Prisma.PersonUpdateInput = {
           ...(typeof payload.personTypeNote === "string" ? { personTypeNote: payload.personTypeNote } : {}),
           ...(typeof payload.gender === "string" ? { gender: payload.gender } : {}),
-          ...(typeof payload.birthDate === "string" ? { birthDate: new Date(payload.birthDate) } : {}),
-          ...(payload.birthDate === null ? { birthDate: null } : {}),
+          ...(typeof payload.birthDate === "string" || payload.birthDate === null
+            ? { birthDate: this.parseDateForUpdate(payload.birthDate, "birthDate") }
+            : {}),
           ...(typeof payload.hometown === "string" ? { hometown: payload.hometown } : {}),
           ...(typeof payload.birthCityId === "string" || payload.birthCityId === null
             ? { birthCityEntityId: typeof payload.birthCityId === "string" && payload.birthCityId.length > 0 ? payload.birthCityId : null }
@@ -1529,7 +1533,7 @@ export class ContentRepository {
           personData.isLiving = nextIsLiving;
         }
 
-        if (typeof deathDateInput === "string") {
+        if (nextDeathDate instanceof Date) {
           personData.isLiving = false;
         }
 
@@ -1611,10 +1615,12 @@ export class ContentRepository {
           where: { entityId },
           data: {
             ...(typeof payload.troupeType === "string" ? { troupeType: payload.troupeType as TroupeType } : {}),
-            ...(typeof payload.foundedDate === "string" ? { foundedDate: new Date(payload.foundedDate) } : {}),
-            ...(payload.foundedDate === null ? { foundedDate: null } : {}),
-            ...(typeof payload.dissolvedDate === "string" ? { dissolvedDate: new Date(payload.dissolvedDate) } : {}),
-            ...(payload.dissolvedDate === null ? { dissolvedDate: null } : {}),
+            ...(typeof payload.foundedDate === "string" || payload.foundedDate === null
+              ? { foundedDate: this.parseDateForUpdate(payload.foundedDate, "foundedDate") }
+              : {}),
+            ...(typeof payload.dissolvedDate === "string" || payload.dissolvedDate === null
+              ? { dissolvedDate: this.parseDateForUpdate(payload.dissolvedDate, "dissolvedDate") }
+              : {}),
             ...(typeof payload.cityId === "string" || payload.cityId === null
               ? { cityEntityId: typeof payload.cityId === "string" && payload.cityId.length > 0 ? payload.cityId : null }
               : {}),
@@ -1661,9 +1667,12 @@ export class ContentRepository {
           data: {
             ...(typeof payload.eventType === "string" ? { eventType: payload.eventType as EventType } : {}),
             ...(typeof payload.businessStatus === "string" ? { businessStatus: payload.businessStatus as EventStatus } : {}),
-            ...(typeof payload.startAt === "string" ? { startAt: new Date(payload.startAt) } : {}),
-            ...(typeof payload.endAt === "string" ? { endAt: new Date(payload.endAt) } : {}),
-            ...(payload.endAt === null ? { endAt: null } : {}),
+            ...(typeof payload.startAt === "string" || payload.startAt === null
+              ? { startAt: this.parseDateForUpdate(payload.startAt, "startAt") }
+              : {}),
+            ...(typeof payload.endAt === "string" || payload.endAt === null
+              ? { endAt: this.parseDateForUpdate(payload.endAt, "endAt") }
+              : {}),
             ...(typeof payload.cityId === "string" || payload.cityId === null
               ? { cityEntityId: typeof payload.cityId === "string" && payload.cityId.length > 0 ? payload.cityId : null }
               : {}),
@@ -1845,6 +1854,48 @@ export class ContentRepository {
     }
     const parsed = new Date(value);
     return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  private parseDateForCreate(value: unknown, field: string, required = false) {
+    if (typeof value !== "string") {
+      if (required) {
+        throw new BadRequestException(`${field} is required`);
+      }
+      return null;
+    }
+    const trimmed = value.trim();
+    if (trimmed.length === 0) {
+      if (required) {
+        throw new BadRequestException(`${field} is required`);
+      }
+      return null;
+    }
+    const parsed = new Date(trimmed);
+    if (Number.isNaN(parsed.getTime())) {
+      throw new BadRequestException(`${field} is invalid date`);
+    }
+    return parsed;
+  }
+
+  private parseDateForUpdate(value: unknown, field: string): Date | null | undefined {
+    if (value === undefined) {
+      return undefined;
+    }
+    if (value === null) {
+      return null;
+    }
+    if (typeof value !== "string") {
+      return undefined;
+    }
+    const trimmed = value.trim();
+    if (trimmed.length === 0) {
+      return null;
+    }
+    const parsed = new Date(trimmed);
+    if (Number.isNaN(parsed.getTime())) {
+      return undefined;
+    }
+    return parsed;
   }
 
   private toObjectArray(value: unknown) {

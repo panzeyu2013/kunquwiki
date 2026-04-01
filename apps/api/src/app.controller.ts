@@ -50,9 +50,9 @@ export class AppController {
   }
 
   @Get("moderation/queue")
-  getModerationQueue(@Headers("authorization") authorization?: string) {
-    const user = this.authService.verifyToken(authorization);
-    this.authService.assertReviewerRole(user);
+  async getModerationQueue(@Headers("authorization") authorization?: string) {
+    const user = await this.authService.requireActiveUser(authorization);
+    this.authService.assertReviewerRole(user.roles);
     return this.appService.getModerationQueue();
   }
 
@@ -67,80 +67,80 @@ export class AppController {
   }
 
   @Post("editor/quick-create")
-  createQuickEntity(
+  async createQuickEntity(
     @Headers("authorization") authorization: string | undefined,
     @Body() body: QuickCreateEntityDto
   ) {
-    const user = this.authService.verifyToken(authorization);
-    this.authService.assertEditorRole(user);
-    return this.appService.createQuickEntity(body, user.sub);
+    const user = await this.authService.requireActiveUser(authorization);
+    this.authService.assertEditorRole(user.roles);
+    return this.appService.createQuickEntity(body, user.id);
   }
 
   @Post("open/entities")
-  createOpenEntity(
+  async createOpenEntity(
     @Headers("authorization") authorization: string | undefined,
     @Body() body: QuickCreateEntityDto
   ) {
-    const user = this.authService.verifyToken(authorization);
-    this.authService.assertAutomationRole(user);
-    return this.appService.createQuickEntity(body, user.sub);
+    const user = await this.authService.requireActiveUser(authorization);
+    this.authService.assertAutomationRole(user.roles);
+    return this.appService.createQuickEntity(body, user.id);
   }
 
   @Post("open/entities/:slug/proposals")
-  createOpenProposal(
+  async createOpenProposal(
     @Param("slug") slug: string,
     @Headers("authorization") authorization: string | undefined,
     @Body() body: CreateProposalDto
   ) {
-    const user = this.authService.verifyToken(authorization);
-    this.authService.assertAutomationRole(user);
-    return this.appService.createProposal(slug, user.sub, body);
+    const user = await this.authService.requireActiveUser(authorization);
+    this.authService.assertAutomationRole(user.roles);
+    return this.appService.createProposal(slug, user.id, body);
   }
 
   @Get("admin/overview")
-  getAdminOverview(@Headers("authorization") authorization?: string) {
-    const user = this.authService.verifyToken(authorization);
-    this.authService.assertAdminRole(user);
+  async getAdminOverview(@Headers("authorization") authorization?: string) {
+    const user = await this.authService.requireActiveUser(authorization);
+    this.authService.assertAdminRole(user.roles);
     return this.appService.getAdminOverview();
   }
 
   @Get("admin/users")
-  getAdminUsers(@Headers("authorization") authorization?: string) {
-    const user = this.authService.verifyToken(authorization);
-    this.authService.assertAdminRole(user);
+  async getAdminUsers(@Headers("authorization") authorization?: string) {
+    const user = await this.authService.requireActiveUser(authorization);
+    this.authService.assertAdminRole(user.roles);
     return this.authService.listUsers();
   }
 
   @Patch("admin/users/:id")
-  updateAdminUser(
+  async updateAdminUser(
     @Param("id") id: string,
     @Headers("authorization") authorization: string | undefined,
     @Body() body: UpdateUserAccessDto
   ) {
-    const user = this.authService.verifyToken(authorization);
-    this.authService.assertAdminRole(user);
-    return this.authService.updateUserAccess(id, body, user.sub);
+    const user = await this.authService.requireActiveUser(authorization);
+    this.authService.assertAdminRole(user.roles);
+    return this.authService.updateUserAccess(id, body, user.id);
   }
 
   @Post("entities/:slug/proposals")
-  createProposal(
+  async createProposal(
     @Param("slug") slug: string,
     @Headers("authorization") authorization: string | undefined,
     @Body() body: CreateProposalDto
   ) {
-    const user = this.authService.verifyToken(authorization);
-    this.authService.assertEditorRole(user);
-    return this.appService.createProposal(slug, user.sub, body);
+    const user = await this.authService.requireActiveUser(authorization);
+    this.authService.assertEditorRole(user.roles);
+    return this.appService.createProposal(slug, user.id, body);
   }
 
   @Patch("moderation/proposals/:id")
-  reviewProposal(
+  async reviewProposal(
     @Param("id") id: string,
     @Headers("authorization") authorization: string | undefined,
     @Body() body: ReviewProposalDto
   ) {
-    const user = this.authService.verifyToken(authorization);
-    this.authService.assertReviewerRole(user);
-    return this.appService.reviewProposal(id, user.sub, body);
+    const user = await this.authService.requireActiveUser(authorization);
+    this.authService.assertReviewerRole(user.roles);
+    return this.appService.reviewProposal(id, user.id, body);
   }
 }
