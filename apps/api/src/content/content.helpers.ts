@@ -81,12 +81,73 @@ export async function replaceEntityRelations(
  * 输出：
  * - 返回可安全写入数据库的唯一 slug。
  */
+type UniqueSlugInput =
+  | { format: "generic"; title: string }
+  | { format: "event"; title: string; startAt: Date | null; troupeEntityId: string | null };
+
+// Event演出是一个特殊例子，因为其他的slug=entity title（比如牡丹亭）
+// 但是为了保证演出的唯一性使用日期+院团+标题的格式会更好
+
+/**
+ * 生成全站唯一 slug（通用与活动两种格式）。
+ *
+ * 输入：
+ * - `db`: Prisma client 或 service。
+ * - `input`: slug 生成输入，支持 `generic` / `event` 两种格式。
+ * - `excludeEntityId`: 更新时需要排除的自身实体 ID。
+ *
+ * 输出：
+ * - `generic`: kebab-case，冲突时追加 `-2/-3`。
+ * - `event`: 日期_院团_标题（snake_case），冲突时追加 `_2/_3`。
+ */
 export async function generateUniqueSlug(
   db: PrismaService | PrismaClient | Prisma.TransactionClient,
-  title: string
+  input: UniqueSlugInput,
+  excludeEntityId?: string
 ) {
+  if (input.format === "event") {
+    const dateLabel = input.startAt ? input.startAt.toISOString().slice(0, 10).replace(/-/g, "_") : "undated";
+    const troupeTitle = input.troupeEntityId
+      ? (
+          await db.entity.findUnique({
+            where: { id: input.troupeEntityId },
+            select: { title: true }
+          })
+        )?.title ?? "unknown_troupe"
+      : "unknown_troupe";
+
+    const base = [dateLabel, troupeTitle, input.title]
+      .map((item) =>
+        item
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "_")
+          .replace(/[^\p{Letter}\p{Number}_]+/gu, "_")
+          .replace(/_+/g, "_")
+          .replace(/^_|_$/g, "")
+      )
+      .filter(Boolean)
+      .join("_");
+
+    let candidate = base || "event";
+    let counter = 2;
+    while (
+      await db.entity.findFirst({
+        where: {
+          slug: candidate,
+          ...(excludeEntityId ? { id: { not: excludeEntityId } } : {})
+        },
+        select: { id: true }
+      })
+    ) {
+      candidate = `${base}_${counter}`;
+      counter += 1;
+    }
+    return candidate;
+  }
+
   const base =
-    title
+    input.title
       .trim()
       .toLowerCase()
       .replace(/\s+/g, "-")
@@ -98,62 +159,6 @@ export async function generateUniqueSlug(
   let counter = 2;
   while (await db.entity.findUnique({ where: { slug: candidate }, select: { id: true } })) {
     candidate = `${base}-${counter}`;
-    counter += 1;
-  }
-  return candidate;
-}
-
-/**
- * 为活动生成可读且唯一的 slug。
- *
- * 输入：
- * - `db`: Prisma client 或事务 client。
- * - `input`: 活动开始时间、主办院团和标题。
- * - `excludeEntityId`: 更新时需要排除的自身实体 ID。
- *
- * 输出：
- * - 返回形如“日期_院团_标题”的唯一活动 slug。
- */
-export async function generateUniqueEventSlug(
-  db: PrismaService | PrismaClient | Prisma.TransactionClient,
-  input: { startAt: Date | null; troupeEntityId: string | null; title: string },
-  excludeEntityId?: string
-) {
-  const dateLabel = input.startAt ? input.startAt.toISOString().slice(0, 10).replace(/-/g, "_") : "undated";
-  const troupeTitle = input.troupeEntityId
-    ? (
-        await db.entity.findUnique({
-          where: { id: input.troupeEntityId },
-          select: { title: true }
-        })
-      )?.title ?? "unknown_troupe"
-    : "unknown_troupe";
-
-  const base = [dateLabel, troupeTitle, input.title]
-    .map((item) =>
-      item
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, "_")
-        .replace(/[^\p{Letter}\p{Number}_]+/gu, "_")
-        .replace(/_+/g, "_")
-        .replace(/^_|_$/g, "")
-    )
-    .filter(Boolean)
-    .join("_");
-
-  let candidate = base || "event";
-  let counter = 2;
-  while (
-    await db.entity.findFirst({
-      where: {
-        slug: candidate,
-        ...(excludeEntityId ? { id: { not: excludeEntityId } } : {})
-      },
-      select: { id: true }
-    })
-  ) {
-    candidate = `${base}_${counter}`;
     counter += 1;
   }
   return candidate;

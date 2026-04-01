@@ -1,7 +1,7 @@
 import { NotFoundException } from "@nestjs/common";
 import { ArticleType, EntityType, EventStatus, EventType, IdentityTerm, Prisma, PublishStatus, TroupeType, WorkType } from "@prisma/client";
 import { applyStructuredProposal } from "./content.mutations";
-import { generateUniqueEventSlug, generateUniqueSlug, listEntityOptions, replaceEntityRelations } from "./content.helpers";
+import { generateUniqueSlug, listEntityOptions, replaceEntityRelations } from "./content.helpers";
 import {
   excerptText,
   parseDateForCreate,
@@ -113,7 +113,7 @@ export async function getEditorOptions(prisma: PrismaService, entityType?: strin
  * - `validateRelationshipPayload`
  * - `applyStructuredProposal`
  * - `replaceEntityRelations`
- * - `generateUniqueSlug` / `generateUniqueEventSlug`
+ * - `generateUniqueSlug`
  */
 export async function createQuickEntity(
   prisma: PrismaService,
@@ -174,12 +174,13 @@ export async function createQuickEntity(
       : [];
   const slug =
     normalizedType === "event"
-      ? await generateUniqueEventSlug(prisma, {
+      ? await generateUniqueSlug(prisma, {
+          format: "event",
           startAt: initialStartAt,
           troupeEntityId: initialTroupeIds[0] ?? null,
           title: finalTitle
         })
-      : await generateUniqueSlug(prisma, finalTitle);
+      : await generateUniqueSlug(prisma, { format: "generic", title: finalTitle });
 
   const entity = await prisma.entity.create({
     data: {
