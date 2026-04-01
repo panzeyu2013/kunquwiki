@@ -182,7 +182,7 @@ export function mapEntity(entity: FullEntity) {
         ...base,
         eventType: entity.event?.eventType ?? EventType.performance,
         businessStatus: entity.event?.businessStatus ?? EventStatus.announced,
-        startAt: entity.event?.startAt.toISOString() ?? entity.createdAt.toISOString(),
+        startAt: entity.event?.startAt ? entity.event.startAt.toISOString() : entity.createdAt.toISOString(),
         endAt: entity.event?.endAt?.toISOString(),
         cityId: entity.event?.cityEntityId ?? undefined,
         venueId: entity.event?.venueEntityId ?? undefined,

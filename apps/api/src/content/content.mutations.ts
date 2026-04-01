@@ -10,7 +10,7 @@ import {
   toObjectArray,
   toPerformanceCasts,
   toPersonIdentities,
-  toStringArray,
+  toStringArrayOrEmpty,
   toTroupeMemberships
 } from "./content.utils";
 
@@ -135,7 +135,7 @@ export async function applyStructuredProposal(
         }
       } else if (Array.isArray(payload.troupeIds)) {
         await tx.personTroupeMembership.deleteMany({ where: { personEntityId: entityId } });
-        const troupeIds = toStringArray(payload.troupeIds);
+        const troupeIds = toStringArrayOrEmpty(payload.troupeIds);
         if (troupeIds.length > 0) {
           await tx.personTroupeMembership.createMany({
             data: troupeIds.map((troupeId) => ({
@@ -253,7 +253,7 @@ export async function applyStructuredProposal(
 
       if (Array.isArray(normalizedPayload.troupeIds)) {
         await tx.eventTroupe.deleteMany({ where: { eventEntityId: entityId } });
-        const troupeIds = toStringArray(normalizedPayload.troupeIds);
+        const troupeIds = toStringArrayOrEmpty(normalizedPayload.troupeIds);
         if (troupeIds.length > 0) {
           await tx.eventTroupe.createMany({
             data: troupeIds.map((troupeId, index) => ({
@@ -326,8 +326,8 @@ export async function applyStructuredProposal(
         }
       } else if (Array.isArray(normalizedPayload.programWorkIds) || Array.isArray(normalizedPayload.programExcerptIds)) {
         await tx.eventProgramItem.deleteMany({ where: { eventEntityId: entityId } });
-        const workIds = Array.isArray(normalizedPayload.programWorkIds) ? toStringArray(normalizedPayload.programWorkIds) : [];
-        const excerptIds = Array.isArray(normalizedPayload.programExcerptIds) ? toStringArray(normalizedPayload.programExcerptIds) : [];
+        const workIds = toStringArrayOrEmpty(normalizedPayload.programWorkIds);
+        const excerptIds = toStringArrayOrEmpty(normalizedPayload.programExcerptIds);
         const allIds = [...workIds, ...excerptIds];
         if (allIds.length > 0) {
           await tx.eventProgramItem.createMany({

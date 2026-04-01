@@ -606,7 +606,7 @@ export async function getStats(prisma: PrismaService) {
       prisma.event.count({ where: { businessStatus: EventStatus.completed } }),
       prisma.eventProgramItem.groupBy({
         by: ["workEntityId"],
-        _count: true
+        _count: { _all: true }
       }),
       prisma.event.findMany({
         select: {

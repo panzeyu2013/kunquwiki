@@ -25,12 +25,15 @@ export async function buildTopWorks(
       }): Promise<Array<{ id: string; title: string }>>;
     };
   },
-  workAggregation: Array<{ workEntityId: string | null; _count: number }>
+  workAggregation: Array<{ workEntityId: string | null; _count: number | { _all: number } }>
 ) {
   const countsById = new Map(
     workAggregation
-      .filter((item): item is { workEntityId: string; _count: number } => Boolean(item.workEntityId))
-      .map((item) => [item.workEntityId, item._count])
+      .filter((item): item is { workEntityId: string; _count: number | { _all: number } } => Boolean(item.workEntityId))
+      .map((item) => {
+        const count = typeof item._count === "number" ? item._count : item._count._all;
+        return [item.workEntityId, count] as const;
+      })
   );
 
   if (countsById.size === 0) {

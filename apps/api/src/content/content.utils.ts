@@ -19,6 +19,19 @@ export function toStringArray(value: unknown[]) {
 }
 
 /**
+ * 将未知值安全转换为字符串数组，非数组直接回退为空数组。
+ *
+ * 输入：
+ * - `value`: 可能是 `string[]`、`unknown[]` 或其他类型。
+ *
+ * 输出：
+ * - 仅包含非空字符串的数组。
+ */
+export function toStringArrayOrEmpty(value: unknown) {
+  return Array.isArray(value) ? toStringArray(value) : [];
+}
+
+/**
  * 规范化路由层传入的 slug。
  *
  * 输入：

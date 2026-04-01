@@ -1,8 +1,17 @@
 import { BadRequestException, NotFoundException } from "@nestjs/common";
 import { EntityType, Prisma, PrismaClient } from "@prisma/client";
-import { toNullableString, toObjectArray, toStringArray } from "./content.utils";
+import { toNullableString, toObjectArray, toPerformanceCasts, toStringArrayOrEmpty } from "./content.utils";
 
 export type PrismaLike = Prisma.TransactionClient | PrismaClient;
+
+/**
+ * 批量校验实体引用，统一错误提示并减少重复循环逻辑。
+ */
+export async function ensureEntityReferences(db: PrismaLike, entityIds: string[], expectedType: EntityType, field: string) {
+  for (const entityId of entityIds) {
+    await ensureEntityReference(db, entityId, expectedType, field);
+  }
+}
 
 /**
  * 将实体枚举值转换成面向表单错误提示的中文标签。
@@ -203,15 +212,9 @@ export async function validateRelationshipPayload(db: PrismaLike, entityType: En
           await ensureEntityReference(db, troupeEntityId, EntityType.troupe, "troupeMemberships.troupeEntityId");
         }
       }
-      for (const troupeId of Array.isArray(payload.troupeIds) ? toStringArray(payload.troupeIds) : []) {
-        await ensureEntityReference(db, troupeId, EntityType.troupe, "troupeIds");
-      }
-      for (const workId of Array.isArray(payload.representativeWorkIds) ? toStringArray(payload.representativeWorkIds) : []) {
-        await ensureEntityReference(db, workId, EntityType.work, "representativeWorkIds");
-      }
-      for (const workId of Array.isArray(payload.representativeExcerptIds) ? toStringArray(payload.representativeExcerptIds) : []) {
-        await ensureEntityReference(db, workId, EntityType.work, "representativeExcerptIds");
-      }
+      await ensureEntityReferences(db, toStringArrayOrEmpty(payload.troupeIds), EntityType.troupe, "troupeIds");
+      await ensureEntityReferences(db, toStringArrayOrEmpty(payload.representativeWorkIds), EntityType.work, "representativeWorkIds");
+      await ensureEntityReferences(db, toStringArrayOrEmpty(payload.representativeExcerptIds), EntityType.work, "representativeExcerptIds");
       break;
     }
     case EntityType.troupe:
@@ -242,34 +245,23 @@ export async function validateRelationshipPayload(db: PrismaLike, entityType: En
       if (posterImageId) {
         await ensureMediaAssetExists(db, posterImageId, "posterImageId");
       }
-      for (const troupeId of Array.isArray(payload.troupeIds) ? toStringArray(payload.troupeIds) : []) {
-        await ensureEntityReference(db, troupeId, EntityType.troupe, "troupeIds");
-      }
+      await ensureEntityReferences(db, toStringArrayOrEmpty(payload.troupeIds), EntityType.troupe, "troupeIds");
       for (const item of toObjectArray(payload.programDetailed)) {
         const workEntityId = toNullableString(item.workEntityId);
         if (workEntityId) {
           await ensureEntityReference(db, workEntityId, EntityType.work, "programDetailed.workEntityId");
         }
-        for (const cast of toObjectArray(item.casts)) {
-          const roleEntityId = toNullableString(cast.roleEntityId);
-          const personEntityId = toNullableString(cast.personEntityId);
-          if (!roleEntityId && !personEntityId) {
-            throw new BadRequestException("演员表记录至少需要选择角色或人物其中之一。");
+        for (const cast of toPerformanceCasts(item.casts)) {
+          if (cast.roleEntityId) {
+            await ensureEntityReference(db, cast.roleEntityId, EntityType.role, "programDetailed.casts.roleEntityId");
           }
-          if (roleEntityId) {
-            await ensureEntityReference(db, roleEntityId, EntityType.role, "programDetailed.casts.roleEntityId");
-          }
-          if (personEntityId) {
-            await ensureEntityReference(db, personEntityId, EntityType.person, "programDetailed.casts.personEntityId");
+          if (cast.personEntityId) {
+            await ensureEntityReference(db, cast.personEntityId, EntityType.person, "programDetailed.casts.personEntityId");
           }
         }
       }
-      for (const workId of Array.isArray(payload.programWorkIds) ? toStringArray(payload.programWorkIds) : []) {
-        await ensureEntityReference(db, workId, EntityType.work, "programWorkIds");
-      }
-      for (const workId of Array.isArray(payload.programExcerptIds) ? toStringArray(payload.programExcerptIds) : []) {
-        await ensureEntityReference(db, workId, EntityType.work, "programExcerptIds");
-      }
+      await ensureEntityReferences(db, toStringArrayOrEmpty(payload.programWorkIds), EntityType.work, "programWorkIds");
+      await ensureEntityReferences(db, toStringArrayOrEmpty(payload.programExcerptIds), EntityType.work, "programExcerptIds");
       break;
     }
     default:
