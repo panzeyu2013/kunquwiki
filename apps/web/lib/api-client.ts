@@ -211,6 +211,18 @@ export function createQuickEntityClient(input: {
   }, true);
 }
 
+export function submitCreateProposal(payload: {
+  entityType: string;
+  proposalType: string;
+  editSummary: string;
+  payload: Record<string, unknown>;
+}) {
+  return request("/entities/proposals", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  }, true);
+}
+
 export function submitProposal(
   slug: string,
   payload: {
@@ -226,13 +238,14 @@ export function getModerationQueueClient() {
   return request<
     Array<{
       id: string;
-      entityId: string;
+      entityId: string | null;
       proposalType: string;
       payloadJson: Record<string, unknown>;
       status: string;
       createdAt: string;
+      targetEntityType: string | null;
       proposer: { id: string; username: string; displayName: string; roles: string[] };
-      entity: { id: string; entityType: string; slug: string; title: string };
+      entity: { id: string; entityType: string; slug: string; title: string } | null;
     }>
   >("/moderation/queue", undefined, true);
 }

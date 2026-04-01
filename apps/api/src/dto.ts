@@ -45,6 +45,23 @@ export class CreateProposalDto {
   payload!: Record<string, unknown>;
 }
 
+export class CreateEntityProposalDto {
+  @IsIn([EntityType.city, EntityType.troupe, EntityType.venue, EntityType.work, EntityType.person, EntityType.article, EntityType.event, EntityType.role])
+  entityType!: EntityType;
+
+  @IsString()
+  @IsNotEmpty()
+  proposalType!: string;
+
+  @IsOptional()
+  @IsString()
+  editSummary!: string;
+
+  @IsObject()
+  @Type(() => Object)
+  payload!: Record<string, unknown>;
+}
+
 export class ReviewProposalDto {
   @IsIn(["approved", "rejected"])
   decision!: "approved" | "rejected";

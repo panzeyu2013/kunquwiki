@@ -571,18 +571,21 @@ export async function getModerationQueue(prisma: PrismaService) {
     status: proposal.status,
     reviewComment: proposal.reviewComment,
     createdAt: proposal.createdAt.toISOString(),
+    targetEntityType: proposal.targetEntityType ?? proposal.entity?.entityType ?? null,
     proposer: {
       id: proposal.proposer.id,
       username: proposal.proposer.username,
       displayName: proposal.proposer.displayName,
       roles: proposal.proposer.roles
     },
-    entity: {
-      id: proposal.entity.id,
-      entityType: proposal.entity.entityType,
-      slug: proposal.entity.slug,
-      title: proposal.entity.title
-    }
+    entity: proposal.entity
+      ? {
+          id: proposal.entity.id,
+          entityType: proposal.entity.entityType,
+          slug: proposal.entity.slug,
+          title: proposal.entity.title
+        }
+      : null
   }));
 }
 

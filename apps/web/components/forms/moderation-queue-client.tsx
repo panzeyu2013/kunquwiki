@@ -266,7 +266,8 @@ function renderGenericReview(payload: Record<string, unknown>) {
 }
 
 function renderEntityReview(item: QueueItem, options: EditorOptions | null) {
-  switch (item.entity.entityType) {
+  const entityType = item.entity?.entityType ?? item.targetEntityType ?? "";
+  switch (entityType) {
     case "event":
       return renderEventReview(item.payloadJson, options);
     case "person":
@@ -332,13 +333,13 @@ export function ModerationQueueClient() {
             <div className={pillStyles.row}>
               <span className={`${pillStyles.pill} ${pillStyles.strong}`}>{mapProposalStatusLabel(item.status)}</span>
               <span className={pillStyles.pill}>{mapProposalTypeLabel(item.proposalType)}</span>
-              <span className={pillStyles.pill}>{mapEntityTypeLabel(item.entity.entityType)}</span>
+              <span className={pillStyles.pill}>{mapEntityTypeLabel(item.entity?.entityType ?? item.targetEntityType ?? "")}</span>
             </div>
             <span className={styles.editorRecordMeta}>#{item.id}</span>
           </div>
           <div className={styles.editorRecordBody}>
             <div>
-              <h2>{item.entity.title}</h2>
+              <h2>{item.entity?.title ?? String(item.payloadJson.title ?? "未命名条目")}</h2>
             </div>
             <div className={styles.editorMetaGrid}>
               <div className={styles.editorMetaItem}>

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { ContentRepository } from "./content.repository";
-import { CreateProposalDto, QuickCreateEntityDto, ReviewProposalDto } from "./dto";
+import { CreateEntityProposalDto, CreateProposalDto, QuickCreateEntityDto, ReviewProposalDto } from "./dto";
 
 @Injectable()
 export class AppService {
@@ -45,6 +45,10 @@ export class AppService {
 
   createProposal(slug: string, proposerId: string, body: CreateProposalDto) {
     return this.repository.createProposal(slug, proposerId, body);
+  }
+
+  createEntityProposal(body: CreateEntityProposalDto, proposerId: string) {
+    return this.repository.createEntityProposal(body, proposerId);
   }
 
   reviewProposal(proposalId: string, reviewerId: string, body: ReviewProposalDto) {

@@ -515,7 +515,8 @@ model EntitySourceRef {
 // 编辑提案（提交后进入审核队列）
 model EditProposal {
   id             String         @id @default(cuid())
-  entityId       String
+  entityId       String?
+  targetEntityType EntityType?
   proposerId     String
   proposalType   String
   payloadJson    Json           // 提案内容快照（审核时回放并写回）
@@ -524,7 +525,7 @@ model EditProposal {
   reviewComment  String?
   createdAt      DateTime       @default(now())
   reviewedAt     DateTime?
-  entity         Entity         @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  entity         Entity?        @relation(fields: [entityId], references: [id], onDelete: Cascade)
   proposer       User           @relation("ProposalAuthor", fields: [proposerId], references: [id])
   reviewer       User?          @relation("ProposalReviewer", fields: [reviewerId], references: [id])
 

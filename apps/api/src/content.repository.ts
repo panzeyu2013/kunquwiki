@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { EntityType } from "@prisma/client";
 import { createQuickEntity, findEntityByTypeAndTitle, getEditorOptions } from "./content/content.editor";
-import { createProposal, reviewProposal } from "./content/content.proposals";
+import { createEntityProposal, createProposal, reviewProposal } from "./content/content.proposals";
 import {
   getAdminOverview,
   getEntityBySlug,
@@ -59,6 +59,15 @@ export class ContentRepository {
 
   async createProposal(slug: string, proposerId: string, payload: { proposalType: string; editSummary: string; payload: Record<string, unknown> }) {
     return createProposal(this.prisma, slug, proposerId, payload);
+  }
+
+  async createEntityProposal(input: {
+    entityType: EntityType;
+    proposalType: string;
+    editSummary: string;
+    payload: Record<string, unknown>;
+  }, proposerId: string) {
+    return createEntityProposal(this.prisma, proposerId, input);
   }
 
   async reviewProposal(id: string, reviewerId: string, decision: "approved" | "rejected", reviewComment?: string) {

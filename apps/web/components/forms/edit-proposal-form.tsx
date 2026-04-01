@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { createQuickEntityClient, getEditorOptions, getEntityPublic, submitProposal } from "../../lib/api-client";
+import { createQuickEntityClient, getEditorOptions, getEntityPublic, submitCreateProposal, submitProposal } from "../../lib/api-client";
 import { getEntityDetailPath } from "../../lib/routes";
 import { ActionBar } from "../action-bar";
 import type { WorkType } from "@kunquwiki/shared";
@@ -595,14 +595,17 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
     try {
       const payload = await buildPayload();
       if (isCreateMode) {
-        const created = await createQuickEntityClient({
+        await submitCreateProposal({
           entityType: activeEntityType,
-          title,
-          workType: typeof payload.workType === "string" ? (payload.workType as WorkType) : undefined,
-          parentWorkId: typeof payload.parentWorkId === "string" ? payload.parentWorkId : undefined,
-          initialData: payload
+          proposalType: "content_create",
+          editSummary,
+          payload: {
+            ...payload,
+            editSummary
+          }
         });
-        window.location.href = entityPath(activeEntityType, created.slug);
+        setMessage("创建提案已提交到审核队列。");
+        setEditSummary("");
       } else {
         await submitProposal(slug!, {
           proposalType: "content_update",

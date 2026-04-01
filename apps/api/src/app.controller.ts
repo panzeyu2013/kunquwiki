@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Headers, Param, Patch, Post, Query } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { AppService } from "./app.service";
-import { CreateProposalDto, QuickCreateEntityDto, ReviewProposalDto, UpdateUserAccessDto } from "./dto";
+import { CreateEntityProposalDto, CreateProposalDto, QuickCreateEntityDto, ReviewProposalDto, UpdateUserAccessDto } from "./dto";
 
 @Controller("api")
 export class AppController {
@@ -84,6 +84,16 @@ export class AppController {
     const user = await this.authService.requireActiveUser(authorization);
     this.authService.assertAutomationRole(user.roles);
     return this.appService.createQuickEntity(body, user.id);
+  }
+
+  @Post("entities/proposals")
+  async createEntityProposal(
+    @Headers("authorization") authorization: string | undefined,
+    @Body() body: CreateEntityProposalDto
+  ) {
+    const user = await this.authService.requireActiveUser(authorization);
+    this.authService.assertEditorRole(user.roles);
+    return this.appService.createEntityProposal(body, user.id);
   }
 
   @Post("open/entities/:slug/proposals")

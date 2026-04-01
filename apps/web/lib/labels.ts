@@ -126,6 +126,7 @@ export function mapUserStatusLabel(value: string) {
 
 export function mapProposalTypeLabel(value: string) {
   const labels: Record<string, string> = {
+    content_create: "内容新建",
     content_update: "内容修改"
   };
   return labels[value] ?? value;
