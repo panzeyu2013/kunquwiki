@@ -52,8 +52,8 @@ export default async function WorkDetailPage({ params }: { params: Promise<{ slu
               </ul>
             </>
           ) : null}
-          <h2>剧情梗概</h2>
-          <MarkdownContent value={work.plot} />
+          <h2>正文</h2>
+          <MarkdownContent value={work.body} />
           <h2>参考资料</h2>
           <ReferenceList entity={work} />
           <ActionBar>

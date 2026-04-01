@@ -39,7 +39,7 @@ export default async function PersonDetailPage({ params }: { params: Promise<{ s
             ))}
           </div>
           <h1 className={styles.pageTitle}>{person.title}</h1>
-          <MarkdownContent value={person.bio} />
+          <MarkdownContent value={person.body} />
           <h2>参考资料</h2>
           <ReferenceList entity={person} />
           <ActionBar>

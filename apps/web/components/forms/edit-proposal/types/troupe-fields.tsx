@@ -24,7 +24,7 @@ export function TroupeFields({ formState, options, setField, createQuickOption }
     <CollapsibleFormSection
       title="院团资料"
       description="院团本体字段全部可编辑。"
-      summary={`${mapTroupeTypeLabel(String(formState.troupeType ?? "troupe"))} · ${String(formState.city ?? "").trim() || "城市未填"} · ${String(formState.region ?? "").trim() || "地区未填"}`}
+      summary={`${mapTroupeTypeLabel(String(formState.troupeType ?? "troupe"))} · ${String(formState.cityText ?? "").trim() || "城市未填"} · ${String(formState.regionText ?? "").trim() || "地区未填"}`}
     >
       <div className={styles.formGrid}>
         <label>
@@ -50,11 +50,11 @@ export function TroupeFields({ formState, options, setField, createQuickOption }
         />
         <label>
           城市文本
-          <input value={String(formState.city ?? "")} onChange={(event) => setField("city", event.target.value)} />
+          <input value={String(formState.cityText ?? "")} onChange={(event) => setField("cityText", event.target.value)} />
         </label>
         <label>
           地区
-          <input value={String(formState.region ?? "")} onChange={(event) => setField("region", event.target.value)} />
+          <input value={String(formState.regionText ?? "")} onChange={(event) => setField("regionText", event.target.value)} />
         </label>
         <label className={styles.fieldSpanFull}>
           官网

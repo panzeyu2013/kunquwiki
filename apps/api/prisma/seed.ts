@@ -42,6 +42,7 @@ export async function seedDatabase() {
     prisma.venue.deleteMany(),
     prisma.role.deleteMany(),
     prisma.topic.deleteMany(),
+    prisma.mediaAsset.deleteMany(),
     prisma.entityAlias.deleteMany(),
     prisma.entity.deleteMany(),
     prisma.user.deleteMany()
@@ -278,8 +279,8 @@ export async function seedDatabase() {
         create: {
           troupeType: TroupeType.troupe,
           cityRecord: { connect: { entityId: cityShanghai.id } },
-          city: "上海",
-          region: "上海",
+          cityText: "上海",
+          regionText: "上海",
           description: "以上海为核心阵地，长期活跃于全国演出与传播。"
         }
       }
@@ -299,8 +300,8 @@ export async function seedDatabase() {
         create: {
           troupeType: TroupeType.troupe,
           cityRecord: { connect: { entityId: citySuzhou.id } },
-          city: "苏州",
-          region: "江苏",
+          cityText: "苏州",
+          regionText: "江苏",
           description: "围绕昆曲发源地文化语境开展演出、传承与传播。"
         }
       }
@@ -393,8 +394,8 @@ export async function seedDatabase() {
         create: {
           venueType: "theater",
           cityRecord: { connect: { entityId: cityShanghai.id } },
-          region: "上海",
-          city: "上海",
+          regionText: "上海",
+          cityText: "上海",
           address: "上海市黄浦区人民大道300号",
           capacity: 1800,
           description: "上海重要演出场馆。"
@@ -416,8 +417,8 @@ export async function seedDatabase() {
         create: {
           venueType: "theater",
           cityRecord: { connect: { entityId: citySuzhou.id } },
-          region: "江苏",
-          city: "苏州",
+          regionText: "江苏",
+          cityText: "苏州",
           address: "苏州市姑苏区宫巷",
           capacity: 500,
           description: "与昆曲历史关联紧密的演出空间。"

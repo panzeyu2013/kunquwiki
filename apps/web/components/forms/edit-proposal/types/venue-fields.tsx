@@ -23,7 +23,7 @@ export function VenueFields({ formState, options, setField, createQuickOption }:
     <CollapsibleFormSection
       title="剧场资料"
       description="包含场馆坐标、容量、国家与地址信息。"
-      summary={`${String(formState.venueType ?? "").trim() || "类型未填"} · ${String(formState.country ?? "").trim() || "国家未填"} · ${String(formState.city ?? "").trim() || "城市未填"}`}
+      summary={`${String(formState.venueType ?? "").trim() || "类型未填"} · ${String(formState.countryText ?? "").trim() || "国家未填"} · ${String(formState.cityText ?? "").trim() || "城市未填"}`}
     >
       <div className={styles.formGrid}>
         <label>
@@ -32,7 +32,7 @@ export function VenueFields({ formState, options, setField, createQuickOption }:
         </label>
         <label>
           国家
-          <input value={String(formState.country ?? "")} onChange={(event) => setField("country", event.target.value)} />
+          <input value={String(formState.countryText ?? "")} onChange={(event) => setField("countryText", event.target.value)} />
         </label>
         <SearchCreateSelect
           label="所在城市"
@@ -45,11 +45,11 @@ export function VenueFields({ formState, options, setField, createQuickOption }:
         />
         <label>
           城市文本
-          <input value={String(formState.city ?? "")} onChange={(event) => setField("city", event.target.value)} />
+          <input value={String(formState.cityText ?? "")} onChange={(event) => setField("cityText", event.target.value)} />
         </label>
         <label>
           地区
-          <input value={String(formState.region ?? "")} onChange={(event) => setField("region", event.target.value)} />
+          <input value={String(formState.regionText ?? "")} onChange={(event) => setField("regionText", event.target.value)} />
         </label>
         <label className={styles.fieldSpanFull}>
           地址

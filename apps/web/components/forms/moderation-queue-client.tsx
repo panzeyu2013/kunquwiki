@@ -173,13 +173,13 @@ function renderTroupeReview(payload: Record<string, unknown>, options: EditorOpt
         { label: "成立时间", value: formatDateTime(payload.foundedDate) },
         { label: "解散时间", value: formatDateTime(payload.dissolvedDate) },
         { label: "所在城市", value: resolveEntityLabel(payload.cityId, options, "城市") },
-        { label: "城市文本", value: formatValue(payload.city) },
-        { label: "地区", value: formatValue(payload.region) },
+        { label: "城市文本", value: formatValue(payload.cityText ?? payload.city) },
+        { label: "地区文本", value: formatValue(payload.regionText ?? payload.region) },
         { label: "官网", value: formatValue(payload.officialWebsite) }
       ])}
       {renderSummaryBlock(
         "院团简介",
-        "预览这次提案更新的院团说明。",
+        "结构化简介字段会单独展示，正文以 bodyMarkdown 为准。",
         [typeof payload.description === "string" && payload.description.trim().length > 0 ? `简介: ${payload.description.slice(0, 120)}${payload.description.length > 120 ? "..." : ""}` : ""].filter(Boolean)
       )}
     </>

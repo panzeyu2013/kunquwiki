@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { createQuickEntityClient, getEditorOptions, getEntityPublic, submitProposal } from "../../lib/api-client";
 import { getEntityDetailPath } from "../../lib/routes";
-import { excerptText } from "../../lib/text";
 import { ActionBar } from "../action-bar";
 import type { WorkType } from "@kunquwiki/shared";
 import {
@@ -34,7 +33,8 @@ import styles from "../../styles/editor-page.module.css";
 function emptyState(entityType: string) {
   const base: Record<string, unknown> = {
     representativeWorkIds: [],
-    representativeExcerptIds: []
+    representativeExcerptIds: [],
+    coverImageId: ""
   };
 
   switch (entityType) {
@@ -69,18 +69,18 @@ function emptyState(entityType: string) {
         foundedDate: "",
         dissolvedDate: "",
         cityId: "",
-        city: "",
-        region: "",
+        cityText: "",
+        regionText: "",
         officialWebsite: ""
       };
     case "venue":
       return {
         ...base,
         venueType: "theater",
-        country: "中国",
+        countryText: "中国",
         cityId: "",
-        city: "",
-        region: "",
+        cityText: "",
+        regionText: "",
         address: "",
         latitude: "",
         longitude: "",
@@ -270,19 +270,10 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
       }
       setEntity(loadedEntity);
       setTitle(loadedEntity.title);
-      setBody(
-        loadedEntity.entityType === "work"
-          ? loadedEntity.plot ?? loadedEntity.synopsis ?? ""
-          : loadedEntity.entityType === "person"
-            ? loadedEntity.bio ?? ""
-            : loadedEntity.entityType === "event"
-              ? loadedEntity.body ?? ""
-              : loadedEntity.entityType === "troupe" || loadedEntity.entityType === "venue"
-                ? loadedEntity.description ?? ""
-                : loadedEntity.body ?? ""
-      );
+      setBody(loadedEntity.body ?? "");
 
       const nextState = emptyState(loadedEntity.entityType);
+      nextState.coverImageId = loadedEntity.coverImageId ?? "";
       switch (loadedEntity.entityType) {
         case "work":
           nextState.workType = loadedEntity.workType ?? "full_play";
@@ -326,16 +317,16 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
           nextState.foundedDate = loadedEntity.foundedDate ? loadedEntity.foundedDate.slice(0, 16) : "";
           nextState.dissolvedDate = loadedEntity.dissolvedDate ? loadedEntity.dissolvedDate.slice(0, 16) : "";
           nextState.cityId = loadedEntity.cityId ?? "";
-          nextState.city = loadedEntity.city ?? "";
-          nextState.region = loadedEntity.region ?? "";
+          nextState.cityText = loadedEntity.cityText ?? "";
+          nextState.regionText = loadedEntity.regionText ?? "";
           nextState.officialWebsite = loadedEntity.officialWebsite ?? "";
           break;
         case "venue":
           nextState.venueType = loadedEntity.venueType ?? "theater";
-          nextState.country = loadedEntity.country ?? "中国";
+          nextState.countryText = loadedEntity.countryText ?? "中国";
           nextState.cityId = loadedEntity.cityId ?? "";
-          nextState.city = loadedEntity.city ?? "";
-          nextState.region = loadedEntity.region ?? "";
+          nextState.cityText = loadedEntity.cityText ?? "";
+          nextState.regionText = loadedEntity.regionText ?? "";
           nextState.address = loadedEntity.address ?? "";
           nextState.latitude = loadedEntity.latitude !== undefined ? String(loadedEntity.latitude) : "";
           nextState.longitude = loadedEntity.longitude !== undefined ? String(loadedEntity.longitude) : "";
@@ -493,13 +484,12 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
   async function buildPayload() {
     const payload: Record<string, unknown> = {
       title,
-      bodyMarkdown: body
+      bodyMarkdown: body,
+      coverImageId: formState.coverImageId || null
     };
 
     switch (activeEntityType) {
       case "work":
-        payload.plot = body;
-        payload.synopsis = excerptText(body);
         payload.workType = formState.workType;
         payload.originalAuthor = formState.originalAuthor;
         payload.dynastyPeriod = formState.dynastyPeriod;
@@ -509,7 +499,6 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
         payload.firstKnownDate = formState.firstKnownDate;
         break;
       case "person":
-        payload.bio = body;
         payload.personTypeNote = formState.personTypeNote;
         payload.gender = formState.gender;
         payload.birthDate = formState.birthDate ? new Date(String(formState.birthDate)).toISOString() : null;
@@ -534,22 +523,20 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
         payload.representativeExcerptIds = formState.representativeExcerptIds ?? [];
         break;
       case "troupe":
-        payload.description = body;
         payload.troupeType = formState.troupeType;
         payload.foundedDate = formState.foundedDate ? new Date(String(formState.foundedDate)).toISOString() : null;
         payload.dissolvedDate = formState.dissolvedDate ? new Date(String(formState.dissolvedDate)).toISOString() : null;
         payload.cityId = formState.cityId || null;
-        payload.city = formState.city;
-        payload.region = formState.region;
+        payload.cityText = formState.cityText;
+        payload.regionText = formState.regionText;
         payload.officialWebsite = formState.officialWebsite;
         break;
       case "venue":
-        payload.description = body;
         payload.venueType = formState.venueType;
-        payload.country = formState.country;
+        payload.countryText = formState.countryText;
         payload.cityId = formState.cityId || null;
-        payload.city = formState.city;
-        payload.region = formState.region;
+        payload.cityText = formState.cityText;
+        payload.regionText = formState.regionText;
         payload.address = formState.address;
         payload.latitude = formState.latitude ? Number(formState.latitude) : null;
         payload.longitude = formState.longitude ? Number(formState.longitude) : null;
@@ -671,6 +658,10 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
             <label className={styles.fieldSpanFull}>
               {bodyLabel}
               <textarea rows={10} value={body} onChange={(event) => setBody(event.target.value)} disabled={pending} />
+            </label>
+            <label className={styles.fieldSpanFull}>
+              封面素材 ID
+              <input value={String(formState.coverImageId ?? "")} onChange={(event) => setField("coverImageId", event.target.value)} disabled={pending} />
             </label>
           </div>
         </CollapsibleFormSection>

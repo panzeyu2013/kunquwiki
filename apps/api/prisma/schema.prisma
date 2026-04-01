@@ -68,6 +68,13 @@ enum ArticleType {
   technique
 }
 
+enum AssetType {
+  image
+  audio
+  video
+  document
+}
+
 // 审核状态
 enum ReviewStatus {
   pending
@@ -144,7 +151,7 @@ model Entity {
   subtitle       String?
   status         PublishStatus      @default(draft) // 发布状态
   visibility     String             @default("public") // 可见性
-  coverImageId   String?            // 封面素材占位
+  coverImageId   String?            // 封面素材
   createdById    String
   updatedById    String
   publishedAt    DateTime?
@@ -152,6 +159,7 @@ model Entity {
   updatedAt      DateTime           @updatedAt
   createdBy      User               @relation("EntityCreatedBy", fields: [createdById], references: [id])
   updatedBy      User               @relation("EntityUpdatedBy", fields: [updatedById], references: [id])
+  coverImage     MediaAsset?        @relation("EntityCoverImage", fields: [coverImageId], references: [id], onDelete: SetNull)
   aliases        EntityAlias[]
   content        EntityContent?
   revisions      EntityRevision[]
@@ -171,6 +179,20 @@ model Entity {
   incomingRelations EntityRelation[] @relation("EntityRelationTo")
   discussionThreads DiscussionThread[]
 
+}
+
+model MediaAsset {
+  id               String   @id @default(cuid())
+  assetType        AssetType
+  url              String
+  mimeType         String?
+  altText          String?
+  width            Int?
+  height           Int?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  coverForEntities Entity[] @relation("EntityCoverImage")
+  posterForEvents  Event[]  @relation("EventPosterImage")
 }
 
 // 实体别名
@@ -218,7 +240,6 @@ model EntityRevision {
 // 城市
 model City {
   entityId    String   @id
-  entityType  EntityType @default(city)
   province    String
   entity      Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
   bornPeople  Person[] @relation("PersonBirthCity")
@@ -231,7 +252,6 @@ model City {
 // 剧目/作品
 model Work {
   entityId        String   @id
-  entityType      EntityType @default(work)
   workType        WorkType
   parentWorkId    String?
   originalAuthor  String?
@@ -252,7 +272,6 @@ model Work {
 // 人物（演员/研究者等真实人物，与 User 无关）
 model Person {
   entityId        String   @id
-  entityType      EntityType @default(person)
   personTypeNote  String? // 人物类型说明
   gender          String?
   birthDate       DateTime?
@@ -272,13 +291,12 @@ model Person {
 // 院团
 model Troupe {
   entityId        String   @id
-  entityType      EntityType @default(troupe)
   troupeType      TroupeType
   foundedDate     DateTime?
   dissolvedDate   DateTime?
   cityEntityId    String?
-  city            String?
-  region          String?
+  cityText        String?
+  regionText      String?
   description     String
   officialWebsite String?
   entity          Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
@@ -291,12 +309,11 @@ model Troupe {
 // 场馆
 model Venue {
   entityId    String   @id
-  entityType  EntityType @default(venue)
   venueType   String
-  country     String   @default("中国")
+  countryText String   @default("中国")
   cityEntityId String?
-  region      String
-  city        String
+  regionText  String
+  cityText    String
   address     String
   latitude    Decimal?
   longitude   Decimal?
@@ -311,7 +328,6 @@ model Venue {
 // 演出/活动
 model Event {
   entityId        String      @id
-  entityType      EntityType @default(event)
   eventType       EventType
   businessStatus  EventStatus
   startAt         DateTime
@@ -329,6 +345,7 @@ model Event {
   entity          Entity      @relation(fields: [entityId], references: [id], onDelete: Cascade)
   city            City?       @relation(fields: [cityEntityId], references: [entityId], onDelete: SetNull)
   venue           Venue?      @relation(fields: [venueEntityId], references: [entityId], onDelete: SetNull)
+  posterImage     MediaAsset? @relation("EventPosterImage", fields: [posterImageId], references: [id], onDelete: SetNull)
   programItems    EventProgramItem[]
   troupes         EventTroupe[]
   participants   EventParticipant[]
@@ -338,7 +355,6 @@ model Event {
 // 文章/词条
 model Article {
   entityId        String   @id
-  entityType      EntityType @default(article)
   articleType     ArticleType
   abstract        String?
   difficultyLevel String?
@@ -350,7 +366,6 @@ model Article {
 // 角色（剧中角色/行当等，与 UserRole 无关）
 model Role {
   entityId       String   @id
-  entityType     EntityType @default(role)
   workEntityId   String?  // 关联剧目（可空）
   roleCategory   String?  // 角色类别/行当
   description    String?
@@ -363,7 +378,6 @@ model Role {
 // 专题
 model Topic {
   entityId      String   @id
-  entityType    EntityType @default(topic)
   topicType     String
   heroText      String?
   layoutJson    Json?

@@ -16,18 +16,19 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
   }
   const venue = entity as VenueEntity;
   const city = (venue.relatedEntities ?? []).find((item) => item.id === venue.cityId);
+  const cityLabel = city?.title ?? venue.cityText ?? "待补充";
 
   return (
     <div className={styles.page}>
       <div className={styles.detailLayout}>
         <section className={styles.detailPanel}>
           <h1 className={styles.pageTitle}>{venue.title}</h1>
-          <MarkdownContent value={venue.description ?? "待补充"} />
+          <MarkdownContent value={venue.body} />
         </section>
         <aside className={styles.detailPanel}>
           <h2>场馆信息</h2>
           <p>地址：{venue.address}</p>
-          <p>城市：{city?.title ?? venue.city ?? "待补充"}</p>
+          <p>城市：{cityLabel}</p>
           <p>容量：{venue.capacity ?? "待补充"}</p>
         </aside>
         <EventRecordSection title="未来演出" events={venue.upcomingEvents} />

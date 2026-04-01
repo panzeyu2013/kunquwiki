@@ -29,7 +29,7 @@ test("P0 API flows work end-to-end", async (t) => {
     return;
   }
 
-  execFileSync("npx", ["prisma", "db", "push", "--schema", schemaPath, "--skip-generate", "--accept-data-loss"], {
+  execFileSync("npx", ["prisma", "db", "push", "--schema", schemaPath, "--skip-generate", "--accept-data-loss", "--force-reset"], {
     cwd: process.cwd(),
     stdio: "pipe"
   });
@@ -167,7 +167,7 @@ test("P0 API flows work end-to-end", async (t) => {
       .expect(200);
 
     const entity = await request(server).get("/api/entities/%E7%89%A1%E4%B8%B9%E4%BA%AD").expect(200);
-    assert.equal(entity.body.plot, "测试环境下的新正文");
+    assert.equal(entity.body.body, "测试环境下的新正文");
 
     const revisions = await request(server).get("/api/changes").expect(200);
     assert.ok(revisions.body.some((item) => item.editSummary === "测试写回"));
@@ -321,7 +321,6 @@ test("P0 API flows work end-to-end", async (t) => {
         payload: {
           title: "张军",
           bodyMarkdown: "更新后的人物简介",
-          bio: "更新后的人物简介",
           identities: ["演员", "推广者", "教师"],
           troupeIds: [(await prisma.entity.findUnique({ where: { slug: "上海昆剧团" } })).id]
         }
@@ -335,8 +334,8 @@ test("P0 API flows work end-to-end", async (t) => {
       .expect(200);
 
     const person = await request(server).get("/api/entities/%E5%BC%A0%E5%86%9B").expect(200);
-    assert.equal(person.body.bio, "更新后的人物简介");
-    assert.ok(person.body.roles.includes("教师"));
+    assert.equal(person.body.body, "更新后的人物简介");
+    assert.ok(person.body.roles.includes("teacher"));
     assert.ok(person.body.troupeIds.length > 0);
   });
 
@@ -412,6 +411,109 @@ test("P0 API flows work end-to-end", async (t) => {
       .send({ entityType: "work", title: "寻梦", workType: "excerpt", parentWorkId: mudanting.id })
       .expect(201);
     assert.equal(excerptResponse.body.title, "牡丹亭·寻梦");
+  });
+
+  await t.test("event quick-create auto-fills city from venue and rejects empty cast rows", async () => {
+    const editorLogin = await request(server)
+      .post("/api/auth/login")
+      .send({ identifier: "editor", password: "Kunquwiki123!" })
+      .expect(201);
+
+    const venue = await prisma.entity.findUnique({ where: { slug: "上海大剧院" } });
+    const work = await prisma.entity.findUnique({ where: { slug: "牡丹亭-游园惊梦" } });
+    assert.ok(venue);
+    assert.ok(work);
+
+    const created = await request(server)
+      .post("/api/editor/quick-create")
+      .set("Authorization", `Bearer ${editorLogin.body.token}`)
+      .send({
+        entityType: "event",
+        title: "自动回填城市测试演出",
+        initialData: {
+          startAt: "2026-06-01T11:00:00.000Z",
+          venueEntityId: venue.id
+        }
+      })
+      .expect(201);
+
+    const createdEntity = await prisma.entity.findUnique({
+      where: { id: created.body.id },
+      include: { event: true }
+    });
+    const venueRecord = await prisma.venue.findUnique({ where: { entityId: venue.id } });
+    assert.equal(createdEntity?.event?.cityEntityId, venueRecord?.cityEntityId ?? null);
+
+    await request(server)
+      .post("/api/editor/quick-create")
+      .set("Authorization", `Bearer ${editorLogin.body.token}`)
+      .send({
+        entityType: "event",
+        title: "非法空演员表测试",
+        initialData: {
+          startAt: "2026-06-02T11:00:00.000Z",
+          venueEntityId: venue.id,
+          programDetailed: [
+            {
+              workEntityId: work.id,
+              sequenceNo: 1,
+              casts: [{ castNote: "只有备注，没有角色和人物" }]
+            }
+          ]
+        }
+      })
+      .expect(400);
+  });
+
+  await t.test("proposal submission validates media asset and event city consistency", async () => {
+    const editorLogin = await request(server)
+      .post("/api/auth/login")
+      .send({ identifier: "editor", password: "Kunquwiki123!" })
+      .expect(201);
+
+    const shanghaiEvent = await prisma.entity.findUnique({ where: { slug: "2026_04_10_上海昆剧团_青春版_牡丹亭_上海专场" } });
+    const shanghaiCity = await prisma.entity.findUnique({ where: { slug: "上海" } });
+    const suzhouVenue = await prisma.entity.findUnique({ where: { slug: "苏州昆曲传习所剧场" } });
+    assert.ok(shanghaiEvent);
+    assert.ok(shanghaiCity);
+    assert.ok(suzhouVenue);
+
+    await request(server)
+      .post(`/api/entities/${encodeURIComponent(shanghaiEvent.slug)}/proposals`)
+      .set("Authorization", `Bearer ${editorLogin.body.token}`)
+      .send({
+        proposalType: "content_update",
+        editSummary: "测试无效海报素材",
+        payload: {
+          title: shanghaiEvent.title,
+          posterImageId: "missing-asset-id"
+        }
+      })
+      .expect(404);
+
+    const poster = await prisma.mediaAsset.create({
+      data: {
+        assetType: "image",
+        url: "https://example.com/assets/poster-test.jpg",
+        mimeType: "image/jpeg",
+        altText: "测试海报"
+      }
+    });
+
+    await request(server)
+      .post(`/api/entities/${encodeURIComponent(shanghaiEvent.slug)}/proposals`)
+      .set("Authorization", `Bearer ${editorLogin.body.token}`)
+      .send({
+        proposalType: "content_update",
+        editSummary: "测试城市与场馆冲突",
+        payload: {
+          title: shanghaiEvent.title,
+          cityId: shanghaiCity.id,
+          venueEntityId: suzhouVenue.id,
+          posterImageId: poster.id
+        }
+      })
+      .expect(400);
   });
 
   await t.test("search returns indexed entities", async () => {

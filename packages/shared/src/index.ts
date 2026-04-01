@@ -18,6 +18,15 @@ export type EventType = "performance" | "festival" | "lecture" | "memorial";
 export type ArticleType = "term" | "costume" | "music" | "history" | "technique";
 export type IdentityOption = "actor" | "teacher" | "director" | "writer" | "researcher" | "promoter";
 
+export interface MediaAsset {
+  id: string;
+  assetType: "image" | "audio" | "video" | "document";
+  url: string;
+  mimeType?: string;
+  altText?: string;
+  width?: number;
+  height?: number;
+}
 
 export interface BaseEntity {
   id: string;
@@ -26,6 +35,9 @@ export interface BaseEntity {
   title: string;
   subtitle?: string;
   status: PublishStatus;
+  body?: string;
+  coverImageId?: string;
+  coverImage?: MediaAsset;
   createdAt: string;
   updatedAt: string;
   references?: Array<{
@@ -46,6 +58,7 @@ export interface WorkEntity extends BaseEntity {
   parentWorkId?: string;
   synopsis: string;
   plot: string;
+  body: string;
 }
 
 export interface PersonEntity extends BaseEntity {
@@ -57,26 +70,30 @@ export interface PersonEntity extends BaseEntity {
   representativeWorkIds: string[];
   representativeExcerptIds: string[];
   bio: string;
+  body: string;
 }
 
 export interface TroupeEntity extends BaseEntity {
   entityType: "troupe";
   cityId?: string;
-  city: string;
-  region: string;
+  cityText: string;
+  regionText: string;
   troupeType: TroupeType;
   description: string;
   officialWebsite?: string;
+  body: string;
 }
 
 export interface VenueEntity extends BaseEntity {
   entityType: "venue";
   cityId?: string;
-  city: string;
-  region: string;
+  cityText: string;
+  regionText: string;
+  countryText: string;
   address: string;
   capacity?: number;
   description?: string;
+  body: string;
 }
 
 export interface CityEntity extends BaseEntity {
@@ -112,6 +129,8 @@ export interface EventEntity extends BaseEntity {
   duration?: string;
   ticketStatus?: string;
   noteText?: string;
+  posterImageId?: string;
+  posterImage?: MediaAsset;
   body: string;
   program: ProgramItem[];
 }

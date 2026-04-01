@@ -83,6 +83,8 @@ export function getEntityPublic(slug: string) {
     slug: string;
     title: string;
     body?: string;
+    coverImageId?: string;
+    coverImage?: { id: string; assetType: string; url: string; mimeType?: string; altText?: string; width?: number; height?: number };
     synopsis?: string;
     plot?: string;
     bio?: string;
@@ -101,11 +103,11 @@ export function getEntityPublic(slug: string) {
     foundedDate?: string;
     dissolvedDate?: string;
     cityId?: string;
-    city?: string;
-    region?: string;
+    cityText?: string;
+    regionText?: string;
     address?: string;
     venueType?: string;
-    country?: string;
+    countryText?: string;
     latitude?: number;
     longitude?: number;
     capacity?: number;
@@ -136,6 +138,7 @@ export function getEntityPublic(slug: string) {
     ticketStatus?: string;
     noteText?: string;
     posterImageId?: string;
+    posterImage?: { id: string; assetType: string; url: string; mimeType?: string; altText?: string; width?: number; height?: number };
     program?: Array<{ workId?: string; workType?: WorkType }>;
     programDetailed?: Array<{
       id?: string;

@@ -20,13 +20,15 @@ export default async function TroupeDetailPage({ params }: { params: Promise<{ s
   }
   const troupe = entity as TroupeEntity;
   const city = (troupe.relatedEntities ?? []).find((item) => item.id === troupe.cityId);
+  const cityLabel = city?.title ?? troupe.cityText ?? "待补充";
+  const regionLabel = troupe.regionText?.trim() || "待补充";
 
   return (
     <div className={styles.page}>
       <div className={styles.detailLayout}>
         <section className={styles.detailPanel}>
           <h1 className={styles.pageTitle}>{troupe.title}</h1>
-          <MarkdownContent value={troupe.description} />
+          <MarkdownContent value={troupe.body} />
           <h2>参考资料</h2>
           <ReferenceList entity={troupe} />
           <ActionBar>
@@ -37,8 +39,8 @@ export default async function TroupeDetailPage({ params }: { params: Promise<{ s
         </section>
         <aside className={styles.detailPanel}>
           <h2>信息框</h2>
-          <p>城市：{city?.title ?? troupe.city ?? "待补充"}</p>
-          <p>地区：{troupe.region}</p>
+          <p>城市：{cityLabel}</p>
+          <p>地区：{regionLabel}</p>
           <p>机构类型：{mapTroupeTypeLabel(troupe.troupeType)}</p>
         </aside>
         <EventRecordSection title="未来演出" events={troupe.upcomingEvents} />
