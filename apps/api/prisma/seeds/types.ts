@@ -12,6 +12,7 @@ import {
   UserStatus,
   WorkType
 } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 export type SeedUser = {
   username: string;
@@ -221,7 +222,7 @@ export type SeedRevision = {
   revisionNo: number;
   title: string;
   bodyMarkdown?: string | null;
-  structuredDataJson?: Record<string, unknown> | null;
+  structuredDataJson?: Prisma.InputJsonValue | null;
   editSummary: string;
   reviewStatus: ReviewStatus;
   editorUsername: string;
@@ -235,7 +236,7 @@ export type SeedProposal = {
   targetEntityType?: EntityType | null;
   proposerUsername: string;
   proposalType: string;
-  payloadJson: Record<string, unknown>;
+  payloadJson: Prisma.InputJsonValue;
   status?: ProposalStatus;
   reviewerUsername?: string | null;
   reviewComment?: string | null;
