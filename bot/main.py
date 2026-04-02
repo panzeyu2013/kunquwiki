@@ -9,12 +9,13 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from bot.checks.business_check import run_business_check
+from bot.checks.business_check import run_business_check, run_business_check_items
 from bot.checks.health_check import run_health_check
 from bot.checks.schema_check import run_schema_check
 from bot.client.api_client import BotApiClient
 from bot.config import load_config
 from bot.importer.json_loader import JsonLoadError, load_json_file
+from bot.importer.resolver import ReferenceResolver, ResolverConfig
 from bot.importer.submitter import submit_batches
 from bot.importer.validator import validate_payload
 from bot.models.payload import ImportOptions
@@ -32,13 +33,22 @@ def parse_args() -> argparse.Namespace:
 
     import_parser = subparsers.add_parser("import", help="Import JSON items")
     import_parser.add_argument("--file", required=True, help="Path to JSON file")
-    import_parser.add_argument("--dry-run", action="store_true", help="Validate only, no write")
+    import_parser.add_argument("--commit", action="store_true", help="Write to backend (default is dry-run)")
+    import_parser.add_argument("--dry-run", action="store_true", help="Validate only, no write (default)")
     import_parser.add_argument("--batch-size", type=int, default=None, help="Override batch size")
     import_parser.add_argument("--no-upsert", action="store_true", help="Fail on duplicate title")
+    import_parser.add_argument("--resolve", action="store_true", help="Resolve name references to entity IDs")
+    import_parser.add_argument("--resolve-mode", choices=["map", "search", "map+search"], default="map+search")
+    import_parser.add_argument("--map-file", help="Path to entity mapping JSON", default=None)
+    import_parser.add_argument("--cache-dir", help="Directory for search cache JSON", default=None)
 
     check_parser = subparsers.add_parser("check", help="Run checks")
     check_parser.add_argument("--type", required=True, choices=["schema", "business", "health"], help="Check type")
     check_parser.add_argument("--file", help="Path to JSON file")
+    check_parser.add_argument("--resolve", action="store_true", help="Resolve name references to entity IDs")
+    check_parser.add_argument("--resolve-mode", choices=["map", "search", "map+search"], default="map+search")
+    check_parser.add_argument("--map-file", help="Path to entity mapping JSON", default=None)
+    check_parser.add_argument("--cache-dir", help="Directory for search cache JSON", default=None)
 
     return parser.parse_args()
 
@@ -63,7 +73,30 @@ def run_import(args: argparse.Namespace) -> int:
     config = load_config(args.env)
     client = BotApiClient(config.base_url, config.token, config.timeout, config.retry_count)
     batch_size = args.batch_size or config.batch_size
-    options = ImportOptions(dry_run=args.dry_run, upsert=not args.no_upsert)
+    dry_run = not args.commit
+    options = ImportOptions(dry_run=dry_run, upsert=not args.no_upsert)
+
+    if args.resolve:
+        resolver = ReferenceResolver(
+            client,
+            ResolverConfig(mode=args.resolve_mode, map_path=args.map_file, cache_dir=args.cache_dir, strict=not dry_run),
+        )
+        resolve_errors, resolve_warnings = resolver.resolve_items(items)
+        if resolve_errors:
+            logger.error("Reference resolution failed")
+            render_json({"errors": [error.__dict__ for error in resolve_errors]})
+            return 1
+    else:
+        resolve_warnings = []
+
+    if dry_run:
+        result = run_business_check_items(client, items, [])
+        warnings = result.get("warnings", [])
+        warnings.extend([warning.__dict__ for warning in resolve_warnings])
+        result["warnings"] = warnings
+        result["mode"] = "dry_run"
+        render_json(result)
+        return 0 if result.get("passed", False) else 1
 
     logger.info("Submitting import batches")
     results = submit_batches(client, items, options, batch_size)
@@ -98,7 +131,28 @@ def run_check(args: argparse.Namespace) -> int:
     if args.type == "schema":
         result = run_schema_check(data)
     else:
-        result = run_business_check(client, data)
+        if args.resolve:
+            items, errors = validate_payload(data)
+            if errors:
+                result = {
+                    "check_type": "business",
+                    "passed": False,
+                    "errors": [error.__dict__ for error in errors],
+                    "warnings": [],
+                    "stats": {"total": len(items), "error_count": len(errors), "warning_count": 0},
+                }
+            else:
+                resolver = ReferenceResolver(
+                    client,
+                    ResolverConfig(mode=args.resolve_mode, map_path=args.map_file, cache_dir=args.cache_dir, strict=False),
+                )
+                resolve_errors, resolve_warnings = resolver.resolve_items(items)
+                result = run_business_check_items(client, items, resolve_errors)
+                warnings = result.get("warnings", [])
+                warnings.extend([warning.__dict__ for warning in resolve_warnings])
+                result["warnings"] = warnings
+        else:
+            result = run_business_check(client, data)
 
     render_json(result)
     return 0 if result.get("passed", False) else 1

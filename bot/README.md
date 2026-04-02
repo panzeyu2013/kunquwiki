@@ -73,6 +73,41 @@ pip install -r requirements.txt
 - `person`：`gender`、`birthDate`、`personIdentities`、`troupeMemberships`
 - `event`：`startAt`、`eventType`、`businessStatus`、`cityId`、`venueEntityId`、`troupeIds`
 
+### 名称解析与对照表
+
+开启 `--resolve` 后，bot 会在提交前把 `cityId`/`troupeIds`/`venueEntityId` 等字段里的“名称”解析为实体 ID。
+
+支持两种来源：
+
+- `search`：调用后端 `/api/search` 做查询（默认）
+- `map`：读取本地对照表
+
+对照表示例（JSON）：
+
+```json
+{
+  "city": { "苏州": "cxxxxxxxxxxxxxxxxxxxxxxxx" },
+  "troupe": { "上海昆剧团": "cxxxxxxxxxxxxxxxxxxxxxxxx" },
+  "venue": { "苏州昆剧院": "cxxxxxxxxxxxxxxxxxxxxxxxx" },
+  "person": { "俞振飞": "cxxxxxxxxxxxxxxxxxxxxxxxx" },
+  "work": { "牡丹亭": "cxxxxxxxxxxxxxxxxxxxxxxxx" },
+  "role": { "杜丽娘": "cxxxxxxxxxxxxxxxxxxxxxxxx" }
+}
+```
+
+### 搜索缓存
+
+当 `--resolve` 开启且包含 `search` 模式时，会先调用 `/api/search` 预热并把结果缓存到本地，后续解析优先使用缓存。
+
+- 默认缓存路径：`bot/cache/search_cache.json`
+- 可指定目录：`--cache-dir /path/to/cache`
+
+### 导入安全策略
+
+- 默认 `dry-run`，不会写入后端。
+- 只有加 `--commit` 才会提交写入。
+- `dry-run` 下，如果发现无法解析的城市/剧团/演员/角色等引用，会输出 **warning**，但不会阻断流程。
+
 ## 如何添加 JSON 文件
 
 1. 在任意目录新建 JSON 文件（推荐放在 `bot/samples/` 或项目数据目录）。
@@ -86,10 +121,23 @@ python main.py check --file ./samples/sample_input_full.json --type schema
 
 ## 使用
 
-导入：
+导入（默认 dry-run，不写入后端）：
 
 ```bash
 python main.py import --file ./samples/sample_input.json
+```
+
+写入后端（显式提交）：
+
+```bash
+python main.py import --file ./samples/sample_input.json --commit
+```
+
+名称自动解析（把“苏州/上海昆剧团”等解析为实体 ID）：
+
+```bash
+python main.py import --file ./samples/sample_input.json --resolve
+python main.py import --file ./samples/sample_input.json --resolve --resolve-mode map --map-file ./mappings/entity_map.json
 ```
 
 仅校验结构：
@@ -102,6 +150,7 @@ python main.py check --file ./samples/sample_input.json --type schema
 
 ```bash
 python main.py check --file ./samples/sample_input.json --type business
+python main.py check --file ./samples/sample_input.json --type business --resolve
 ```
 
 系统健康检查：

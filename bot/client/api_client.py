@@ -24,6 +24,13 @@ class BotApiClient:
     def health(self) -> dict[str, Any]:
         return self._get("/api/bot/check/health")
 
+    def search_entities(self, query: str, entity_type: str | None = None) -> list[dict[str, Any]]:
+        params = {"q": query}
+        if entity_type:
+            params["type"] = entity_type
+        response = self._get("/api/search", params=params)
+        return response if isinstance(response, list) else []
+
     def _headers(self) -> dict[str, str]:
         return {"X-Bot-Token": self.token, "Content-Type": "application/json"}
 
@@ -39,11 +46,11 @@ class BotApiClient:
         response = with_retry(send, retries=self.retry_count, retry_on=(requests.RequestException,))
         return response.json()
 
-    def _get(self, path: str) -> dict[str, Any]:
+    def _get(self, path: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
         url = f"{self.base_url}{path}"
 
         def send() -> Response:
-            response = requests.get(url, headers=self._headers(), timeout=self.timeout)
+            response = requests.get(url, headers=self._headers(), params=params, timeout=self.timeout)
             if response.status_code >= 500:
                 response.raise_for_status()
             return response
