@@ -9,3 +9,4 @@ apps/api/dev.db-journal
 *.tsbuildinfo
 bot/cache
 apps/api/prisma/migrations
+apps/api/test/fixtures

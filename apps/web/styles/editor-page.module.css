@@ -509,6 +509,76 @@
   gap: 0.8rem;
 }
 
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 12, 8, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 60;
+}
+
+.modalCard {
+  width: min(720px, 100%);
+  max-height: min(80vh, 720px);
+  background: var(--paper);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(31, 29, 25, 0.08);
+  box-shadow: var(--shadow-lg);
+  display: grid;
+  gap: 1rem;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  padding: 1.2rem 1.4rem;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.modalHeader h3 {
+  margin: 0;
+}
+
+.modalBody {
+  display: grid;
+  gap: 0.8rem;
+  overflow: auto;
+}
+
+.modalGrid {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.modalRow {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: flex-start;
+}
+
+.modalLabel {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.modalValue {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
 .eventTimePanelHead {
   display: grid;
   gap: 0.2rem;

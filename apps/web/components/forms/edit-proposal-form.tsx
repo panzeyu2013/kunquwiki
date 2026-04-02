@@ -32,6 +32,7 @@ import {
 import { ArticleFields } from "./edit-proposal/types/article-fields";
 import { CityFields } from "./edit-proposal/types/city-fields";
 import { EventFields } from "./edit-proposal/types/event-fields";
+import { EventParsePreviewModal } from "./edit-proposal/event-parse-preview-modal";
 import { PersonFields } from "./edit-proposal/types/person-fields";
 import { TroupeFields } from "./edit-proposal/types/troupe-fields";
 import { VenueFields } from "./edit-proposal/types/venue-fields";
@@ -222,6 +223,9 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
   const [eventLink, setEventLink] = useState("");
   const [eventParsePending, setEventParsePending] = useState(false);
   const [eventParseError, setEventParseError] = useState<string | null>(null);
+  const [eventParseResult, setEventParseResult] = useState<ParsedEventDraft | null>(null);
+  const [eventParseModalOpen, setEventParseModalOpen] = useState(false);
+  const [eventParseNotice, setEventParseNotice] = useState<string | null>(null);
 
   const activeEntityType = entity?.entityType ?? entityType ?? "";
   const isCreateMode = !slug;
@@ -290,13 +294,12 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
     }
     setEventParsePending(true);
     setEventParseError(null);
+    setEventParseNotice(null);
     try {
       const result = await parseEventFromLink(trimmed);
-      const confirmed = window.confirm("将使用解析结果覆盖当前已填写内容，是否继续？");
-      if (!confirmed) {
-        return;
-      }
-      applyParsedEvent(result);
+      setEventParseResult(result);
+      setEventParseModalOpen(true);
+      setEventParseNotice("解析完成，请确认是否替换表单内容。");
     } catch (error) {
       setEventParseError(error instanceof Error ? error.message : "解析失败，请稍后再试。");
     } finally {
@@ -359,6 +362,15 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
     }
   }
 
+  function handleConfirmParseApply() {
+    if (!eventParseResult) {
+      return;
+    }
+    applyParsedEvent(eventParseResult);
+    setEventParseModalOpen(false);
+    setEventParseNotice("已替换为解析结果，请继续检查并补充。");
+  }
+
   async function createQuickOption(
     nextEntityType: string,
     name: string,
@@ -410,6 +422,9 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
       setFormState(emptyState(entityType));
       setEventLink("");
       setEventParseError(null);
+      setEventParseNotice(null);
+      setEventParseResult(null);
+      setEventParseModalOpen(false);
       setOptions(nextOptions);
       setLoaded(true);
     }
@@ -424,6 +439,9 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
       setBody(loadedEntity.body ?? "");
       setEventLink("");
       setEventParseError(null);
+      setEventParseNotice(null);
+      setEventParseResult(null);
+      setEventParseModalOpen(false);
 
       const nextState = emptyState(loadedEntity.entityType);
       nextState.coverImageId = loadedEntity.coverImageId ?? "";
@@ -896,10 +914,20 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
                     onChange: setEventLink,
                     onParse: handleParseEventLink,
                     pending: eventParsePending,
-                    error: eventParseError
+                    error: eventParseError,
+                    notice: eventParseNotice
                   }
                 : undefined
             }
+          />
+        ) : null}
+
+        {activeEntityType === "event" ? (
+          <EventParsePreviewModal
+            open={eventParseModalOpen}
+            result={eventParseResult}
+            onClose={() => setEventParseModalOpen(false)}
+            onConfirm={handleConfirmParseApply}
           />
         ) : null}
 

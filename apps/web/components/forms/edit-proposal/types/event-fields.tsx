@@ -48,6 +48,7 @@ type EventFieldsProps = {
     onParse: () => void;
     pending: boolean;
     error?: string | null;
+    notice?: string | null;
   };
 };
 
@@ -315,6 +316,7 @@ export function EventFields({
             </button>
             <p className={styles.helperText}>解析结果会覆盖已有内容，提交前请核对。</p>
           </div>
+          {parseLinkState.notice ? <p className={styles.helperText}>{parseLinkState.notice}</p> : null}
           {parseLinkState.error ? <p className={styles.helperText}>{parseLinkState.error}</p> : null}
         </div>
       ) : null}

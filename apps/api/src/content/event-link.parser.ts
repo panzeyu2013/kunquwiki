@@ -5,6 +5,7 @@ import type { AnyNode } from "domhandler";
 import { JSDOM } from "jsdom";
 import { promises as dns } from "node:dns";
 import net from "node:net";
+import { chromium } from "playwright";
 
 const DEFAULT_TIMEOUT_MS = 6000;
 const MAX_HTML_BYTES = 2 * 1024 * 1024;
@@ -39,81 +40,36 @@ type JsonLdEvent = {
 export async function parseEventAnnouncementLink(url: string): Promise<ParsedEventDraft> {
   const normalizedUrl = await assertSafeUrl(url);
   const html = await fetchHtml(normalizedUrl);
-  const $ = cheerio.load(html);
+  let parsed = extractFromHtml(html, normalizedUrl);
 
-  const meta = extractMeta($);
-  const jsonLd = extractJsonLd($);
-  const jsonLdEvent = extractEventFromJsonLd(jsonLd);
+  if (shouldFallbackToBrowser(html, parsed, normalizedUrl)) {
+    const browserHtml = await fetchHtmlWithPlaywright(normalizedUrl);
+    parsed = extractFromHtml(browserHtml, normalizedUrl);
+  }
 
-  const readabilityResult = extractReadableContent(html, normalizedUrl);
-  const bodyText = readabilityResult.text ?? "";
-
-  const fromText = extractEventFieldsFromText(bodyText);
-  const fromLinks = extractTicketLink($, normalizedUrl);
-
-  const title = firstNonEmpty(
-    jsonLdEvent?.name,
-    meta.ogTitle,
-    meta.twitterTitle,
-    readabilityResult.title,
-    meta.title
-  );
-
-  const description = firstNonEmpty(
-    jsonLdEvent?.description,
-    meta.ogDescription,
-    meta.twitterDescription,
-    meta.description
-  );
-
-  const bodyMarkdown = normalizeMarkdownBody(firstNonEmpty(readabilityResult.text, description));
-
-  const startAt = firstNonEmpty(jsonLdEvent?.startDate, fromText.startAt);
-  const endAt = firstNonEmpty(jsonLdEvent?.endDate, fromText.endAt);
-
-  const venueName = firstNonEmpty(
-    typeof jsonLdEvent?.location === "string" ? jsonLdEvent?.location : jsonLdEvent?.location?.name,
-    fromText.venueName
-  );
-
-  const cityName = firstNonEmpty(
-    typeof jsonLdEvent?.location !== "string" ? jsonLdEvent?.location?.address?.addressLocality : undefined,
-    fromText.cityName
-  );
-
-  const troupeNames = uniqueStrings(
-    toStringArray(jsonLdEvent?.performer).concat(toStringArray(fromText.troupeNames))
-  );
-
-  const programTitles = uniqueStrings(fromText.programTitles ?? []);
-
-  const ticketUrl = firstNonEmpty(
-    normalizeUrlField(jsonLdEvent?.offers),
-    fromLinks
-  );
-
-  const posterImageUrl = firstNonEmpty(
-    normalizeImage(jsonLdEvent?.image),
-    meta.ogImage,
-    meta.twitterImage
-  );
-
-  const noteText = fromText.noteText;
+  if (isParsedEmpty(parsed)) {
+    throw new BadRequestException("解析失败，页面可能受保护或内容为空，请尝试手动复制正文。");
+  }
 
   return {
     sourceUrl: normalizedUrl,
-    title: title ?? undefined,
-    bodyMarkdown: bodyMarkdown ?? undefined,
-    startAt: normalizeIsoDate(startAt),
-    endAt: normalizeIsoDate(endAt),
-    cityName: cityName ?? undefined,
-    venueName: venueName ?? undefined,
-    troupeNames: troupeNames.length > 0 ? troupeNames : undefined,
-    programTitles: programTitles.length > 0 ? programTitles : undefined,
-    ticketUrl: ticketUrl ?? undefined,
-    noteText: noteText ?? undefined,
-    posterImageUrl: posterImageUrl ?? undefined
+    title: parsed.title ?? undefined,
+    bodyMarkdown: parsed.bodyMarkdown ?? undefined,
+    startAt: normalizeIsoDate(parsed.startAt),
+    endAt: normalizeIsoDate(parsed.endAt),
+    cityName: parsed.cityName ?? undefined,
+    venueName: parsed.venueName ?? undefined,
+    troupeNames: parsed.troupeNames && parsed.troupeNames.length > 0 ? parsed.troupeNames : undefined,
+    programTitles: parsed.programTitles && parsed.programTitles.length > 0 ? parsed.programTitles : undefined,
+    ticketUrl: parsed.ticketUrl ?? undefined,
+    noteText: parsed.noteText ?? undefined,
+    posterImageUrl: parsed.posterImageUrl ?? undefined
   };
+}
+
+// Testing/diagnostics helper: parse raw HTML without fetching.
+export function parseEventHtmlForTesting(html: string, url: string) {
+  return extractFromHtml(html, url);
 }
 
 async function assertSafeUrl(input: string): Promise<string> {
@@ -212,6 +168,198 @@ async function fetchHtml(url: string) {
     throw new BadRequestException("解析失败，无法访问该链接");
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+function extractFromHtml(html: string, url: string) {
+  const $ = cheerio.load(html);
+
+  if (url.includes("mp.weixin.qq.com") && $("#js_content").length > 0) {
+    return extractFromWeChat($, url);
+  }
+
+  const meta = extractMeta($);
+  const jsonLd = extractJsonLd($);
+  const jsonLdEvent = extractEventFromJsonLd(jsonLd);
+
+  const readabilityResult = extractReadableContent(html, url);
+  const bodyText = readabilityResult.text ?? "";
+
+  const fromText = extractEventFieldsFromText(bodyText);
+  const fromLinks = extractTicketLink($, url);
+
+  const title = firstNonEmpty(
+    jsonLdEvent?.name,
+    meta.ogTitle,
+    meta.twitterTitle,
+    readabilityResult.title,
+    meta.title
+  );
+
+  const description = firstNonEmpty(
+    jsonLdEvent?.description,
+    meta.ogDescription,
+    meta.twitterDescription,
+    meta.description
+  );
+
+  const bodyMarkdown = normalizeMarkdownBody(firstNonEmpty(readabilityResult.text, description));
+
+  const startAt = firstNonEmpty(jsonLdEvent?.startDate, fromText.startAt);
+  const endAt = firstNonEmpty(jsonLdEvent?.endDate, fromText.endAt);
+
+  const venueName = firstNonEmpty(
+    typeof jsonLdEvent?.location === "string" ? jsonLdEvent?.location : jsonLdEvent?.location?.name,
+    fromText.venueName
+  );
+
+  const cityName = firstNonEmpty(
+    typeof jsonLdEvent?.location !== "string" ? jsonLdEvent?.location?.address?.addressLocality : undefined,
+    fromText.cityName
+  );
+
+  const troupeNames = uniqueStrings(
+    toStringArray(jsonLdEvent?.performer).concat(toStringArray(fromText.troupeNames))
+  );
+
+  const programTitles = uniqueStrings(fromText.programTitles ?? []);
+
+  const ticketUrl = firstNonEmpty(
+    normalizeUrlField(jsonLdEvent?.offers),
+    fromLinks
+  );
+
+  const posterImageUrl = firstNonEmpty(
+    normalizeImage(jsonLdEvent?.image),
+    meta.ogImage,
+    meta.twitterImage
+  );
+
+  const noteText = fromText.noteText;
+
+  return {
+    title: title ?? undefined,
+    bodyMarkdown: bodyMarkdown ?? undefined,
+    startAt: startAt ?? undefined,
+    endAt: endAt ?? undefined,
+    cityName: cityName ?? undefined,
+    venueName: venueName ?? undefined,
+    troupeNames,
+    programTitles,
+    ticketUrl: ticketUrl ?? undefined,
+    noteText: noteText ?? undefined,
+    posterImageUrl: posterImageUrl ?? undefined
+  };
+}
+
+function extractFromWeChat($: cheerio.CheerioAPI, url: string) {
+  const title = $("#activity-name").text().trim() || extractMeta($).ogTitle;
+  const publishTime = $("#publish_time").text().trim();
+  const author = $("#js_name").text().trim();
+  const bodyHtml = $("#js_content").html() ?? "";
+
+  const cleanedText = cleanWeChatBody(bodyHtml);
+  const bodyMarkdown = normalizeMarkdownBody(cleanedText);
+
+  const fromText = extractEventFieldsFromText(cleanedText);
+  const fromLinks = extractTicketLink($, url);
+  const meta = extractMeta($);
+
+  const noteParts = [publishTime ? `发布时间：${publishTime}` : "", author ? `作者：${author}` : ""].filter(Boolean);
+  const noteText = noteParts.length > 0 ? noteParts.join("\\n") : undefined;
+
+  return {
+    title: title ?? undefined,
+    bodyMarkdown: bodyMarkdown ?? undefined,
+    startAt: fromText.startAt ?? undefined,
+    endAt: fromText.endAt ?? undefined,
+    cityName: fromText.cityName?.trim() ?? undefined,
+    venueName: fromText.venueName?.trim() ?? undefined,
+    troupeNames: fromText.troupeNames,
+    programTitles: fromText.programTitles,
+    ticketUrl: fromLinks ?? undefined,
+    noteText,
+    posterImageUrl: meta.ogImage ?? undefined
+  };
+}
+
+function cleanWeChatBody(html: string) {
+  const $ = cheerio.load(html);
+  $("script, style, iframe, noscript").remove();
+  $("section").each((_index: number, el: AnyNode) => {
+    const text = $(el).text().trim();
+    if (!text) {
+      $(el).remove();
+    }
+  });
+  $("img").each((_index: number, el: AnyNode) => {
+    const element = $(el);
+    const dataSrc = element.attr("data-src");
+    if (dataSrc && !element.attr("src")) {
+      element.attr("src", dataSrc);
+    }
+  });
+  const lines: string[] = [];
+  $("p, li, h1, h2, h3, h4").each((_index: number, el: AnyNode) => {
+    const text = $(el).text().replace(/\u00a0/g, " ").trim();
+    if (text) {
+      lines.push(text);
+    }
+  });
+  return lines.join("\n\n");
+}
+
+function shouldFallbackToBrowser(html: string, parsed: ReturnType<typeof extractFromHtml>, url: string) {
+  if (!html || html.trim().length < 400) {
+    return true;
+  }
+  const blockedSignals = [
+    "请在微信客户端打开",
+    "为了你的安全",
+    "访问过于频繁",
+    "环境异常",
+    "内容暂时无法查看"
+  ];
+  if (blockedSignals.some((signal) => html.includes(signal))) {
+    return true;
+  }
+  if (url.includes("mp.weixin.qq.com") && isParsedEmpty(parsed)) {
+    return true;
+  }
+  return false;
+}
+
+function isParsedEmpty(parsed: ReturnType<typeof extractFromHtml>) {
+  return !parsed.title && !parsed.bodyMarkdown && !parsed.startAt && !parsed.venueName && !parsed.cityName && !parsed.ticketUrl;
+}
+
+async function fetchHtmlWithPlaywright(url: string) {
+  const browser = await chromium.launch({ headless: true });
+  const context = await browser.newContext({
+    userAgent:
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.50",
+    locale: "zh-CN",
+    timezoneId: "Asia/Shanghai"
+  });
+  const page = await context.newPage();
+  await page.setExtraHTTPHeaders({
+    Referer: "https://mp.weixin.qq.com/",
+    "Accept-Language": "zh-CN,zh;q=0.9"
+  });
+  try {
+    await page.goto(url, { waitUntil: "networkidle", timeout: 15000 });
+    await page.waitForTimeout(1200);
+    const html = await page.content();
+    return html;
+  } catch (error) {
+    if (error instanceof BadRequestException) {
+      throw error;
+    }
+    throw new BadRequestException("解析失败，无法使用浏览器抓取内容。");
+  } finally {
+    await page.close().catch(() => undefined);
+    await context.close().catch(() => undefined);
+    await browser.close().catch(() => undefined);
   }
 }
 
@@ -335,10 +483,10 @@ function extractEventFieldsFromText(text: string) {
     .map((line) => line.trim())
     .filter(Boolean);
 
-  const timeLine = findLineValue(lines, ["时间", "演出时间", "活动时间"]) ?? "";
-  const locationLine = findLineValue(lines, ["地点", "场馆", "剧场", "剧院", "演出地点"]) ?? "";
-  const troupeLine = findLineValue(lines, ["演出单位", "演出团体", "演出院团", "主办", "承办"]) ?? "";
-  const noteLine = findLineValue(lines, ["备注", "说明", "提示", "注意事项"]) ?? "";
+  const timeLine = cleanFieldValue(findLineValue(lines, ["时间", "演出时间", "活动时间"]) ?? "");
+  const locationLine = cleanFieldValue(findLineValue(lines, ["地点", "场馆", "剧场", "剧院", "演出地点"]) ?? "");
+  const troupeLine = cleanFieldValue(findLineValue(lines, ["演出单位", "演出团体", "演出院团", "主办", "承办"]) ?? "");
+  const noteLine = cleanFieldValue(findLineValue(lines, ["备注", "说明", "提示", "注意事项"]) ?? "");
 
   const timeParsed = parseDateRange(timeLine || text);
   const locationParsed = parseLocation(locationLine);
@@ -413,7 +561,7 @@ function findLineValue(lines: string[], labels: string[]) {
 }
 
 function parseLocation(value: string) {
-  const normalized = value.replace(/[（）()]/g, " ").trim();
+  const normalized = value.replace(/[（）()]/g, " ").replace(/\s+/g, " ").trim();
   if (!normalized) {
     return { cityName: undefined, venueName: undefined };
   }
@@ -429,18 +577,20 @@ function parseDateRange(value: string) {
     return { startAt: undefined, endAt: undefined };
   }
   const dateRegex = /(\d{4})[年\-./](\d{1,2})[月\-./](\d{1,2})日?/;
+  const monthDayRegex = /(\d{1,2})月(\d{1,2})日/;
   const timeRangeRegex = /(\d{1,2}:\d{2})\s*(?:[-~到至]\s*(\d{1,2}:\d{2}))?/;
 
   const dateMatch = value.match(dateRegex);
+  const monthDayMatch = dateMatch ? null : value.match(monthDayRegex);
   const timeMatch = value.match(timeRangeRegex);
 
-  if (!dateMatch) {
+  if (!dateMatch && !monthDayMatch) {
     return { startAt: undefined, endAt: undefined };
   }
 
-  const year = Number.parseInt(dateMatch[1] ?? "", 10);
-  const month = Number.parseInt(dateMatch[2] ?? "", 10);
-  const day = Number.parseInt(dateMatch[3] ?? "", 10);
+  const year = dateMatch ? Number.parseInt(dateMatch[1] ?? "", 10) : new Date().getFullYear();
+  const month = dateMatch ? Number.parseInt(dateMatch[2] ?? "", 10) : Number.parseInt(monthDayMatch?.[1] ?? "", 10);
+  const day = dateMatch ? Number.parseInt(dateMatch[3] ?? "", 10) : Number.parseInt(monthDayMatch?.[2] ?? "", 10);
   if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
     return { startAt: undefined, endAt: undefined };
   }
@@ -531,4 +681,40 @@ function splitNames(value?: string | null) {
 function uniqueStrings(values: string[]) {
   const set = new Set(values.filter(Boolean));
   return [...set];
+}
+
+function cleanFieldValue(value: string) {
+  if (!value) {
+    return "";
+  }
+  let result = value.replace(/\u00a0/g, " ").trim();
+  result = result.split(/\n+/)[0]?.trim() ?? result;
+  const blockers = [
+    "票价",
+    "票务",
+    "票务热线",
+    "热线",
+    "演员",
+    "鼓",
+    "笛",
+    "时间",
+    "地点",
+    "备注",
+    "演出单位",
+    "主办",
+    "承办",
+    "节目单"
+  ];
+  let cutIndex = result.length;
+  for (const keyword of blockers) {
+    const idx = result.indexOf(`${keyword}：`);
+    if (idx > 0 && idx < cutIndex) {
+      cutIndex = idx;
+    }
+    const idxAlt = result.indexOf(`${keyword}:`);
+    if (idxAlt > 0 && idxAlt < cutIndex) {
+      cutIndex = idxAlt;
+    }
+  }
+  return result.slice(0, cutIndex).trim();
 }

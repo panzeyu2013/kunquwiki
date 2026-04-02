@@ -28,6 +28,7 @@
     "class-validator": "^0.14.1",
     "jsdom": "^24.0.0",
     "jsonwebtoken": "^9.0.2",
+    "playwright": "^1.59.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
