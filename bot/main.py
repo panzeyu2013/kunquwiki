@@ -41,6 +41,11 @@ def parse_args() -> argparse.Namespace:
     import_parser.add_argument("--resolve-mode", choices=["map", "search", "map+search"], default="map+search")
     import_parser.add_argument("--map-file", help="Path to entity mapping JSON", default=None)
     import_parser.add_argument("--cache-dir", help="Directory for search cache JSON", default=None)
+    import_parser.add_argument("--alias-file", help="Path to entity alias JSON", default=None)
+    import_parser.add_argument("--no-fuzzy", action="store_true", help="Disable fuzzy matching")
+    import_parser.add_argument("--fuzzy-threshold", type=float, default=0.92, help="Auto-resolve score threshold")
+    import_parser.add_argument("--fuzzy-gap", type=float, default=0.08, help="Min score gap between top candidates")
+    import_parser.add_argument("--fuzzy-warn", type=float, default=0.85, help="Warn threshold for fuzzy matches")
 
     check_parser = subparsers.add_parser("check", help="Run checks")
     check_parser.add_argument("--type", required=True, choices=["schema", "business", "health"], help="Check type")
@@ -49,6 +54,11 @@ def parse_args() -> argparse.Namespace:
     check_parser.add_argument("--resolve-mode", choices=["map", "search", "map+search"], default="map+search")
     check_parser.add_argument("--map-file", help="Path to entity mapping JSON", default=None)
     check_parser.add_argument("--cache-dir", help="Directory for search cache JSON", default=None)
+    check_parser.add_argument("--alias-file", help="Path to entity alias JSON", default=None)
+    check_parser.add_argument("--no-fuzzy", action="store_true", help="Disable fuzzy matching")
+    check_parser.add_argument("--fuzzy-threshold", type=float, default=0.92, help="Auto-resolve score threshold")
+    check_parser.add_argument("--fuzzy-gap", type=float, default=0.08, help="Min score gap between top candidates")
+    check_parser.add_argument("--fuzzy-warn", type=float, default=0.85, help="Warn threshold for fuzzy matches")
 
     return parser.parse_args()
 
@@ -79,7 +89,17 @@ def run_import(args: argparse.Namespace) -> int:
     if args.resolve:
         resolver = ReferenceResolver(
             client,
-            ResolverConfig(mode=args.resolve_mode, map_path=args.map_file, cache_dir=args.cache_dir, strict=not dry_run),
+            ResolverConfig(
+                mode=args.resolve_mode,
+                map_path=args.map_file,
+                alias_path=args.alias_file,
+                cache_dir=args.cache_dir,
+                strict=not dry_run,
+                fuzzy=not args.no_fuzzy,
+                fuzzy_threshold=args.fuzzy_threshold,
+                fuzzy_gap=args.fuzzy_gap,
+                fuzzy_warn=args.fuzzy_warn,
+            ),
         )
         resolve_errors, resolve_warnings = resolver.resolve_items(items)
         if resolve_errors:
@@ -144,7 +164,17 @@ def run_check(args: argparse.Namespace) -> int:
             else:
                 resolver = ReferenceResolver(
                     client,
-                    ResolverConfig(mode=args.resolve_mode, map_path=args.map_file, cache_dir=args.cache_dir, strict=False),
+                    ResolverConfig(
+                        mode=args.resolve_mode,
+                        map_path=args.map_file,
+                        alias_path=args.alias_file,
+                        cache_dir=args.cache_dir,
+                        strict=False,
+                        fuzzy=not args.no_fuzzy,
+                        fuzzy_threshold=args.fuzzy_threshold,
+                        fuzzy_gap=args.fuzzy_gap,
+                        fuzzy_warn=args.fuzzy_warn,
+                    ),
                 )
                 resolve_errors, resolve_warnings = resolver.resolve_items(items)
                 result = run_business_check_items(client, items, resolve_errors)

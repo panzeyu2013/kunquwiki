@@ -82,6 +82,12 @@ pip install -r requirements.txt
 - `search`：调用后端 `/api/search` 做查询（默认）
 - `map`：读取本地对照表
 
+可选：别名表（alias -> 标准名），用于相似匹配：
+
+```bash
+python main.py import --file ./samples/sample_input.json --resolve --alias-file ./mappings/entity_aliases.json
+```
+
 对照表示例（JSON）：
 
 ```json
@@ -92,6 +98,15 @@ pip install -r requirements.txt
   "person": { "俞振飞": "cxxxxxxxxxxxxxxxxxxxxxxxx" },
   "work": { "牡丹亭": "cxxxxxxxxxxxxxxxxxxxxxxxx" },
   "role": { "杜丽娘": "cxxxxxxxxxxxxxxxxxxxxxxxx" }
+}
+```
+
+别名表示例（JSON）：
+
+```json
+{
+  "venue": { "昆山梁辰鱼剧场": "梁辰鱼剧场" },
+  "troupe": { "苏州市昆剧团": "苏州昆剧团" }
 }
 ```
 
@@ -107,6 +122,17 @@ pip install -r requirements.txt
 - 默认 `dry-run`，不会写入后端。
 - 只有加 `--commit` 才会提交写入。
 - `dry-run` 下，如果发现无法解析的城市/剧团/演员/角色等引用，会输出 **warning**，但不会阻断流程。
+
+### 相似匹配（fuzzy）
+
+当 `--resolve` 开启时，解析会进行基础的相似度打分，避免因为“前缀地名”等造成匹配过严。
+
+- 默认启用模糊匹配（fuzzy）
+- 可关闭：`--no-fuzzy`
+- 可调阈值：
+  - `--fuzzy-threshold`：自动匹配阈值（默认 0.92）
+  - `--fuzzy-gap`：第一名与第二名的最小分差（默认 0.08）
+  - `--fuzzy-warn`：用于判定低置信候选提示（默认 0.85）
 
 ## 如何添加 JSON 文件
 
@@ -138,6 +164,7 @@ python main.py import --file ./samples/sample_input.json --commit
 ```bash
 python main.py import --file ./samples/sample_input.json --resolve
 python main.py import --file ./samples/sample_input.json --resolve --resolve-mode map --map-file ./mappings/entity_map.json
+python main.py import --file ./samples/sample_input.json --resolve --alias-file ./mappings/entity_aliases.json
 ```
 
 仅校验结构：
