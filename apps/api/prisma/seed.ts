@@ -9,4 +9,8 @@ if (isDirectRun) {
   });
 }
 
+export async function seedDatabase() {
+  return runSeed();
+}
+
 export default runSeed;

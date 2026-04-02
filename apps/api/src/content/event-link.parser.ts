@@ -1,6 +1,7 @@
 import { BadRequestException } from "@nestjs/common";
 import { isProbablyReaderable, Readability } from "@mozilla/readability";
 import * as cheerio from "cheerio";
+import type { AnyNode } from "domhandler";
 import { JSDOM } from "jsdom";
 import { promises as dns } from "node:dns";
 import net from "node:net";
@@ -158,7 +159,9 @@ async function resolveHostIp(hostname: string): Promise<string | null> {
 
 function isPrivateIp(ip: string) {
   if (net.isIP(ip) === 4) {
-    const [a, b] = ip.split(".").map((item) => Number.parseInt(item, 10));
+    const parts = ip.split(".").map((item) => Number.parseInt(item, 10));
+    const a = parts[0] ?? 0;
+    const b = parts[1] ?? 0;
     if (a === 10) return true;
     if (a === 127) return true;
     if (a === 169 && b === 254) return true;
@@ -242,7 +245,7 @@ function extractMeta($: cheerio.CheerioAPI) {
 
 function extractJsonLd($: cheerio.CheerioAPI) {
   const items: unknown[] = [];
-  $("script[type='application/ld+json']").each((_, el) => {
+  $("script[type='application/ld+json']").each((_index: number, el: AnyNode) => {
     const text = $(el).contents().text();
     if (!text) {
       return;
@@ -314,7 +317,7 @@ function extractReadableContent(html: string, url: string) {
 function normalizeTextFromHtml(html: string) {
   const $ = cheerio.load(html);
   const lines: string[] = [];
-  $("p, br, li").each((_, el) => {
+  $("p, br, li").each((_index: number, el: AnyNode) => {
     const text = $(el).text().trim();
     if (text) {
       lines.push(text);
@@ -353,7 +356,7 @@ function extractEventFieldsFromText(text: string) {
 
 function extractTicketLink($: cheerio.CheerioAPI, baseUrl: string) {
   const candidates: string[] = [];
-  $("a").each((_, el) => {
+  $("a").each((_index: number, el: AnyNode) => {
     const text = $(el).text().trim();
     const href = $(el).attr("href");
     if (!href) {
@@ -435,16 +438,19 @@ function parseDateRange(value: string) {
     return { startAt: undefined, endAt: undefined };
   }
 
-  const year = Number.parseInt(dateMatch[1], 10);
-  const month = Number.parseInt(dateMatch[2], 10);
-  const day = Number.parseInt(dateMatch[3], 10);
+  const year = Number.parseInt(dateMatch[1] ?? "", 10);
+  const month = Number.parseInt(dateMatch[2] ?? "", 10);
+  const day = Number.parseInt(dateMatch[3] ?? "", 10);
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+    return { startAt: undefined, endAt: undefined };
+  }
   const dateLabel = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 
   if (!timeMatch) {
     return { startAt: new Date(`${dateLabel}T00:00`).toISOString(), endAt: undefined };
   }
 
-  const startTime = timeMatch[1];
+  const startTime = timeMatch[1] ?? "00:00";
   const endTime = timeMatch[2];
   const startAt = new Date(`${dateLabel}T${startTime}`).toISOString();
   const endAt = endTime ? new Date(`${dateLabel}T${endTime}`).toISOString() : undefined;
