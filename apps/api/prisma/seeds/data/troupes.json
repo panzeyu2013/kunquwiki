@@ -1,0 +1,80 @@
+[
+  {
+    "slug": "上海昆剧团",
+    "title": "上海昆剧团",
+    "troupeType": "troupe",
+    "citySlug": "上海",
+    "cityText": "上海",
+    "regionText": "上海",
+    "description": "以上海为核心阵地的专业昆曲院团，演出、教学与推广并重。",
+    "content": {
+      "bodyMarkdown": "院团常年开展演出与青年人才培养项目，参与国内外交流。"
+    },
+    "officialWebsite": "https://example.com/shkun",
+    "sources": [
+      { "sourceKey": "shkun" }
+    ]
+  },
+  {
+    "slug": "苏州昆剧院",
+    "title": "苏州昆剧院",
+    "troupeType": "troupe",
+    "citySlug": "苏州",
+    "cityText": "苏州",
+    "regionText": "江苏",
+    "description": "以昆曲发源地文化为依托的专业院团，承担演出与传承任务。",
+    "content": {
+      "bodyMarkdown": "承担地方与全国重要演出任务，并参与传习项目。"
+    },
+    "officialWebsite": "https://example.com/sukun",
+    "sources": [
+      { "sourceKey": "sukun" }
+    ]
+  },
+  {
+    "slug": "江苏省昆剧院",
+    "title": "江苏省昆剧院",
+    "troupeType": "troupe",
+    "citySlug": "南京",
+    "cityText": "南京",
+    "regionText": "江苏",
+    "description": "综合性专业院团，兼顾演出制作与资料整理。",
+    "content": {
+      "bodyMarkdown": "在传统剧目复排与当代传播方面持续投入。"
+    },
+    "sources": [
+      { "sourceKey": "nanjing_institute" }
+    ]
+  },
+  {
+    "slug": "昆曲传习与研究中心",
+    "title": "昆曲传习与研究中心",
+    "troupeType": "research_org",
+    "citySlug": "昆山",
+    "cityText": "昆山",
+    "regionText": "江苏",
+    "description": "以昆曲资料整理、教学推广与学术研究为主的机构。",
+    "content": {
+      "bodyMarkdown": "组织讲座、展览与传习活动，促进昆曲研究与公共教育。"
+    },
+    "sources": [
+      { "sourceKey": "museum" },
+      { "sourceKey": "academy_intro" }
+    ]
+  },
+  {
+    "slug": "昆曲青年演员研修班",
+    "title": "昆曲青年演员研修班",
+    "troupeType": "school",
+    "citySlug": "北京",
+    "cityText": "北京",
+    "regionText": "北京",
+    "description": "以青年演员训练与课程实践为主的教学项目。",
+    "content": {
+      "bodyMarkdown": "结合剧目排练与理论课程，培养青年昆曲表演者。"
+    },
+    "sources": [
+      { "sourceKey": "academy_intro" }
+    ]
+  }
+]

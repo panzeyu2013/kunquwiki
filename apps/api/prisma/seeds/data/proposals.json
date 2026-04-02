@@ -1,0 +1,49 @@
+[
+  {
+    "entitySlug": "2026_05_18_苏州昆剧院_长生殿_纪念演出",
+    "proposerUsername": "editor",
+    "proposalType": "content_update",
+    "payloadJson": {
+      "title": "《长生殿》苏州纪念演出",
+      "bodyMarkdown": "补充开票时间与导赏安排。",
+      "editSummary": "更新票务与导赏信息"
+    },
+    "status": "pending"
+  },
+  {
+    "entitySlug": "曲牌",
+    "proposerUsername": "editor",
+    "proposalType": "content_update",
+    "payloadJson": {
+      "bodyMarkdown": "补充曲牌分类与常见调式示例。",
+      "editSummary": "补充分类示例"
+    },
+    "status": "approved",
+    "reviewerUsername": "reviewer",
+    "reviewComment": "内容符合术语条目范围。",
+    "reviewedAt": "2026-03-12T09:00:00+08:00"
+  },
+  {
+    "entitySlug": "顾传玠",
+    "proposerUsername": "editor",
+    "proposalType": "rename",
+    "payloadJson": {
+      "title": "顾传杰",
+      "editSummary": "尝试调整姓名写法"
+    },
+    "status": "rejected",
+    "reviewerUsername": "reviewer",
+    "reviewComment": "当前资料不足以支持改名。",
+    "reviewedAt": "2026-03-18T10:30:00+08:00"
+  },
+  {
+    "entitySlug": "昆曲表演训练",
+    "proposerUsername": "editor",
+    "proposalType": "content_update",
+    "payloadJson": {
+      "bodyMarkdown": "补充练功流程与课堂安排描述。",
+      "editSummary": "补充训练流程"
+    },
+    "status": "pending"
+  }
+]

@@ -1,0 +1,74 @@
+[
+  {
+    "key": "event1_item1",
+    "eventSlug": "2026_04_10_上海昆剧团_青春版_牡丹亭_上海专场",
+    "workSlug": "牡丹亭-游园惊梦",
+    "titleOverride": "牡丹亭·游园惊梦",
+    "sequenceNo": 1,
+    "durationMinutes": 65
+  },
+  {
+    "key": "event1_item2",
+    "eventSlug": "2026_04_10_上海昆剧团_青春版_牡丹亭_上海专场",
+    "workSlug": "牡丹亭-寻梦",
+    "titleOverride": "牡丹亭·寻梦",
+    "sequenceNo": 2,
+    "durationMinutes": 50
+  },
+  {
+    "key": "event2_item1",
+    "eventSlug": "2026_05_18_苏州昆剧院_长生殿_纪念演出",
+    "workSlug": "长生殿",
+    "titleOverride": "长生殿选段",
+    "sequenceNo": 1,
+    "durationMinutes": 90
+  },
+  {
+    "key": "event4_item1",
+    "eventSlug": "2026_06_05_杭州_昆曲艺术节_开幕演出",
+    "workSlug": "牡丹亭-游园惊梦",
+    "titleOverride": "牡丹亭·游园惊梦",
+    "sequenceNo": 1,
+    "durationMinutes": 60
+  },
+  {
+    "key": "event4_item2",
+    "eventSlug": "2026_06_05_杭州_昆曲艺术节_开幕演出",
+    "workSlug": "长生殿-惊变",
+    "titleOverride": "长生殿·惊变",
+    "sequenceNo": 2,
+    "durationMinutes": 40
+  },
+  {
+    "key": "event4_item3",
+    "eventSlug": "2026_06_05_杭州_昆曲艺术节_开幕演出",
+    "workSlug": "桃花扇",
+    "titleOverride": "桃花扇选段",
+    "sequenceNo": 3,
+    "durationMinutes": 45
+  },
+  {
+    "key": "event7_item1",
+    "eventSlug": "2026_09_10_北京_昆曲经典折子戏展演",
+    "workSlug": "玉簪记",
+    "titleOverride": "玉簪记选段",
+    "sequenceNo": 1,
+    "durationMinutes": 50
+  },
+  {
+    "key": "event7_item2",
+    "eventSlug": "2026_09_10_北京_昆曲经典折子戏展演",
+    "workSlug": "浣纱记",
+    "titleOverride": "浣纱记选段",
+    "sequenceNo": 2,
+    "durationMinutes": 45
+  },
+  {
+    "key": "event10_item1",
+    "eventSlug": "2025_09_15_苏州_昆曲先贤纪念会",
+    "workSlug": "南柯记",
+    "titleOverride": "南柯记选段",
+    "sequenceNo": 1,
+    "durationMinutes": 35
+  }
+]

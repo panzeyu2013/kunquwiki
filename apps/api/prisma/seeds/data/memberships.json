@@ -1,0 +1,14 @@
+[
+  { "personSlug": "张军", "troupeSlug": "上海昆剧团", "membershipRole": "团员", "isCurrent": true },
+  { "personSlug": "蔡正仁", "troupeSlug": "上海昆剧团", "membershipRole": "艺术顾问", "isCurrent": false },
+  { "personSlug": "陈佳", "troupeSlug": "上海昆剧团", "membershipRole": "团员", "isCurrent": true },
+  { "personSlug": "沈丰英", "troupeSlug": "苏州昆剧院", "membershipRole": "团员", "isCurrent": true },
+  { "personSlug": "顾传玠", "troupeSlug": "苏州昆剧院", "membershipRole": "团员", "isCurrent": true },
+  { "personSlug": "俞振飞", "troupeSlug": "苏州昆剧院", "membershipRole": "前辈艺术家", "isCurrent": false },
+  { "personSlug": "周雪华", "troupeSlug": "江苏省昆剧院", "membershipRole": "导演", "isCurrent": true },
+  { "personSlug": "王羽", "troupeSlug": "江苏省昆剧院", "membershipRole": "音乐指导", "isCurrent": true },
+  { "personSlug": "陆雨萍", "troupeSlug": "昆曲青年演员研修班", "membershipRole": "授课教师", "isCurrent": true },
+  { "personSlug": "许雅琴", "troupeSlug": "昆曲青年演员研修班", "membershipRole": "推广协调", "isCurrent": true },
+  { "personSlug": "杨守松", "troupeSlug": "昆曲传习与研究中心", "membershipRole": "研究员", "isCurrent": true },
+  { "personSlug": "李清华", "troupeSlug": "昆曲传习与研究中心", "membershipRole": "资料整理", "isCurrent": true }
+]

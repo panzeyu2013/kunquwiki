@@ -1,0 +1,90 @@
+[
+  {
+    "slug": "苏州",
+    "title": "苏州",
+    "province": "江苏省",
+    "content": {
+      "bodyMarkdown": "昆曲发源与传承的重要城市，保存了大量与昆曲相关的历史遗迹与演出传统。"
+    },
+    "aliases": [
+      { "alias": "姑苏", "aliasType": "historic" },
+      { "alias": "苏城", "aliasType": "short" }
+    ],
+    "sources": [
+      { "sourceKey": "museum" },
+      { "sourceKey": "venue_archive" }
+    ]
+  },
+  {
+    "slug": "上海",
+    "title": "上海",
+    "province": "上海市",
+    "content": {
+      "bodyMarkdown": "近现代昆曲演出、院团活动与跨界传播的重要城市，现代剧场资源丰富。"
+    },
+    "aliases": [
+      { "alias": "沪上", "aliasType": "short" }
+    ],
+    "sources": [
+      { "sourceKey": "shkun" },
+      { "sourceKey": "venue_archive" }
+    ]
+  },
+  {
+    "slug": "北京",
+    "title": "北京",
+    "province": "北京市",
+    "content": {
+      "bodyMarkdown": "昆曲演出、讲座与学术交流频繁的城市，具有多类型剧场与研究资源。"
+    },
+    "aliases": [
+      { "alias": "京城", "aliasType": "short" }
+    ],
+    "sources": [
+      { "sourceKey": "research_journal" },
+      { "sourceKey": "venue_archive" }
+    ]
+  },
+  {
+    "slug": "南京",
+    "title": "南京",
+    "province": "江苏省",
+    "content": {
+      "bodyMarkdown": "近现代昆曲演出与研究的重要基地之一，院团活动与高校研究并存。"
+    },
+    "aliases": [
+      { "alias": "金陵", "aliasType": "historic" }
+    ],
+    "sources": [
+      { "sourceKey": "nanjing_institute" }
+    ]
+  },
+  {
+    "slug": "杭州",
+    "title": "杭州",
+    "province": "浙江省",
+    "content": {
+      "bodyMarkdown": "江南文化重镇，昆曲演出与传统戏曲教育活动持续活跃。"
+    },
+    "aliases": [
+      { "alias": "钱塘", "aliasType": "historic" }
+    ],
+    "sources": [
+      { "sourceKey": "venue_archive" }
+    ]
+  },
+  {
+    "slug": "昆山",
+    "title": "昆山",
+    "province": "江苏省",
+    "content": {
+      "bodyMarkdown": "与昆曲历史渊源深厚的地区，昆曲博物馆与相关文化活动集中。"
+    },
+    "aliases": [
+      { "alias": "鹿城", "aliasType": "historic" }
+    ],
+    "sources": [
+      { "sourceKey": "museum" }
+    ]
+  }
+]

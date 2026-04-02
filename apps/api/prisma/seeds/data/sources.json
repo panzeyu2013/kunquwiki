@@ -1,0 +1,73 @@
+[
+  {
+    "key": "museum",
+    "sourceType": "institution",
+    "title": "中国昆曲博物馆馆藏与年表",
+    "publisher": "中国昆曲博物馆",
+    "reliabilityLevel": "official"
+  },
+  {
+    "key": "shkun",
+    "sourceType": "official",
+    "title": "上海昆剧团演出与院团介绍",
+    "publisher": "上海昆剧团",
+    "reliabilityLevel": "official"
+  },
+  {
+    "key": "sukun",
+    "sourceType": "official",
+    "title": "苏州昆剧院机构简介",
+    "publisher": "苏州昆剧院",
+    "reliabilityLevel": "official"
+  },
+  {
+    "key": "nanjing_institute",
+    "sourceType": "institution",
+    "title": "江苏省昆剧院历史资料整理",
+    "publisher": "江苏省昆剧院",
+    "reliabilityLevel": "official"
+  },
+  {
+    "key": "lexicon",
+    "sourceType": "book",
+    "title": "昆曲术语与曲牌词典",
+    "publisher": "学术出版物",
+    "reliabilityLevel": "scholarly"
+  },
+  {
+    "key": "research_journal",
+    "sourceType": "journal",
+    "title": "昆曲史研究论文摘编",
+    "publisher": "戏曲研究期刊",
+    "reliabilityLevel": "scholarly"
+  },
+  {
+    "key": "event_notice",
+    "sourceType": "official",
+    "title": "演出官宣与票务说明",
+    "publisher": "演出机构公开发布",
+    "sourceUrl": "https://example.com/kunqu-events",
+    "reliabilityLevel": "official"
+  },
+  {
+    "key": "media_interview",
+    "sourceType": "media",
+    "title": "公开访谈与报道整理",
+    "publisher": "媒体公开报道",
+    "reliabilityLevel": "secondary"
+  },
+  {
+    "key": "academy_intro",
+    "sourceType": "official",
+    "title": "戏曲教育与研究机构简介",
+    "publisher": "高校或研究机构",
+    "reliabilityLevel": "official"
+  },
+  {
+    "key": "venue_archive",
+    "sourceType": "institution",
+    "title": "主要剧场与演出空间资料",
+    "publisher": "场馆档案整理",
+    "reliabilityLevel": "secondary"
+  }
+]

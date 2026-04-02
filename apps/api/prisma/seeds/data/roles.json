@@ -1,0 +1,119 @@
+[
+  {
+    "slug": "杜丽娘",
+    "title": "杜丽娘",
+    "workSlug": "牡丹亭",
+    "roleCategory": "旦",
+    "description": "《牡丹亭》女主角，情感细腻，唱做并重。",
+    "content": {
+      "bodyMarkdown": "典型闺门旦角色，强调内心情感与身段细节。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "柳梦梅",
+    "title": "柳梦梅",
+    "workSlug": "牡丹亭",
+    "roleCategory": "生",
+    "description": "《牡丹亭》男主角，书生形象，唱腔婉转。",
+    "content": {
+      "bodyMarkdown": "强调书卷气与情感表达。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "春香",
+    "title": "春香",
+    "workSlug": "牡丹亭",
+    "roleCategory": "旦",
+    "description": "杜丽娘的侍女，活泼机敏。",
+    "content": {
+      "bodyMarkdown": "在剧情中起承上启下作用。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "杨贵妃",
+    "title": "杨贵妃",
+    "workSlug": "长生殿",
+    "roleCategory": "旦",
+    "description": "《长生殿》女主角，形象高贵而多情。",
+    "content": {
+      "bodyMarkdown": "以唱腔华丽与情感层次丰富著称。"
+    },
+    "sources": [
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "唐明皇",
+    "title": "唐明皇",
+    "workSlug": "长生殿",
+    "roleCategory": "生",
+    "description": "《长生殿》男主角，帝王形象。",
+    "content": {
+      "bodyMarkdown": "体现帝王气度与情感纠葛。"
+    },
+    "sources": [
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "李香君",
+    "title": "李香君",
+    "workSlug": "桃花扇",
+    "roleCategory": "旦",
+    "description": "《桃花扇》女主角，象征气节与忠贞。",
+    "content": {
+      "bodyMarkdown": "以高洁气质与坚定性格著称。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "侯方域",
+    "title": "侯方域",
+    "workSlug": "桃花扇",
+    "roleCategory": "生",
+    "description": "《桃花扇》男主角，书生形象。",
+    "content": {
+      "bodyMarkdown": "表现文士风骨与个人选择。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "陈妙常",
+    "title": "陈妙常",
+    "workSlug": "玉簪记",
+    "roleCategory": "旦",
+    "description": "《玉簪记》女主角，道观中的才女形象。",
+    "content": {
+      "bodyMarkdown": "兼具文雅与情感表达。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "潘必正",
+    "title": "潘必正",
+    "workSlug": "玉簪记",
+    "roleCategory": "生",
+    "description": "《玉簪记》男主角，书生形象。",
+    "content": {
+      "bodyMarkdown": "强调文士气质与情感内敛。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  }
+]

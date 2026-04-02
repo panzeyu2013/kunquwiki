@@ -1,0 +1,47 @@
+[
+  {
+    "slug": "昆曲传承",
+    "title": "昆曲传承",
+    "topicType": "heritage",
+    "heroText": "围绕昆曲传承、教学与资料保护的专题聚合。",
+    "content": {
+      "bodyMarkdown": "本专题聚焦昆曲传承体系、师承关系与教学模式，汇总相关人物、机构与活动。"
+    },
+    "layoutJson": {
+      "sections": ["人物", "院团", "活动", "文章"]
+    },
+    "sources": [
+      { "sourceKey": "academy_intro" }
+    ]
+  },
+  {
+    "slug": "昆曲经典剧目",
+    "title": "昆曲经典剧目",
+    "topicType": "works",
+    "heroText": "整理昆曲经典剧目与常见折子戏的专题入口。",
+    "content": {
+      "bodyMarkdown": "聚合《牡丹亭》《长生殿》等经典条目，并关联代表角色与演出记录。"
+    },
+    "layoutJson": {
+      "sections": ["剧目", "折子戏", "角色"]
+    },
+    "sources": [
+      { "sourceKey": "museum" }
+    ]
+  },
+  {
+    "slug": "昆曲当代传播",
+    "title": "昆曲当代传播",
+    "topicType": "promotion",
+    "heroText": "记录昆曲当代表达、跨界合作与公众传播实践。",
+    "content": {
+      "bodyMarkdown": "本专题关注当代演出形态、跨界合作与观众培育等实践。"
+    },
+    "layoutJson": {
+      "sections": ["活动", "人物", "媒体"]
+    },
+    "sources": [
+      { "sourceKey": "media_interview" }
+    ]
+  }
+]

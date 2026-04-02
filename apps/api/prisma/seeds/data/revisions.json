@@ -1,0 +1,167 @@
+[
+  {
+    "entitySlug": "牡丹亭",
+    "revisionNo": 1,
+    "title": "牡丹亭",
+    "bodyMarkdown": "《牡丹亭》是昆曲经典长篇传奇，常以折子戏形式演出。",
+    "editSummary": "初始化条目",
+    "reviewStatus": "approved",
+    "editorUsername": "admin",
+    "reviewerUsername": "reviewer",
+    "reviewedAt": "2026-03-01T10:00:00+08:00"
+  },
+  {
+    "entitySlug": "牡丹亭",
+    "revisionNo": 2,
+    "title": "牡丹亭",
+    "bodyMarkdown": "补充剧情概要与折子戏说明。",
+    "editSummary": "补充剧情简介",
+    "reviewStatus": "approved",
+    "editorUsername": "editor",
+    "reviewerUsername": "reviewer",
+    "reviewedAt": "2026-03-05T14:00:00+08:00"
+  },
+  {
+    "entitySlug": "长生殿",
+    "revisionNo": 1,
+    "title": "长生殿",
+    "bodyMarkdown": "补充剧目背景与历史语境。",
+    "editSummary": "初始化条目",
+    "reviewStatus": "approved",
+    "editorUsername": "admin",
+    "reviewerUsername": "reviewer",
+    "reviewedAt": "2026-03-03T11:30:00+08:00"
+  },
+  {
+    "entitySlug": "张军",
+    "revisionNo": 1,
+    "title": "张军",
+    "bodyMarkdown": "补充舞台经历与推广活动简介。",
+    "editSummary": "初始化人物条目",
+    "reviewStatus": "approved",
+    "editorUsername": "editor",
+    "reviewerUsername": "reviewer",
+    "reviewedAt": "2026-03-04T16:20:00+08:00"
+  },
+  {
+    "entitySlug": "沈丰英",
+    "revisionNo": 1,
+    "title": "沈丰英",
+    "bodyMarkdown": "补充代表剧目与教学经历。",
+    "editSummary": "初始化人物条目",
+    "reviewStatus": "approved",
+    "editorUsername": "editor",
+    "reviewerUsername": "reviewer",
+    "reviewedAt": "2026-03-04T16:40:00+08:00"
+  },
+  {
+    "entitySlug": "上海昆剧团",
+    "revisionNo": 1,
+    "title": "上海昆剧团",
+    "bodyMarkdown": "补充院团历史与演出活动。",
+    "editSummary": "初始化院团条目",
+    "reviewStatus": "approved",
+    "editorUsername": "admin",
+    "reviewerUsername": "reviewer",
+    "reviewedAt": "2026-03-06T10:00:00+08:00"
+  },
+  {
+    "entitySlug": "苏州昆剧院",
+    "revisionNo": 1,
+    "title": "苏州昆剧院",
+    "bodyMarkdown": "补充机构定位与传习工作。",
+    "editSummary": "初始化院团条目",
+    "reviewStatus": "approved",
+    "editorUsername": "admin",
+    "reviewerUsername": "reviewer",
+    "reviewedAt": "2026-03-06T10:10:00+08:00"
+  },
+  {
+    "entitySlug": "上海大剧院",
+    "revisionNo": 1,
+    "title": "上海大剧院",
+    "bodyMarkdown": "补充场馆信息与演出定位。",
+    "editSummary": "初始化场馆条目",
+    "reviewStatus": "approved",
+    "editorUsername": "editor",
+    "reviewerUsername": "reviewer",
+    "reviewedAt": "2026-03-06T15:20:00+08:00"
+  },
+  {
+    "entitySlug": "2026_04_10_上海昆剧团_青春版_牡丹亭_上海专场",
+    "revisionNo": 1,
+    "title": "青春版《牡丹亭》上海专场",
+    "bodyMarkdown": "补充演出时间、地点与节目单。",
+    "editSummary": "录入演出详情",
+    "reviewStatus": "approved",
+    "editorUsername": "editor",
+    "reviewerUsername": "reviewer",
+    "reviewedAt": "2026-03-20T12:00:00+08:00"
+  },
+  {
+    "entitySlug": "行当",
+    "revisionNo": 1,
+    "title": "行当",
+    "bodyMarkdown": "补充行当分类与常见角色。",
+    "editSummary": "初始化术语条目",
+    "reviewStatus": "approved",
+    "editorUsername": "admin",
+    "reviewerUsername": "reviewer",
+    "reviewedAt": "2026-03-02T09:30:00+08:00"
+  },
+  {
+    "entitySlug": "昆曲历史概览",
+    "revisionNo": 1,
+    "title": "昆曲历史概览",
+    "bodyMarkdown": "补充明清与近现代阶段的概述。",
+    "editSummary": "初始化历史条目",
+    "reviewStatus": "approved",
+    "editorUsername": "editor",
+    "reviewerUsername": "reviewer",
+    "reviewedAt": "2026-03-08T11:00:00+08:00"
+  },
+  {
+    "entitySlug": "昆曲当代传播",
+    "revisionNo": 1,
+    "title": "昆曲当代传播",
+    "bodyMarkdown": "补充当代传播活动与组织。",
+    "editSummary": "新增专题概要",
+    "reviewStatus": "approved",
+    "editorUsername": "editor",
+    "reviewerUsername": "reviewer",
+    "reviewedAt": "2026-03-10T18:00:00+08:00"
+  },
+  {
+    "entitySlug": "2026_04_25_上海_昆曲服饰讲座",
+    "revisionNo": 1,
+    "title": "昆曲服饰与舞台美学讲座",
+    "bodyMarkdown": "说明讲座内容与延期原因。",
+    "editSummary": "录入讲座活动",
+    "reviewStatus": "approved",
+    "editorUsername": "editor",
+    "reviewerUsername": "reviewer",
+    "reviewedAt": "2026-04-01T16:00:00+08:00"
+  },
+  {
+    "entitySlug": "昆曲服饰",
+    "revisionNo": 1,
+    "title": "昆曲服饰",
+    "bodyMarkdown": "补充服饰类别与使用场景。",
+    "editSummary": "初始化词条",
+    "reviewStatus": "approved",
+    "editorUsername": "admin",
+    "reviewerUsername": "reviewer",
+    "reviewedAt": "2026-03-02T10:20:00+08:00"
+  },
+  {
+    "entitySlug": "昆曲音乐伴奏",
+    "revisionNo": 1,
+    "title": "昆曲音乐伴奏",
+    "bodyMarkdown": "补充乐队配置与排练方式。",
+    "editSummary": "初始化词条",
+    "reviewStatus": "approved",
+    "editorUsername": "editor",
+    "reviewerUsername": "reviewer",
+    "reviewedAt": "2026-03-07T14:10:00+08:00"
+  }
+]

@@ -1,0 +1,249 @@
+[
+  {
+    "slug": "牡丹亭",
+    "title": "牡丹亭",
+    "workType": "full_play",
+    "originalAuthor": "汤显祖",
+    "dynastyPeriod": "明",
+    "genreNote": "传奇",
+    "synopsis": "通过杜丽娘与柳梦梅的情感故事，呈现梦与情的辩证与理想化追求。",
+    "plot": "杜丽娘游园入梦，与柳梦梅结缘。梦醒后相思成疾，情深而亡，后以情复生并终成眷属。",
+    "durationMinutes": 420,
+    "firstKnownDate": "约1598年",
+    "content": {
+      "bodyMarkdown": "《牡丹亭》为昆曲经典长篇传奇，结构宏阔，唱腔细腻，常以折子戏形式在舞台呈现。"
+    },
+    "coverImageKey": "cover_mudanting",
+    "sources": [
+      { "sourceKey": "museum" },
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "牡丹亭-游园惊梦",
+    "title": "牡丹亭·游园惊梦",
+    "workType": "excerpt",
+    "parentWorkSlug": "牡丹亭",
+    "originalAuthor": "汤显祖",
+    "dynastyPeriod": "明",
+    "synopsis": "杜丽娘春日游园，情思萌动并在梦境中与柳梦梅相遇。",
+    "plot": "游园、惊梦、梦中相会是全剧情感浓缩段落，表现青春觉醒与情感初启。",
+    "durationMinutes": 60,
+    "content": {
+      "bodyMarkdown": "常见折子戏段落，兼具唱腔与身段的代表性。"
+    },
+    "sources": [
+      { "sourceKey": "shkun" },
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "牡丹亭-寻梦",
+    "title": "牡丹亭·寻梦",
+    "workType": "excerpt",
+    "parentWorkSlug": "牡丹亭",
+    "originalAuthor": "汤显祖",
+    "dynastyPeriod": "明",
+    "synopsis": "杜丽娘醒后追寻梦境之情，寄托对爱情与生命的疑问。",
+    "plot": "以梦后追索为线索，表现情感延宕与人生无常。",
+    "durationMinutes": 45,
+    "content": {
+      "bodyMarkdown": "折子戏常用以衔接《游园惊梦》，强调情感的持续性与回响。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "长生殿",
+    "title": "长生殿",
+    "workType": "full_play",
+    "originalAuthor": "洪昇",
+    "dynastyPeriod": "清",
+    "genreNote": "传奇",
+    "synopsis": "以帝妃爱情为主线，映照盛唐荣枯与国家命运。",
+    "plot": "唐明皇与杨贵妃恩爱，安史之乱爆发后悲剧收束，表达对兴亡与情感的双重叹惋。",
+    "durationMinutes": 360,
+    "firstKnownDate": "约1688年",
+    "content": {
+      "bodyMarkdown": "《长生殿》兼具历史叙事与抒情表达，是昆曲传统中的重要剧目。"
+    },
+    "coverImageKey": "cover_changshengdian",
+    "sources": [
+      { "sourceKey": "museum" },
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "长生殿-惊变",
+    "title": "长生殿·惊变",
+    "workType": "excerpt",
+    "parentWorkSlug": "长生殿",
+    "originalAuthor": "洪昇",
+    "dynastyPeriod": "清",
+    "synopsis": "安史之乱骤起，宫廷秩序被打破。",
+    "plot": "以战乱突发与宫廷惊变为核心，情势急转直下。",
+    "durationMinutes": 40,
+    "content": {
+      "bodyMarkdown": "常作为折子戏演出，强调节奏与叙事张力。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "桃花扇",
+    "title": "桃花扇",
+    "workType": "full_play",
+    "originalAuthor": "孔尚任",
+    "dynastyPeriod": "清",
+    "synopsis": "以李香君与侯方域的爱情为线索，折射明末清初政局变迁。",
+    "plot": "爱情与家国纠葛交织，桃花扇成为情感与时代命运的象征。",
+    "durationMinutes": 360,
+    "firstKnownDate": "约1699年",
+    "content": {
+      "bodyMarkdown": "《桃花扇》兼具历史叙事与人物刻画，常见折子戏演出。"
+    },
+    "sources": [
+      { "sourceKey": "museum" },
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "玉簪记",
+    "title": "玉簪记",
+    "workType": "full_play",
+    "originalAuthor": "高濂",
+    "dynastyPeriod": "明",
+    "synopsis": "以道观生活为背景，刻画陈妙常与潘必正的情感故事。",
+    "plot": "陈妙常与潘必正相知相恋，经历误会与考验后终成眷属。",
+    "durationMinutes": 300,
+    "firstKnownDate": "约1590年",
+    "content": {
+      "bodyMarkdown": "《玉簪记》以细腻的情感描写与优雅唱腔著称。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "西厢记",
+    "title": "西厢记",
+    "workType": "full_play",
+    "originalAuthor": "王实甫",
+    "dynastyPeriod": "元",
+    "synopsis": "张生与崔莺莺的爱情故事，具有反封建主题。",
+    "plot": "张生与崔莺莺在寺中相识相恋，经侍女红娘帮助突破阻碍。",
+    "durationMinutes": 360,
+    "firstKnownDate": "约1300年",
+    "content": {
+      "bodyMarkdown": "《西厢记》在昆曲舞台有多个改编版本，折子戏常见。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" },
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "浣纱记",
+    "title": "浣纱记",
+    "workType": "full_play",
+    "originalAuthor": "梁辰鱼",
+    "dynastyPeriod": "明",
+    "synopsis": "以春秋时期吴越故事为背景，描写西施与范蠡的命运。",
+    "plot": "家国兴亡与人物命运交织，兼具历史与爱情叙事。",
+    "durationMinutes": 330,
+    "firstKnownDate": "约1560年",
+    "content": {
+      "bodyMarkdown": "《浣纱记》是早期昆曲代表作品之一。"
+    },
+    "sources": [
+      { "sourceKey": "museum" }
+    ]
+  },
+  {
+    "slug": "白罗衫",
+    "title": "白罗衫",
+    "workType": "full_play",
+    "originalAuthor": "不详",
+    "dynastyPeriod": "明",
+    "synopsis": "民间传奇故事，情节曲折，重在因果与伦理。",
+    "plot": "围绕白罗衫引出的误会与冤屈，最终以情义化解。",
+    "durationMinutes": 280,
+    "firstKnownDate": "明代中后期",
+    "content": {
+      "bodyMarkdown": "《白罗衫》在昆曲传统中以折子戏形式流传。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "雷峰塔",
+    "title": "雷峰塔",
+    "workType": "full_play",
+    "originalAuthor": "方成培",
+    "dynastyPeriod": "清",
+    "synopsis": "白娘子传说在昆曲舞台上的重要版本。",
+    "plot": "白素贞与许仙相恋，法海阻挠，最终被镇压雷峰塔下。",
+    "durationMinutes": 320,
+    "firstKnownDate": "约1770年",
+    "content": {
+      "bodyMarkdown": "《雷峰塔》在昆曲历史中有多个演出传统与改编版本。"
+    },
+    "sources": [
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "孽海记",
+    "title": "孽海记",
+    "workType": "full_play",
+    "originalAuthor": "不详",
+    "dynastyPeriod": "清",
+    "synopsis": "以世情因果为主题的故事，人物命运多舛。",
+    "plot": "因果报应与世俗伦理交织，体现劝戒与警示意味。",
+    "durationMinutes": 270,
+    "firstKnownDate": "清代中后期",
+    "content": {
+      "bodyMarkdown": "《孽海记》以情节紧凑见长，常取段演出。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "十五贯",
+    "title": "十五贯",
+    "workType": "adapted_piece",
+    "originalAuthor": "不详",
+    "dynastyPeriod": "清",
+    "synopsis": "冤案平反故事在昆曲传统中的重要改编。",
+    "plot": "围绕冤案与审理展开，强调清官断案与社会公义。",
+    "durationMinutes": 240,
+    "firstKnownDate": "清代",
+    "content": {
+      "bodyMarkdown": "《十五贯》常以精炼结构在舞台上呈现。"
+    },
+    "sources": [
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "南柯记",
+    "title": "南柯记",
+    "workType": "full_play",
+    "originalAuthor": "汤显祖",
+    "dynastyPeriod": "明",
+    "synopsis": "借梦境故事反映人生幻灭与荣枯无常。",
+    "plot": "主人公在梦中经历荣华富贵，醒后顿悟人生虚幻。",
+    "durationMinutes": 300,
+    "firstKnownDate": "约1600年",
+    "content": {
+      "bodyMarkdown": "《南柯记》为临川四梦之一，昆曲舞台上常取其精彩折子。"
+    },
+    "sources": [
+      { "sourceKey": "museum" }
+    ]
+  }
+]

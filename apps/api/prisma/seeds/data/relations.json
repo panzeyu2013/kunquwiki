@@ -1,0 +1,23 @@
+[
+  { "fromSlug": "张军", "toSlug": "牡丹亭", "relationType": "rep_work", "sortOrder": 0 },
+  { "fromSlug": "张军", "toSlug": "牡丹亭-游园惊梦", "relationType": "rep_excerpt", "sortOrder": 1 },
+  { "fromSlug": "沈丰英", "toSlug": "长生殿", "relationType": "rep_work", "sortOrder": 0 },
+  { "fromSlug": "沈丰英", "toSlug": "牡丹亭-游园惊梦", "relationType": "rep_excerpt", "sortOrder": 1 },
+  { "fromSlug": "陈佳", "toSlug": "牡丹亭-游园惊梦", "relationType": "rep_excerpt", "sortOrder": 0 },
+  { "fromSlug": "蔡正仁", "toSlug": "长生殿", "relationType": "rep_work", "sortOrder": 0 },
+  { "fromSlug": "顾传玠", "toSlug": "玉簪记", "relationType": "rep_work", "sortOrder": 0 },
+  { "fromSlug": "牡丹亭", "toSlug": "牡丹亭-游园惊梦", "relationType": "excerpt", "sortOrder": 0 },
+  { "fromSlug": "牡丹亭", "toSlug": "牡丹亭-寻梦", "relationType": "excerpt", "sortOrder": 1 },
+  { "fromSlug": "长生殿", "toSlug": "长生殿-惊变", "relationType": "excerpt", "sortOrder": 0 },
+  { "fromSlug": "桃花扇", "toSlug": "昆曲历史概览", "relationType": "see_also", "sortOrder": 0 },
+  { "fromSlug": "昆曲服饰", "toSlug": "2026_04_25_上海_昆曲服饰讲座", "relationType": "related_event", "sortOrder": 0 },
+  { "fromSlug": "昆曲音乐伴奏", "toSlug": "2026_03_22_南京_昆曲音乐工作坊", "relationType": "related_event", "sortOrder": 0 },
+  { "fromSlug": "昆曲传承", "toSlug": "传字辈", "relationType": "related_topic", "sortOrder": 0 },
+  { "fromSlug": "昆曲传承", "toSlug": "陆雨萍", "relationType": "related_person", "sortOrder": 1 },
+  { "fromSlug": "昆曲经典剧目", "toSlug": "牡丹亭", "relationType": "featured_work", "sortOrder": 0 },
+  { "fromSlug": "昆曲经典剧目", "toSlug": "长生殿", "relationType": "featured_work", "sortOrder": 1 },
+  { "fromSlug": "昆曲经典剧目", "toSlug": "桃花扇", "relationType": "featured_work", "sortOrder": 2 },
+  { "fromSlug": "昆曲当代传播", "toSlug": "2026_04_10_上海昆剧团_青春版_牡丹亭_上海专场", "relationType": "featured_event", "sortOrder": 0 },
+  { "fromSlug": "昆曲当代传播", "toSlug": "张军", "relationType": "related_person", "sortOrder": 1 },
+  { "fromSlug": "昆曲历史概览", "toSlug": "昆曲经典剧目", "relationType": "see_also", "sortOrder": 0 }
+]

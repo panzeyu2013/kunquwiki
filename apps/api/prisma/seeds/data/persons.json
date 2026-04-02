@@ -1,0 +1,184 @@
+[
+  {
+    "slug": "张军",
+    "title": "张军",
+    "gender": "男",
+    "birthCitySlug": "上海",
+    "bio": "长期活跃于昆曲舞台，兼顾演出策划与公共传播，推动昆曲与当代观众的连接。",
+    "isLiving": true,
+    "personTypeNote": "演员、策划者",
+    "content": {
+      "bodyMarkdown": "以舞台演出与跨界合作见长，关注昆曲的当代表达。"
+    },
+    "sources": [
+      { "sourceKey": "media_interview" },
+      { "sourceKey": "shkun" }
+    ]
+  },
+  {
+    "slug": "沈丰英",
+    "title": "沈丰英",
+    "gender": "女",
+    "birthCitySlug": "苏州",
+    "bio": "长期从事昆曲舞台演出与教学推广，兼顾传统传承与舞台实践。",
+    "isLiving": true,
+    "personTypeNote": "演员、教师",
+    "content": {
+      "bodyMarkdown": "在多部经典剧目中担纲主演，并参与青年人才培养。"
+    },
+    "sources": [
+      { "sourceKey": "sukun" },
+      { "sourceKey": "media_interview" }
+    ]
+  },
+  {
+    "slug": "蔡正仁",
+    "title": "蔡正仁",
+    "gender": "男",
+    "birthCitySlug": "上海",
+    "bio": "资深昆曲表演艺术家，舞台经验丰富，对行当传承有持续贡献。",
+    "isLiving": true,
+    "personTypeNote": "演员、教师",
+    "content": {
+      "bodyMarkdown": "以细腻唱腔与程式化身段著称，参与昆曲推广活动。"
+    },
+    "sources": [
+      { "sourceKey": "media_interview" }
+    ]
+  },
+  {
+    "slug": "顾传玠",
+    "title": "顾传玠",
+    "gender": "男",
+    "birthCitySlug": "苏州",
+    "bio": "青年昆曲演员，常参与折子戏与经典剧目的演出与传播。",
+    "isLiving": true,
+    "personTypeNote": "演员",
+    "content": {
+      "bodyMarkdown": "关注青年观众体验，参与多地巡演与讲座。"
+    },
+    "sources": [
+      { "sourceKey": "media_interview" }
+    ]
+  },
+  {
+    "slug": "俞振飞",
+    "title": "俞振飞",
+    "gender": "男",
+    "birthCitySlug": "苏州",
+    "bio": "近现代昆曲表演与传承的重要人物之一，贡献于艺术风格的形成。",
+    "isLiving": false,
+    "personTypeNote": "演员、教师",
+    "content": {
+      "bodyMarkdown": "其艺术实践影响深远，常被后辈研究与学习。"
+    },
+    "sources": [
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "周雪华",
+    "title": "周雪华",
+    "gender": "女",
+    "birthCitySlug": "南京",
+    "bio": "专注昆曲导演与剧目整理工作，强调文本与舞台调度的结合。",
+    "isLiving": true,
+    "personTypeNote": "导演",
+    "content": {
+      "bodyMarkdown": "参与多台剧目复排与青年演员排演指导。"
+    },
+    "sources": [
+      { "sourceKey": "academy_intro" }
+    ]
+  },
+  {
+    "slug": "陆雨萍",
+    "title": "陆雨萍",
+    "gender": "女",
+    "birthCitySlug": "苏州",
+    "bio": "昆曲教学与演出并重，长期参与戏曲教育与传承项目。",
+    "isLiving": true,
+    "personTypeNote": "教师",
+    "content": {
+      "bodyMarkdown": "关注基础训练与身段教学，参与多场培训课程。"
+    },
+    "sources": [
+      { "sourceKey": "academy_intro" }
+    ]
+  },
+  {
+    "slug": "杨守松",
+    "title": "杨守松",
+    "gender": "男",
+    "birthCitySlug": "北京",
+    "bio": "从事昆曲史与曲牌研究，参与学术出版与资料整理。",
+    "isLiving": true,
+    "personTypeNote": "研究者",
+    "content": {
+      "bodyMarkdown": "研究重点包括曲牌谱系与演出史料，常参与学术讲座。"
+    },
+    "sources": [
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "许雅琴",
+    "title": "许雅琴",
+    "gender": "女",
+    "birthCitySlug": "杭州",
+    "bio": "从事昆曲推广与公共教育项目，组织讲座与工作坊。",
+    "isLiving": true,
+    "personTypeNote": "推广者",
+    "content": {
+      "bodyMarkdown": "主理公益讲座与观众导赏计划，提升普及度。"
+    },
+    "sources": [
+      { "sourceKey": "media_interview" }
+    ]
+  },
+  {
+    "slug": "陈佳",
+    "title": "陈佳",
+    "gender": "女",
+    "birthCitySlug": "上海",
+    "bio": "青年昆曲演员，参与传统折子戏与创新演出。",
+    "isLiving": true,
+    "personTypeNote": "演员",
+    "content": {
+      "bodyMarkdown": "擅长旦角行当，舞台表现细腻。"
+    },
+    "sources": [
+      { "sourceKey": "shkun" }
+    ]
+  },
+  {
+    "slug": "王羽",
+    "title": "王羽",
+    "gender": "男",
+    "birthCitySlug": "北京",
+    "bio": "长期参与昆曲音乐伴奏与排练指导，推动乐队与演员协作。",
+    "isLiving": true,
+    "personTypeNote": "音乐指导",
+    "content": {
+      "bodyMarkdown": "关注传统乐器配置与排练流程，参与多台演出制作。"
+    },
+    "sources": [
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "李清华",
+    "title": "李清华",
+    "gender": "女",
+    "birthCitySlug": "昆山",
+    "bio": "昆曲教育与馆藏研究工作者，参与资料整理与公众讲解。",
+    "isLiving": true,
+    "personTypeNote": "研究者、讲解员",
+    "content": {
+      "bodyMarkdown": "负责昆曲文献与展陈内容的整理与更新。"
+    },
+    "sources": [
+      { "sourceKey": "museum" }
+    ]
+  }
+]

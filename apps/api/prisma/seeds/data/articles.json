@@ -1,0 +1,135 @@
+[
+  {
+    "slug": "行当",
+    "title": "行当",
+    "articleType": "term",
+    "abstract": "昆曲表演中人物类型与表演分工的系统。",
+    "difficultyLevel": "入门",
+    "content": {
+      "bodyMarkdown": "昆曲行当通常分为生、旦、净、末、丑等大类，每类又有细分行当。行当不仅决定角色的表演风格，也影响唱腔、身段与妆容设计。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "水磨腔",
+    "title": "水磨腔",
+    "articleType": "term",
+    "abstract": "昆曲唱腔体系中的代表性风格，以婉转细腻著称。",
+    "difficultyLevel": "入门",
+    "content": {
+      "bodyMarkdown": "水磨腔强调圆润与细腻，通过行腔的润饰与节奏变化表现情绪层次，是昆曲艺术的重要审美特征。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" },
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "身段",
+    "title": "身段",
+    "articleType": "technique",
+    "abstract": "昆曲表演中的动作程式与形体表达。",
+    "difficultyLevel": "进阶",
+    "content": {
+      "bodyMarkdown": "身段包括手、眼、身、法、步等综合训练，强调节制与韵律。良好的身段训练有助于表达人物性格与情感。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "曲牌",
+    "title": "曲牌",
+    "articleType": "term",
+    "abstract": "昆曲唱腔与结构的基本单位。",
+    "difficultyLevel": "进阶",
+    "content": {
+      "bodyMarkdown": "曲牌是构成昆曲唱段的基本单位，通过不同曲牌组合形成曲目结构。曲牌的调式与节奏决定了唱腔风格。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" },
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "折子戏",
+    "title": "折子戏",
+    "articleType": "term",
+    "abstract": "从整本戏中选取的独立演出段落。",
+    "difficultyLevel": "入门",
+    "content": {
+      "bodyMarkdown": "折子戏通常选取剧情高潮或唱腔精彩段落，便于演出与传播。许多昆曲名段以折子戏形式保留与传播。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "传字辈",
+    "title": "传字辈",
+    "articleType": "term",
+    "abstract": "昆曲传承中的代际称谓之一。",
+    "difficultyLevel": "进阶",
+    "content": {
+      "bodyMarkdown": "传字辈用于描述某一代昆曲传承人的谱系称谓，常与师承关系、教学脉络相联系。"
+    },
+    "sources": [
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "昆曲服饰",
+    "title": "昆曲服饰",
+    "articleType": "costume",
+    "abstract": "昆曲舞台服装的类型、功能与审美特征。",
+    "difficultyLevel": "入门",
+    "content": {
+      "bodyMarkdown": "昆曲服饰强调典雅与程式化，服装材质与颜色用于区分身份与情绪。不同角色行当拥有相对固定的服装配置。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "昆曲音乐伴奏",
+    "title": "昆曲音乐伴奏",
+    "articleType": "music",
+    "abstract": "昆曲演出中的乐队配置与伴奏方式。",
+    "difficultyLevel": "进阶",
+    "content": {
+      "bodyMarkdown": "昆曲伴奏以曲笛、三弦、琵琶等为主要乐器，配合鼓板。伴奏不仅支撑唱腔，也参与情绪营造。"
+    },
+    "sources": [
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "昆曲历史概览",
+    "title": "昆曲历史概览",
+    "articleType": "history",
+    "abstract": "昆曲发展脉络与主要历史阶段的概述。",
+    "difficultyLevel": "入门",
+    "content": {
+      "bodyMarkdown": "昆曲起源于江南地区，历经明清兴盛、近现代传承保护与当代复兴。其历史发展与社会文化变迁紧密相关。"
+    },
+    "sources": [
+      { "sourceKey": "museum" },
+      { "sourceKey": "research_journal" }
+    ]
+  },
+  {
+    "slug": "昆曲表演训练",
+    "title": "昆曲表演训练",
+    "articleType": "technique",
+    "abstract": "昆曲演员基础训练与日常排练体系。",
+    "difficultyLevel": "进阶",
+    "content": {
+      "bodyMarkdown": "昆曲训练强调唱、念、做、打的综合能力，日常训练包括基本功、身段、曲牌练习与角色分析。"
+    },
+    "sources": [
+      { "sourceKey": "academy_intro" }
+    ]
+  }
+]

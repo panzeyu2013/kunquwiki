@@ -1,0 +1,106 @@
+[
+  {
+    "slug": "上海大剧院",
+    "title": "上海大剧院",
+    "venueType": "theater",
+    "citySlug": "上海",
+    "regionText": "上海",
+    "cityText": "上海",
+    "address": "上海市黄浦区人民大道300号",
+    "capacity": 1800,
+    "description": "上海重要综合演出场馆，承载多类型戏曲与音乐演出。",
+    "coverImageKey": "venue_shanghai_grand",
+    "content": {
+      "bodyMarkdown": "舞台设施完备，适合大型剧目与重要纪念演出。"
+    },
+    "sources": [
+      { "sourceKey": "venue_archive" }
+    ]
+  },
+  {
+    "slug": "天蟾逸夫舞台",
+    "title": "天蟾逸夫舞台",
+    "venueType": "theater",
+    "citySlug": "上海",
+    "regionText": "上海",
+    "cityText": "上海",
+    "address": "上海市黄浦区福州路703号",
+    "capacity": 1200,
+    "description": "著名戏曲演出场馆，昆曲、京剧等传统戏曲演出集中。",
+    "content": {
+      "bodyMarkdown": "历史悠久的戏曲舞台，观众以戏曲爱好者为主。"
+    },
+    "sources": [
+      { "sourceKey": "venue_archive" }
+    ]
+  },
+  {
+    "slug": "苏州昆曲传习所剧场",
+    "title": "苏州昆曲传习所剧场",
+    "venueType": "theater",
+    "citySlug": "苏州",
+    "regionText": "江苏",
+    "cityText": "苏州",
+    "address": "苏州市姑苏区宫巷",
+    "capacity": 500,
+    "description": "与昆曲历史关联紧密的演出空间，常用于教学与小型演出。",
+    "content": {
+      "bodyMarkdown": "以传统空间氛围著称，适合近距离观演体验。"
+    },
+    "sources": [
+      { "sourceKey": "venue_archive" },
+      { "sourceKey": "museum" }
+    ]
+  },
+  {
+    "slug": "北京梅兰芳大剧院",
+    "title": "北京梅兰芳大剧院",
+    "venueType": "theater",
+    "citySlug": "北京",
+    "regionText": "北京",
+    "cityText": "北京",
+    "address": "北京市西城区平安里西大街32号",
+    "capacity": 1070,
+    "description": "位于北京核心城区的大型戏曲演出场馆。",
+    "content": {
+      "bodyMarkdown": "适合举办大型戏曲演出与纪念活动。"
+    },
+    "sources": [
+      { "sourceKey": "venue_archive" }
+    ]
+  },
+  {
+    "slug": "杭州运河大剧院",
+    "title": "杭州运河大剧院",
+    "venueType": "theater",
+    "citySlug": "杭州",
+    "regionText": "浙江",
+    "cityText": "杭州",
+    "address": "杭州市拱墅区丽水路58号",
+    "capacity": 1400,
+    "description": "以综合演出为主的现代剧场，可承接大型戏曲制作。",
+    "content": {
+      "bodyMarkdown": "剧场设施现代，常用于巡演与节展演出。"
+    },
+    "sources": [
+      { "sourceKey": "venue_archive" }
+    ]
+  },
+  {
+    "slug": "南京文化艺术中心剧场",
+    "title": "南京文化艺术中心剧场",
+    "venueType": "theater",
+    "citySlug": "南京",
+    "regionText": "江苏",
+    "cityText": "南京",
+    "address": "南京市建邺区梦都大街200号",
+    "capacity": 900,
+    "description": "地方综合文化演出场馆，承接戏曲与教育活动。",
+    "content": {
+      "bodyMarkdown": "常举办戏曲讲座与青年演员展示场。"
+    },
+    "sources": [
+      { "sourceKey": "venue_archive" }
+    ]
+  }
+]

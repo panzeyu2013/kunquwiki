@@ -1,0 +1,221 @@
+[
+  {
+    "slug": "2026_04_10_上海昆剧团_青春版_牡丹亭_上海专场",
+    "title": "青春版《牡丹亭》上海专场",
+    "eventType": "performance",
+    "businessStatus": "scheduled",
+    "startAt": "2026-04-10T19:30:00+08:00",
+    "endAt": "2026-04-10T22:00:00+08:00",
+    "citySlug": "上海",
+    "venueSlug": "上海大剧院",
+    "organizerText": "上海昆剧团",
+    "ticketUrl": "https://example.com/tickets/2026-mudanting-shanghai",
+    "durationText": "2小时30分钟",
+    "ticketStatus": "余票充足",
+    "noteText": "含导赏环节，建议提前20分钟入场。",
+    "posterImageKey": "event_poster_2026_mudanting",
+    "lastVerifiedAt": "2026-03-28T10:00:00+08:00",
+    "content": {
+      "bodyMarkdown": "面向公众开放的重点演出专场，包含经典唱段与导赏说明。"
+    },
+    "sources": [
+      { "sourceKey": "event_notice" }
+    ]
+  },
+  {
+    "slug": "2026_05_18_苏州昆剧院_长生殿_纪念演出",
+    "title": "《长生殿》苏州纪念演出",
+    "eventType": "memorial",
+    "businessStatus": "announced",
+    "startAt": "2026-05-18T19:00:00+08:00",
+    "endAt": "2026-05-18T21:30:00+08:00",
+    "citySlug": "苏州",
+    "venueSlug": "苏州昆曲传习所剧场",
+    "organizerText": "苏州昆剧院",
+    "ticketUrl": "https://example.com/tickets/2026-changshengdian-suzhou",
+    "durationText": "2小时30分钟",
+    "ticketStatus": "待开票",
+    "noteText": "纪念主题专场，含主创分享。",
+    "lastVerifiedAt": "2026-03-26T16:00:00+08:00",
+    "content": {
+      "bodyMarkdown": "纪念性专题演出，含导赏与片段演出。"
+    },
+    "sources": [
+      { "sourceKey": "sukun" }
+    ]
+  },
+  {
+    "slug": "2025_12_12_北京_昆曲知识沙龙_行当与身段",
+    "title": "昆曲知识沙龙：从行当到身段",
+    "eventType": "lecture",
+    "businessStatus": "completed",
+    "startAt": "2025-12-12T19:00:00+08:00",
+    "endAt": "2025-12-12T21:00:00+08:00",
+    "citySlug": "北京",
+    "venueSlug": "北京梅兰芳大剧院",
+    "organizerText": "昆曲推广小组",
+    "durationText": "2小时",
+    "ticketStatus": "已结束",
+    "noteText": "含现场示范与互动答疑。",
+    "lastVerifiedAt": "2025-12-13T09:00:00+08:00",
+    "posterImageKey": "event_poster_2026_lecture",
+    "content": {
+      "bodyMarkdown": "已完成的公开知识活动，用于历史统计与内容沉淀。"
+    },
+    "sources": [
+      { "sourceKey": "lexicon" }
+    ]
+  },
+  {
+    "slug": "2026_06_05_杭州_昆曲艺术节_开幕演出",
+    "title": "杭州昆曲艺术节开幕演出",
+    "eventType": "festival",
+    "businessStatus": "scheduled",
+    "startAt": "2026-06-05T19:30:00+08:00",
+    "endAt": "2026-06-05T22:00:00+08:00",
+    "citySlug": "杭州",
+    "venueSlug": "杭州运河大剧院",
+    "organizerText": "杭州昆曲艺术节组委会",
+    "ticketUrl": "https://example.com/tickets/2026-hz-festival",
+    "durationText": "2小时30分钟",
+    "ticketStatus": "正在售票",
+    "noteText": "艺术节首场，节目单含经典折子戏。",
+    "lastVerifiedAt": "2026-04-01T18:00:00+08:00",
+    "content": {
+      "bodyMarkdown": "以经典折子戏串联开幕演出，展示不同流派风格。"
+    },
+    "sources": [
+      { "sourceKey": "event_notice" }
+    ]
+  },
+  {
+    "slug": "2026_03_22_南京_昆曲音乐工作坊",
+    "title": "昆曲音乐与伴奏实践工作坊",
+    "eventType": "lecture",
+    "businessStatus": "completed",
+    "startAt": "2026-03-22T14:00:00+08:00",
+    "endAt": "2026-03-22T17:00:00+08:00",
+    "citySlug": "南京",
+    "venueSlug": "南京文化艺术中心剧场",
+    "organizerText": "江苏省昆剧院",
+    "durationText": "3小时",
+    "ticketStatus": "已结束",
+    "noteText": "面向青年演员与音乐从业者。",
+    "lastVerifiedAt": "2026-03-23T10:00:00+08:00",
+    "content": {
+      "bodyMarkdown": "聚焦昆曲乐队协作与传统乐器配置。"
+    },
+    "sources": [
+      { "sourceKey": "nanjing_institute" }
+    ]
+  },
+  {
+    "slug": "2026_08_20_上海_玉簪记_夏季专场",
+    "title": "《玉簪记》夏季专场",
+    "eventType": "performance",
+    "businessStatus": "cancelled",
+    "startAt": "2026-08-20T19:30:00+08:00",
+    "endAt": "2026-08-20T22:00:00+08:00",
+    "citySlug": "上海",
+    "venueSlug": "天蟾逸夫舞台",
+    "organizerText": "上海昆剧团",
+    "ticketUrl": "https://example.com/tickets/2026-yuzanji",
+    "durationText": "2小时30分钟",
+    "ticketStatus": "已取消",
+    "noteText": "因档期调整取消，后续场次待定。",
+    "lastVerifiedAt": "2026-08-01T09:00:00+08:00",
+    "content": {
+      "bodyMarkdown": "原计划夏季专场，已取消并发布公告。"
+    },
+    "sources": [
+      { "sourceKey": "event_notice" }
+    ]
+  },
+  {
+    "slug": "2026_09_10_北京_昆曲经典折子戏展演",
+    "title": "昆曲经典折子戏展演",
+    "eventType": "festival",
+    "businessStatus": "announced",
+    "startAt": "2026-09-10T19:00:00+08:00",
+    "endAt": "2026-09-10T21:30:00+08:00",
+    "citySlug": "北京",
+    "venueSlug": "北京梅兰芳大剧院",
+    "organizerText": "北京戏曲交流中心",
+    "ticketUrl": "https://example.com/tickets/2026-beijing-kunqu",
+    "durationText": "2小时30分钟",
+    "ticketStatus": "待开票",
+    "noteText": "多院团联合展演。",
+    "lastVerifiedAt": "2026-03-30T13:00:00+08:00",
+    "content": {
+      "bodyMarkdown": "汇集多院团折子戏片段，强调风格对比。"
+    },
+    "sources": [
+      { "sourceKey": "event_notice" }
+    ]
+  },
+  {
+    "slug": "2027_01_15_苏州_桃花扇_新年专场",
+    "title": "《桃花扇》新年专场",
+    "eventType": "performance",
+    "businessStatus": "announced",
+    "startAt": "2027-01-15T19:30:00+08:00",
+    "endAt": "2027-01-15T22:00:00+08:00",
+    "citySlug": "苏州",
+    "venueSlug": "苏州昆曲传习所剧场",
+    "organizerText": "苏州昆剧院",
+    "ticketUrl": "https://example.com/tickets/2027-taohuashan",
+    "durationText": "2小时30分钟",
+    "ticketStatus": "待开票",
+    "noteText": "新年主题演出，含导赏。",
+    "lastVerifiedAt": "2026-04-02T09:30:00+08:00",
+    "content": {
+      "bodyMarkdown": "以经典剧目迎接新年，强调历史与爱情主题。"
+    },
+    "sources": [
+      { "sourceKey": "sukun" }
+    ]
+  },
+  {
+    "slug": "2026_04_25_上海_昆曲服饰讲座",
+    "title": "昆曲服饰与舞台美学讲座",
+    "eventType": "lecture",
+    "businessStatus": "postponed",
+    "startAt": "2026-04-25T14:00:00+08:00",
+    "endAt": "2026-04-25T16:30:00+08:00",
+    "citySlug": "上海",
+    "venueSlug": "天蟾逸夫舞台",
+    "organizerText": "上海昆剧团",
+    "ticketUrl": "https://example.com/tickets/2026-costume-lecture",
+    "durationText": "2小时30分钟",
+    "ticketStatus": "延期",
+    "noteText": "因场地调整延期，具体日期待公布。",
+    "lastVerifiedAt": "2026-04-01T15:00:00+08:00",
+    "content": {
+      "bodyMarkdown": "讲座介绍昆曲服饰与舞台美学，含实物展示。"
+    },
+    "sources": [
+      { "sourceKey": "event_notice" }
+    ]
+  },
+  {
+    "slug": "2025_09_15_苏州_昆曲先贤纪念会",
+    "title": "昆曲先贤纪念会",
+    "eventType": "memorial",
+    "businessStatus": "completed",
+    "startAt": "2025-09-15T10:00:00+08:00",
+    "endAt": "2025-09-15T12:00:00+08:00",
+    "citySlug": "苏州",
+    "venueSlug": "苏州昆曲传习所剧场",
+    "organizerText": "昆曲传习与研究中心",
+    "durationText": "2小时",
+    "ticketStatus": "已结束",
+    "noteText": "含资料展陈与纪念演出片段。",
+    "lastVerifiedAt": "2025-09-16T09:00:00+08:00",
+    "content": {
+      "bodyMarkdown": "以资料展与纪念演出结合的形式回顾昆曲先贤贡献。"
+    },
+    "sources": [
+      { "sourceKey": "museum" }
+    ]
+  }
+]

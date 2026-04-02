@@ -1,0 +1,14 @@
+[
+  { "programItemKey": "event1_item1", "roleSlug": "杜丽娘", "personSlug": "陈佳", "castNote": "旦角" },
+  { "programItemKey": "event1_item1", "roleSlug": "柳梦梅", "personSlug": "张军", "castNote": "生角" },
+  { "programItemKey": "event1_item1", "roleSlug": "春香", "personSlug": "沈丰英", "castNote": "串演" },
+  { "programItemKey": "event1_item2", "roleSlug": "杜丽娘", "personSlug": "陈佳" },
+  { "programItemKey": "event1_item2", "roleSlug": "柳梦梅", "personSlug": "张军" },
+  { "programItemKey": "event2_item1", "roleSlug": "杨贵妃", "personSlug": "沈丰英" },
+  { "programItemKey": "event2_item1", "roleSlug": "唐明皇", "personSlug": "蔡正仁" },
+  { "programItemKey": "event4_item1", "roleSlug": "杜丽娘", "personSlug": "陈佳" },
+  { "programItemKey": "event4_item1", "roleSlug": "柳梦梅", "personSlug": "张军" },
+  { "programItemKey": "event4_item2", "roleSlug": "杨贵妃", "personSlug": "沈丰英" },
+  { "programItemKey": "event7_item1", "roleSlug": "陈妙常", "personSlug": "陈佳" },
+  { "programItemKey": "event7_item1", "roleSlug": "潘必正", "personSlug": "顾传玠" }
+]

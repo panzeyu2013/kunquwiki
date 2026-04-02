@@ -1,0 +1,32 @@
+[
+  {
+    "username": "admin",
+    "displayName": "站务管理员",
+    "email": "admin@kunquwiki.local",
+    "roles": ["admin", "reviewer", "editor"]
+  },
+  {
+    "username": "reviewer",
+    "displayName": "内容审核员",
+    "email": "reviewer@kunquwiki.local",
+    "roles": ["reviewer", "editor"]
+  },
+  {
+    "username": "editor",
+    "displayName": "资料编辑者",
+    "email": "editor@kunquwiki.local",
+    "roles": ["editor"]
+  },
+  {
+    "username": "bot",
+    "displayName": "自动化机器人",
+    "email": "bot@kunquwiki.local",
+    "roles": ["bot", "editor"]
+  },
+  {
+    "username": "visitor",
+    "displayName": "示例访客",
+    "email": "visitor@kunquwiki.local",
+    "roles": ["visitor"]
+  }
+]

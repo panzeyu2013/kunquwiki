@@ -1,0 +1,47 @@
+[
+  {
+    "entitySlug": "牡丹亭",
+    "title": "剧情梗概是否需要包含折子戏说明",
+    "createdByUsername": "editor",
+    "posts": [
+      {
+        "authorUsername": "editor",
+        "body": "建议在梗概中加入折子戏常用段落，方便读者理解。"
+      },
+      {
+        "authorUsername": "reviewer",
+        "body": "可以加入一两句概述，但不要替代完整剧情简介。"
+      }
+    ]
+  },
+  {
+    "entitySlug": "2026_04_10_上海昆剧团_青春版_牡丹亭_上海专场",
+    "title": "票务链接与场次时间核对",
+    "createdByUsername": "editor",
+    "posts": [
+      {
+        "authorUsername": "editor",
+        "body": "票务链接已补充，等待确认是否需要增加场次说明。"
+      },
+      {
+        "authorUsername": "reviewer",
+        "body": "请保留当前场次信息，若新增场次再补充。"
+      }
+    ]
+  },
+  {
+    "entitySlug": "昆曲服饰",
+    "title": "服饰分类是否需要细分为头面与服装",
+    "createdByUsername": "editor",
+    "posts": [
+      {
+        "authorUsername": "editor",
+        "body": "目前正文较概括，是否需要加入头面与服装的细分类？"
+      },
+      {
+        "authorUsername": "reviewer",
+        "body": "可以补充，但建议先以基础分类为主，避免过度细节。"
+      }
+    ]
+  }
+]

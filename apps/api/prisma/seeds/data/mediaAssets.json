@@ -1,0 +1,37 @@
+[
+  {
+    "key": "cover_mudanting",
+    "assetType": "image",
+    "url": "https://example.com/assets/works/mudanting.jpg",
+    "mimeType": "image/jpeg",
+    "altText": "牡丹亭舞台意象"
+  },
+  {
+    "key": "cover_changshengdian",
+    "assetType": "image",
+    "url": "https://example.com/assets/works/changshengdian.jpg",
+    "mimeType": "image/jpeg",
+    "altText": "长生殿意象图"
+  },
+  {
+    "key": "venue_shanghai_grand",
+    "assetType": "image",
+    "url": "https://example.com/assets/venues/shanghai-grand.jpg",
+    "mimeType": "image/jpeg",
+    "altText": "上海大剧院外观"
+  },
+  {
+    "key": "event_poster_2026_mudanting",
+    "assetType": "image",
+    "url": "https://example.com/assets/events/2026-mudanting.jpg",
+    "mimeType": "image/jpeg",
+    "altText": "青春版牡丹亭演出海报"
+  },
+  {
+    "key": "event_poster_2026_lecture",
+    "assetType": "image",
+    "url": "https://example.com/assets/events/2026-lecture.jpg",
+    "mimeType": "image/jpeg",
+    "altText": "昆曲讲座活动海报"
+  }
+]
