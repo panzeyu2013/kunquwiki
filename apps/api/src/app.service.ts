@@ -55,6 +55,11 @@ export class AppService {
     return this.repository.parseEventLink(url);
   }
 
+  // Non-frontend path: text parsing is reserved for manual/automation usage.
+  parseEventText(text: string, url?: string) {
+    return this.repository.parseEventText(text, url);
+  }
+
   reviewProposal(proposalId: string, reviewerId: string, body: ReviewProposalDto) {
     return this.repository.reviewProposal(proposalId, reviewerId, body.decision, body.reviewComment);
   }

@@ -572,6 +572,12 @@
   overflow-wrap: anywhere;
 }
 
+.modalSubBlock {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 0.6rem;
+}
+
 .modalFooter {
   display: flex;
   justify-content: flex-end;

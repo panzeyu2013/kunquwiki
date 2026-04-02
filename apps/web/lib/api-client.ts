@@ -13,7 +13,6 @@ import type {
 } from "@kunquwiki/shared";
 
 export type ParsedEventDraft = {
-  sourceUrl: string;
   title?: string;
   bodyMarkdown?: string;
   startAt?: string;
@@ -22,9 +21,48 @@ export type ParsedEventDraft = {
   venueName?: string;
   troupeNames?: string[];
   programTitles?: string[];
+  programDetailed?: Array<{
+    title?: string;
+    sequenceNo?: number;
+    casts?: Array<{
+      roleName?: string;
+      personName?: string;
+      note?: string;
+    }>;
+  }>;
   ticketUrl?: string;
   noteText?: string;
   posterImageUrl?: string;
+};
+
+export type ParsedEventResponse = {
+  source: "ai" | "rule" | "ai+rule_merge";
+  rawText?: string | null;
+  parsed: ParsedEventDraft;
+  resolved?: {
+    cityId?: string;
+    venueId?: string;
+    troupeIds?: string[];
+    programDetailed?: Array<{
+      title?: string;
+      workEntityId?: string;
+      casts?: Array<{
+        roleName?: string;
+        roleEntityId?: string;
+        personName?: string;
+        personEntityId?: string;
+      }>;
+    }>;
+  };
+  unmatched?: {
+    cityName?: string;
+    venueName?: string;
+    troupeNames?: string[];
+    workTitles?: string[];
+    roleNames?: string[];
+    personNames?: string[];
+  };
+  warnings?: string[];
 };
 
 async function request<T>(path: string, init?: RequestInit, useAuth = false): Promise<T> {
@@ -227,7 +265,7 @@ export function createQuickEntityClient(input: {
 }
 
 export function parseEventFromLink(url: string) {
-  return request<ParsedEventDraft>(
+  return request<ParsedEventResponse>(
     "/events/parse",
     {
       method: "POST",

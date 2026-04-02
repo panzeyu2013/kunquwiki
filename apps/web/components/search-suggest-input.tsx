@@ -28,6 +28,8 @@ type SearchSuggestInputProps = {
   disabled?: boolean;
   allowEmpty?: boolean;
   shouldSearch?: (value: string) => boolean;
+  onBlur?: () => void;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 };
 
 export function SearchSuggestInput({
@@ -44,7 +46,9 @@ export function SearchSuggestInput({
   maxSuggestions = 6,
   disabled = false,
   allowEmpty = false,
-  shouldSearch
+  shouldSearch,
+  onBlur,
+  onKeyDown
 }: SearchSuggestInputProps) {
   const [localValue, setLocalValue] = useState(defaultValue ?? "");
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
@@ -136,7 +140,9 @@ export function SearchSuggestInput({
         }}
         onBlur={() => {
           setOpen(false);
+          onBlur?.();
         }}
+        onKeyDown={onKeyDown}
         onChange={(event) => {
           updateValue(event.target.value);
         }}

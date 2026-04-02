@@ -15,7 +15,7 @@ import {
 } from "./content/content.query";
 import { PrismaService } from "./prisma.service";
 import { SearchIndexService } from "./search-index.service";
-import { parseEventAnnouncementLink } from "./content/event-link.parser";
+import { parseEventFromLink, parseEventFromText } from "./content/event-parse.pipeline";
 
 @Injectable()
 export class ContentRepository {
@@ -59,7 +59,7 @@ export class ContentRepository {
   }
 
   async createProposal(slug: string, proposerId: string, payload: { proposalType: string; editSummary: string; payload: Record<string, unknown> }) {
-    return createProposal(this.prisma, slug, proposerId, payload);
+    return createProposal(this.prisma, this.searchIndex, slug, proposerId, payload);
   }
 
   async createEntityProposal(input: {
@@ -68,7 +68,7 @@ export class ContentRepository {
     editSummary: string;
     payload: Record<string, unknown>;
   }, proposerId: string) {
-    return createEntityProposal(this.prisma, proposerId, input);
+    return createEntityProposal(this.prisma, this.searchIndex, proposerId, input);
   }
 
   async reviewProposal(id: string, reviewerId: string, decision: "approved" | "rejected", reviewComment?: string) {
@@ -101,6 +101,11 @@ export class ContentRepository {
   }
 
   async parseEventLink(url: string) {
-    return parseEventAnnouncementLink(url);
+    return parseEventFromLink(this.prisma, url);
+  }
+
+  // Non-frontend path: text parsing is reserved for manual/automation usage.
+  async parseEventText(text: string, url?: string) {
+    return parseEventFromText(this.prisma, text, url);
   }
 }

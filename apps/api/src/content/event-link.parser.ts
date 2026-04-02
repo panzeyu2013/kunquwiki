@@ -37,39 +37,54 @@ type JsonLdEvent = {
   offers?: { url?: string } | Array<{ url?: string }>;
 };
 
-export async function parseEventAnnouncementLink(url: string): Promise<ParsedEventDraft> {
-  const normalizedUrl = await assertSafeUrl(url);
-  const html = await fetchHtml(normalizedUrl);
-  let parsed = extractFromHtml(html, normalizedUrl);
-
-  if (shouldFallbackToBrowser(html, parsed, normalizedUrl)) {
-    const browserHtml = await fetchHtmlWithPlaywright(normalizedUrl);
-    parsed = extractFromHtml(browserHtml, normalizedUrl);
-  }
-
-  if (isParsedEmpty(parsed)) {
-    throw new BadRequestException("解析失败，页面可能受保护或内容为空，请尝试手动复制正文。");
-  }
-
-  return {
-    sourceUrl: normalizedUrl,
-    title: parsed.title ?? undefined,
-    bodyMarkdown: parsed.bodyMarkdown ?? undefined,
-    startAt: normalizeIsoDate(parsed.startAt),
-    endAt: normalizeIsoDate(parsed.endAt),
-    cityName: parsed.cityName ?? undefined,
-    venueName: parsed.venueName ?? undefined,
-    troupeNames: parsed.troupeNames && parsed.troupeNames.length > 0 ? parsed.troupeNames : undefined,
-    programTitles: parsed.programTitles && parsed.programTitles.length > 0 ? parsed.programTitles : undefined,
-    ticketUrl: parsed.ticketUrl ?? undefined,
-    noteText: parsed.noteText ?? undefined,
-    posterImageUrl: parsed.posterImageUrl ?? undefined
-  };
-}
-
 // Testing/diagnostics helper: parse raw HTML without fetching.
 export function parseEventHtmlForTesting(html: string, url: string) {
   return extractFromHtml(html, url);
+}
+
+export async function fetchHtmlForParsing(url: string) {
+  const normalizedUrl = await assertSafeUrl(url);
+
+  const html = await fetchHtml(normalizedUrl);
+  const readabilityResult = extractReadableContent(html, normalizedUrl);
+
+  let parsed = extractFromHtml(html, normalizedUrl, readabilityResult);
+
+  if (shouldFallbackToBrowser(html, parsed, normalizedUrl)) {
+    const browserHtml = await fetchHtmlWithPlaywright(normalizedUrl);
+    const browserReadable = extractReadableContent(browserHtml, normalizedUrl);
+    parsed = extractFromHtml(browserHtml, normalizedUrl, browserReadable);
+    const cleanTextForAI = extractCleanTextForAI(browserHtml, normalizedUrl, {
+      readabilityText: browserReadable.text,
+      wechatBodyMarkdown: parsed.bodyMarkdown
+    });
+    return { html: browserHtml, normalizedUrl, parsed, cleanTextForAI };
+  }
+  const cleanTextForAI = extractCleanTextForAI(html, normalizedUrl, {
+    readabilityText: readabilityResult.text,
+    wechatBodyMarkdown: parsed.bodyMarkdown
+  });
+  return { html, normalizedUrl, parsed, cleanTextForAI };
+}
+
+export function extractCleanTextForAI(
+  html: string,
+  url: string,
+  options?: { readabilityText?: string | null; wechatBodyMarkdown?: string }
+) {
+  const $ = cheerio.load(html);
+  if (url.includes("mp.weixin.qq.com") && $("#js_content").length > 0) {
+    if (options?.wechatBodyMarkdown && options.wechatBodyMarkdown.trim().length > 0) {
+      return options.wechatBodyMarkdown;
+    }
+    return cleanWeChatBody($("#js_content").html() ?? "");
+  }
+  const readabilityText = options?.readabilityText ?? extractReadableContent(html, url).text;
+  if (readabilityText && readabilityText.trim().length > 0) {
+    return readabilityText;
+  }
+  const fallback = $("body").text().trim();
+  return fallback;
 }
 
 async function assertSafeUrl(input: string): Promise<string> {
@@ -171,7 +186,11 @@ async function fetchHtml(url: string) {
   }
 }
 
-function extractFromHtml(html: string, url: string) {
+function extractFromHtml(
+  html: string,
+  url: string,
+  readabilityResult?: ReturnType<typeof extractReadableContent>
+) {
   const $ = cheerio.load(html);
 
   if (url.includes("mp.weixin.qq.com") && $("#js_content").length > 0) {
@@ -182,8 +201,8 @@ function extractFromHtml(html: string, url: string) {
   const jsonLd = extractJsonLd($);
   const jsonLdEvent = extractEventFromJsonLd(jsonLd);
 
-  const readabilityResult = extractReadableContent(html, url);
-  const bodyText = readabilityResult.text ?? "";
+  const readability = readabilityResult ?? extractReadableContent(html, url);
+  const bodyText = readability.text ?? "";
 
   const fromText = extractEventFieldsFromText(bodyText);
   const fromLinks = extractTicketLink($, url);
@@ -192,7 +211,7 @@ function extractFromHtml(html: string, url: string) {
     jsonLdEvent?.name,
     meta.ogTitle,
     meta.twitterTitle,
-    readabilityResult.title,
+    readability.title,
     meta.title
   );
 
@@ -203,7 +222,7 @@ function extractFromHtml(html: string, url: string) {
     meta.description
   );
 
-  const bodyMarkdown = normalizeMarkdownBody(firstNonEmpty(readabilityResult.text, description));
+  const bodyMarkdown = normalizeMarkdownBody(firstNonEmpty(readability.text, description));
 
   const startAt = firstNonEmpty(jsonLdEvent?.startDate, fromText.startAt);
   const endAt = firstNonEmpty(jsonLdEvent?.endDate, fromText.endAt);
@@ -477,7 +496,7 @@ function normalizeTextFromHtml(html: string) {
   return lines.join("\n\n");
 }
 
-function extractEventFieldsFromText(text: string) {
+export function extractEventFieldsFromText(text: string) {
   const lines = text
     .split(/\n+/)
     .map((line) => line.trim())
@@ -606,17 +625,6 @@ function parseDateRange(value: string) {
   const endAt = endTime ? new Date(`${dateLabel}T${endTime}`).toISOString() : undefined;
 
   return { startAt, endAt };
-}
-
-function normalizeIsoDate(value?: string | null) {
-  if (!value) {
-    return undefined;
-  }
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return undefined;
-  }
-  return parsed.toISOString();
 }
 
 function normalizeMarkdownBody(value?: string | null) {

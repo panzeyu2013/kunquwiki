@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "ts-node src/main.ts",
-    "build": "npm run prisma:generate && rm -rf dist && tsc -p tsconfig.json",
+    "build": "npm run prisma:generate && rm -rf dist && tsc -p tsconfig.json && mkdir -p dist/prisma && cp -R prisma/seeds dist/prisma/",
     "start": "node dist/src/main.js",
     "test:e2e": "npm run build && node --test test/api.e2e.test.mjs",
     "prisma:generate": "prisma generate --schema prisma/schema.prisma",

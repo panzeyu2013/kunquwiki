@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Query } from "@nestjs/common";
+import { BadRequestException, Body, Controller, Delete, Get, Headers, Param, Patch, Post, Query } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { AppService } from "./app.service";
 import {
@@ -110,6 +110,13 @@ export class AppController {
   ) {
     const user = await this.authService.requireActiveUser(authorization);
     this.authService.assertEditorRole(user.roles);
+    // Non-frontend path: text parsing is reserved for manual/automation usage.
+    if (body.text && body.text.trim().length > 0) {
+      return this.appService.parseEventText(body.text, body.url);
+    }
+    if (!body.url) {
+      throw new BadRequestException("Missing url or text for parsing");
+    }
     return this.appService.parseEventLink(body.url);
   }
 

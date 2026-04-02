@@ -14,6 +14,7 @@ import {
   mapWorkTypeLabel
 } from "../../lib/labels";
 import { ActionBar } from "../action-bar";
+import { formatDateTimeSafe } from "../../lib/format";
 
 // Styles
 import pillStyles from "../../styles/components/pill.module.css";
@@ -34,17 +35,6 @@ function formatValue(value: unknown) {
     return value.trim() || "未填写";
   }
   return "未填写";
-}
-
-function formatDateTime(value: unknown) {
-  if (typeof value !== "string" || value.trim().length === 0) {
-    return "未填写";
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-  return date.toLocaleString("zh-CN", { hour12: false });
 }
 
 function renderKeyValueRows(rows: Array<{ label: string; value: string }>) {
@@ -143,14 +133,14 @@ function renderPersonReview(payload: Record<string, unknown>, options: EditorOpt
       {renderKeyValueRows([
         { label: "人物类型说明", value: formatValue(payload.personTypeNote) },
         { label: "性别", value: formatValue(payload.gender) },
-        { label: "出生时间", value: formatDateTime(payload.birthDate) },
-        { label: "去世时间", value: formatDateTime(payload.deathDate) },
+        { label: "出生时间", value: formatDateTimeSafe(payload.birthDate) },
+        { label: "去世时间", value: formatDateTimeSafe(payload.deathDate) },
         { label: "出生地", value: resolveEntityLabel(payload.birthCityId, options, "城市") },
         { label: "在世", value: formatValue(payload.isLiving) }
       ])}
       {renderSummaryBlock("人物身份履历", "逐条查看人物的身份变化。", identities.map((item, index) => {
         const row = item as Record<string, unknown>;
-        return `记录 ${index + 1}: ${mapIdentityLabel(formatValue(row.identityTerm))}，${formatDateTime(row.startDate)} 至 ${formatDateTime(row.endDate)}`;
+        return `记录 ${index + 1}: ${mapIdentityLabel(formatValue(row.identityTerm))}，${formatDateTimeSafe(row.startDate)} 至 ${formatDateTimeSafe(row.endDate)}`;
       }))}
       {renderSummaryBlock("院团履历", "核对人物和院团之间的关系。", memberships.map((item, index) => {
         const row = item as Record<string, unknown>;
@@ -170,8 +160,8 @@ function renderTroupeReview(payload: Record<string, unknown>, options: EditorOpt
     <>
       {renderKeyValueRows([
         { label: "院团类型", value: mapTroupeTypeLabel(typeof payload.troupeType === "string" ? payload.troupeType : "") },
-        { label: "成立时间", value: formatDateTime(payload.foundedDate) },
-        { label: "解散时间", value: formatDateTime(payload.dissolvedDate) },
+        { label: "成立时间", value: formatDateTimeSafe(payload.foundedDate) },
+        { label: "解散时间", value: formatDateTimeSafe(payload.dissolvedDate) },
         { label: "所在城市", value: resolveEntityLabel(payload.cityId, options, "城市") },
         { label: "城市文本", value: formatValue(payload.cityText ?? payload.city) },
         { label: "地区文本", value: formatValue(payload.regionText ?? payload.region) },
@@ -195,8 +185,8 @@ function renderEventReview(payload: Record<string, unknown>, options: EditorOpti
       {renderKeyValueRows([
         { label: "演出类型", value: mapEventTypeLabel(typeof payload.eventType === "string" ? payload.eventType : "") },
         { label: "业务状态", value: mapEventStatusLabel(typeof payload.businessStatus === "string" ? payload.businessStatus : "") },
-        { label: "开始时间", value: formatDateTime(payload.startAt) },
-        { label: "结束时间", value: formatDateTime(payload.endAt) },
+        { label: "开始时间", value: formatDateTimeSafe(payload.startAt) },
+        { label: "结束时间", value: formatDateTimeSafe(payload.endAt) },
         { label: "城市", value: resolveEntityLabel(payload.cityId, options, "城市") },
         { label: "剧场", value: resolveEntityLabel(payload.venueEntityId, options, "剧场") },
         {

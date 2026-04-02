@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createQuickEntityClient, getEditorOptions, getEntityPublic } from "../../../lib/api-client";
 import { getEntityDetailPath } from "../../../lib/routes";
 import { SearchSuggestInput, type SearchSuggestion } from "../../search-suggest-input";
@@ -109,6 +109,7 @@ export function SearchCreateSelect({
   const [query, setQuery] = useState("");
   const selected = options.find((item) => item.id === value);
   const [creating, setCreating] = useState(false);
+  const skipBlurCommit = useRef(false);
   const normalizedQuery = query.trim();
   const canCreate =
     !disabled &&
@@ -119,6 +120,35 @@ export function SearchCreateSelect({
   useEffect(() => {
     setQuery(selected?.title ?? "");
   }, [selected?.title]);
+
+  const commitInput = async () => {
+    if (disabled || creating) {
+      return;
+    }
+    const trimmed = normalizedQuery;
+    if (!trimmed) {
+      return;
+    }
+    const exact = options.find((item) => item.title === trimmed);
+    if (exact) {
+      onChange(exact.id);
+      setQuery(exact.title);
+      return;
+    }
+    if (!canCreate) {
+      return;
+    }
+    setCreating(true);
+    try {
+      const created = await onCreate(trimmed);
+      if (created) {
+        onChange(created.id);
+        setQuery(created.title);
+      }
+    } finally {
+      setCreating(false);
+    }
+  };
 
   return (
     <fieldset className={className}>
@@ -146,26 +176,30 @@ export function SearchCreateSelect({
           }}
           inputClassName=""
           disabled={disabled || creating}
+          onBlur={() => {
+            if (skipBlurCommit.current) {
+              skipBlurCommit.current = false;
+              return;
+            }
+            void commitInput();
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              void commitInput();
+            }
+          }}
         />
         {canCreate ? (
           <button
             type="button"
             className={buttonStyles.button}
             disabled={creating || disabled}
+            onMouseDown={() => {
+              skipBlurCommit.current = true;
+            }}
             onClick={async () => {
-              if (!window.confirm(`确认创建占位条目「${normalizedQuery}」？`)) {
-                return;
-              }
-              setCreating(true);
-              try {
-                const created = await onCreate(normalizedQuery);
-                if (created) {
-                  onChange(created.id);
-                  setQuery(created.title);
-                }
-              } finally {
-                setCreating(false);
-              }
+              await commitInput();
             }}
           >
             {creating ? "创建中..." : `${createLabel}“${normalizedQuery}”`}
@@ -191,6 +225,7 @@ export function SearchCreateMultiSelect({
 }: SearchCreateMultiSelectProps) {
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
+  const skipBlurCommit = useRef(false);
 
   const selectedOptions = useMemo(
     () => options.filter((item) => values.includes(item.id)),
@@ -202,6 +237,37 @@ export function SearchCreateMultiSelect({
     !disabled &&
     normalizedQuery.length > 0 &&
     !options.some((item) => item.title === normalizedQuery);
+
+  const commitInput = async () => {
+    if (disabled || creating) {
+      return;
+    }
+    const trimmed = normalizedQuery;
+    if (!trimmed) {
+      return;
+    }
+    const exact = options.find((item) => item.title === trimmed);
+    if (exact) {
+      if (!values.includes(exact.id)) {
+        onAdd(exact.id);
+      }
+      setQuery("");
+      return;
+    }
+    if (!canCreate) {
+      return;
+    }
+    setCreating(true);
+    try {
+      const created = await onCreate(trimmed);
+      if (created) {
+        onAdd(created.id);
+        setQuery("");
+      }
+    } finally {
+      setCreating(false);
+    }
+  };
 
   return (
     <fieldset className={className}>
@@ -247,6 +313,19 @@ export function SearchCreateMultiSelect({
           }}
           inputClassName=""
           disabled={disabled || creating}
+          onBlur={() => {
+            if (skipBlurCommit.current) {
+              skipBlurCommit.current = false;
+              return;
+            }
+            void commitInput();
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              void commitInput();
+            }
+          }}
         />
 
         {canCreate ? (
@@ -254,20 +333,11 @@ export function SearchCreateMultiSelect({
             type="button"
             className={buttonStyles.button}
             disabled={disabled || creating}
+            onMouseDown={() => {
+              skipBlurCommit.current = true;
+            }}
             onClick={async () => {
-              if (!window.confirm(`确认创建占位条目「${normalizedQuery}」？`)) {
-                return;
-              }
-              setCreating(true);
-              try {
-                const created = await onCreate(normalizedQuery);
-                if (created) {
-                  onAdd(created.id);
-                  setQuery("");
-                }
-              } finally {
-                setCreating(false);
-              }
+              await commitInput();
             }}
           >
             {creating ? "创建中..." : `${createLabel}“${normalizedQuery}”`}
@@ -290,8 +360,8 @@ export function SearchCreateInlineSelect({
   const [query, setQuery] = useState("");
   const [creating, setCreating] = useState(false);
   const selected = options.find((item) => item.id === value);
+  const skipBlurCommit = useRef(false);
   const normalizedQuery = query.trim();
-
   useEffect(() => {
     setQuery(selected?.title ?? "");
   }, [selected?.title]);
@@ -301,6 +371,35 @@ export function SearchCreateInlineSelect({
     normalizedQuery.length > 0 &&
     normalizedQuery !== (selected?.title ?? "") &&
     !options.some((item) => item.title === normalizedQuery);
+
+  const commitInput = async () => {
+    if (disabled || creating) {
+      return;
+    }
+    const trimmed = normalizedQuery;
+    if (!trimmed) {
+      return;
+    }
+    const exact = options.find((item) => item.title === trimmed);
+    if (exact) {
+      onChange(exact.id);
+      setQuery(exact.title);
+      return;
+    }
+    if (!canCreate) {
+      return;
+    }
+    setCreating(true);
+    try {
+      const created = await onCreate(trimmed);
+      if (created) {
+        onChange(created.id);
+        setQuery(created.title);
+      }
+    } finally {
+      setCreating(false);
+    }
+  };
 
   return (
     <div className={styles.inlineSelect}>
@@ -326,26 +425,30 @@ export function SearchCreateInlineSelect({
         }}
         inputClassName=""
         disabled={disabled || creating}
+        onBlur={() => {
+          if (skipBlurCommit.current) {
+            skipBlurCommit.current = false;
+            return;
+          }
+          void commitInput();
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            void commitInput();
+          }
+        }}
       />
       {canCreate ? (
         <button
           type="button"
           className={`${ghostButtonStyles.button} ${styles.inlineChoice} ${styles.inlineChoiceCreate}`}
           disabled={creating || disabled}
+          onMouseDown={() => {
+            skipBlurCommit.current = true;
+          }}
           onClick={async () => {
-            if (!window.confirm(`确认创建占位条目「${normalizedQuery}」？`)) {
-              return;
-            }
-            setCreating(true);
-            try {
-              const created = await onCreate(normalizedQuery);
-              if (created) {
-                onChange(created.id);
-                setQuery(created.title);
-              }
-            } finally {
-              setCreating(false);
-            }
+            await commitInput();
           }}
         >
           {creating ? "创建中..." : `${createLabel}${normalizedQuery}`}

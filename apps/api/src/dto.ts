@@ -110,7 +110,12 @@ export class QuickCreateEntityDto {
 }
 
 export class ParseEventLinkDto {
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   url!: string;
+
+  // Non-frontend path: text parsing is reserved for manual/automation usage.
+  @IsOptional()
+  @IsString()
+  text?: string;
 }

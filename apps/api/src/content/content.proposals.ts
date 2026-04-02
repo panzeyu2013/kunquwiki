@@ -17,10 +17,70 @@ import {
 } from "./content.utils";
 import { ensureEntityReference, validateRelationshipPayload } from "./content.validation";
 import { PrismaService } from "../prisma.service";
+import { createQuickEntity } from "./content.editor";
 
 type SearchIndexer = {
   rebuildEntity(entityId: string, tx?: Prisma.TransactionClient): Promise<unknown>;
 };
+
+type PendingEntityInput = {
+  tempId: string;
+  entityType: EntityType;
+  title: string;
+  workType?: string;
+  parentWorkId?: string;
+  initialData?: Record<string, unknown>;
+};
+
+async function resolvePendingEntities(
+  prisma: PrismaService,
+  searchIndex: SearchIndexer,
+  proposerId: string,
+  rawPayload: Record<string, unknown>
+) {
+  const pending = Array.isArray(rawPayload.pendingEntities) ? (rawPayload.pendingEntities as PendingEntityInput[]) : [];
+  if (pending.length === 0) {
+    return rawPayload;
+  }
+
+  const idMap = new Map<string, string>();
+  for (const item of pending) {
+    if (!item?.tempId || !item?.entityType || !item?.title) {
+      continue;
+    }
+    const created = await createQuickEntity(
+      prisma,
+      searchIndex,
+      {
+        entityType: item.entityType,
+        title: item.title,
+        workType: item.workType,
+        parentWorkId: item.parentWorkId,
+        initialData: item.initialData ?? {}
+      },
+      proposerId
+    );
+    idMap.set(item.tempId, created.id);
+  }
+
+  const replaced = deepReplacePendingIds(rawPayload, idMap);
+  delete replaced.pendingEntities;
+  return replaced;
+}
+
+function deepReplacePendingIds(value: unknown, idMap: Map<string, string>): any {
+  if (typeof value === "string") {
+    return idMap.get(value) ?? value;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => deepReplacePendingIds(item, idMap));
+  }
+  if (value && typeof value === "object") {
+    const entries = Object.entries(value as Record<string, unknown>).map(([key, val]) => [key, deepReplacePendingIds(val, idMap)]);
+    return Object.fromEntries(entries);
+  }
+  return value;
+}
 
 /**
  * 为现有实体创建编辑提案。
@@ -46,6 +106,7 @@ type SearchIndexer = {
  */
 export async function createProposal(
   prisma: PrismaService,
+  searchIndex: SearchIndexer,
   slug: string,
   proposerId: string,
   payload: { proposalType: string; editSummary: string; payload: Record<string, unknown> }
@@ -56,7 +117,8 @@ export async function createProposal(
     throw new NotFoundException(`Entity ${normalizedSlug} not found`);
   }
 
-  const normalizedPayload = await validateRelationshipPayload(prisma, entity.entityType, payload.payload);
+  const payloadWithPending = await resolvePendingEntities(prisma, searchIndex, proposerId, payload.payload);
+  const normalizedPayload = await validateRelationshipPayload(prisma, entity.entityType, payloadWithPending);
   const normalizedEditSummary = await buildDefaultEditSummary(prisma, proposerId, payload.editSummary);
 
   const proposal = await prisma.editProposal.create({
@@ -98,10 +160,12 @@ export async function createProposal(
  */
 export async function createEntityProposal(
   prisma: PrismaService,
+  searchIndex: SearchIndexer,
   proposerId: string,
   payload: { proposalType: string; editSummary: string; entityType: EntityType; payload: Record<string, unknown> }
 ) {
-  const normalizedPayload = await validateRelationshipPayload(prisma, payload.entityType, payload.payload);
+  const payloadWithPending = await resolvePendingEntities(prisma, searchIndex, proposerId, payload.payload);
+  const normalizedPayload = await validateRelationshipPayload(prisma, payload.entityType, payloadWithPending);
   const normalizedEditSummary = await buildDefaultEditSummary(prisma, proposerId, payload.editSummary);
 
   const proposal = await prisma.editProposal.create({

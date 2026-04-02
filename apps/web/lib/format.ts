@@ -6,6 +6,17 @@ export function formatDateTime(value: string) {
   }).format(new Date(value));
 }
 
+export function formatDateTimeSafe(value: unknown, fallback = "未填写") {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    return fallback;
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  return formatDateTime(value);
+}
+
 export function countdownLabel(value: string, nowInput = new Date()) {
   return countdownLabelPrecise(value, nowInput, false);
 }

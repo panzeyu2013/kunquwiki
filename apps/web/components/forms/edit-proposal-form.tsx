@@ -2,14 +2,13 @@
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import {
-  createQuickEntityClient,
   deleteEntityClient,
   getEditorOptions,
   getEntityPublic,
   parseEventFromLink,
   submitCreateProposal,
   submitProposal,
-  type ParsedEventDraft
+  type ParsedEventResponse
 } from "../../lib/api-client";
 import { getEntityCollectionPath, getEntityDetailPath } from "../../lib/routes";
 import { useAuthUser } from "../auth/use-auth-user";
@@ -29,6 +28,7 @@ import {
   type QuickCreatedOption,
   type TroupeMembershipRow
 } from "./edit-proposal/shared";
+import { mapEntityTypeLabel } from "../../lib/labels";
 import { ArticleFields } from "./edit-proposal/types/article-fields";
 import { CityFields } from "./edit-proposal/types/city-fields";
 import { EventFields } from "./edit-proposal/types/event-fields";
@@ -37,6 +37,7 @@ import { PersonFields } from "./edit-proposal/types/person-fields";
 import { TroupeFields } from "./edit-proposal/types/troupe-fields";
 import { VenueFields } from "./edit-proposal/types/venue-fields";
 import { WorkFields } from "./edit-proposal/types/work-fields";
+import { WarningModal } from "./edit-proposal/warning-modal";
 
 // Styles
 import styles from "../../styles/editor-page.module.css";
@@ -223,9 +224,18 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
   const [eventLink, setEventLink] = useState("");
   const [eventParsePending, setEventParsePending] = useState(false);
   const [eventParseError, setEventParseError] = useState<string | null>(null);
-  const [eventParseResult, setEventParseResult] = useState<ParsedEventDraft | null>(null);
+  const [eventParseResult, setEventParseResult] = useState<ParsedEventResponse | null>(null);
   const [eventParseModalOpen, setEventParseModalOpen] = useState(false);
   const [eventParseNotice, setEventParseNotice] = useState<string | null>(null);
+  const [pendingEntities, setPendingEntities] = useState<Array<{
+    tempId: string;
+    entityType: string;
+    title: string;
+    workType?: WorkType;
+    parentWorkId?: string;
+    initialData?: Record<string, unknown>;
+  }>>([]);
+  const [submitWarningOpen, setSubmitWarningOpen] = useState(false);
 
   const activeEntityType = entity?.entityType ?? entityType ?? "";
   const isCreateMode = !slug;
@@ -282,6 +292,23 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
     return draftEntityIds.includes(id);
   }
 
+  function addPendingEntity(entry: {
+    tempId: string;
+    entityType: string;
+    title: string;
+    workType?: WorkType;
+    parentWorkId?: string;
+    initialData?: Record<string, unknown>;
+  }) {
+    setPendingEntities((current) => {
+      if (current.some((item) => item.tempId === entry.tempId)) {
+        return current;
+      }
+      return [...current, entry];
+    });
+    setDraftEntityIds((current) => (current.includes(entry.tempId) ? current : [...current, entry.tempId]));
+  }
+
   async function handleParseEventLink() {
     const trimmed = eventLink.trim();
     if (!trimmed) {
@@ -299,7 +326,10 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
       const result = await parseEventFromLink(trimmed);
       setEventParseResult(result);
       setEventParseModalOpen(true);
-      setEventParseNotice("解析完成，请确认是否替换表单内容。");
+      const warningCount = result.warnings?.length ?? 0;
+      setEventParseNotice(
+        warningCount > 0 ? `解析完成，但有 ${warningCount} 条匹配提示，请确认后替换。` : "解析完成，请确认是否替换表单内容。"
+      );
     } catch (error) {
       setEventParseError(error instanceof Error ? error.message : "解析失败，请稍后再试。");
     } finally {
@@ -307,58 +337,150 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
     }
   }
 
-  function applyParsedEvent(result: ParsedEventDraft) {
+  async function applyParsedEvent(result: ParsedEventResponse) {
     if (!options || activeEntityType !== "event") {
       return;
     }
 
+    const parsed = result.parsed;
+    const resolved = result.resolved;
     const nextState = { ...formState };
 
-    if (result.startAt) nextState.startAt = toInputDate(result.startAt);
-    if (result.endAt) nextState.endAt = toInputDate(result.endAt);
-    if (result.ticketUrl) nextState.ticketUrl = result.ticketUrl;
-    if (result.noteText) nextState.noteText = mergeNoteText(String(nextState.noteText ?? ""), result.noteText);
+    const ensureOption = async (
+      entityType: string,
+      name: string,
+      targetList: keyof NonNullable<EditorOptions>,
+      extra?: { workType?: WorkType; parentWorkId?: string; initialData?: Record<string, unknown> }
+    ): Promise<string | null> => {
+      const optionList = options[targetList] as EntityOption[];
+      const existing = findOptionByName(optionList, name);
+      if (existing) {
+        return existing.id;
+      }
+      const created = await createQuickOption(entityType, name, targetList, extra);
+      return created?.id ?? null;
+    };
 
-    const posterNote = result.posterImageUrl ? `海报：${result.posterImageUrl}` : "";
+    if (parsed.startAt) nextState.startAt = toInputDate(parsed.startAt);
+    if (parsed.endAt) nextState.endAt = toInputDate(parsed.endAt);
+    if (parsed.ticketUrl) nextState.ticketUrl = parsed.ticketUrl;
+    if (parsed.noteText) nextState.noteText = mergeNoteText(String(nextState.noteText ?? ""), parsed.noteText);
+
+    const posterNote = parsed.posterImageUrl ? `海报：${parsed.posterImageUrl}` : "";
     if (posterNote) {
       nextState.noteText = mergeNoteText(String(nextState.noteText ?? ""), posterNote);
     }
 
-    const cityOption = findOptionByName(options.cities, result.cityName);
-    if (cityOption) nextState.cityId = cityOption.id;
-
-    const venueOption = findOptionByName(options.venues, result.venueName);
-    if (venueOption) nextState.venueEntityId = venueOption.id;
-
-    const troupeOptions = (result.troupeNames ?? [])
-      .map((name) => findOptionByName(options.troupes, name))
-      .filter(Boolean) as EntityOption[];
-    if (troupeOptions.length > 0) {
-      nextState.troupeIds = troupeOptions.map((item) => item.id);
+    if (resolved?.cityId) {
+      nextState.cityId = resolved.cityId;
+    } else if (parsed.cityName) {
+      const pendingId = await ensureOption("city", parsed.cityName, "cities");
+      if (pendingId) {
+        nextState.cityId = pendingId;
+      }
+    }
+    if (resolved?.venueId) {
+      nextState.venueEntityId = resolved.venueId;
+    } else if (parsed.venueName) {
+      const pendingId = await ensureOption("venue", parsed.venueName, "venues");
+      if (pendingId) {
+        nextState.venueEntityId = pendingId;
+      }
+    }
+    if (resolved?.troupeIds && resolved.troupeIds.length > 0) {
+      nextState.troupeIds = resolved.troupeIds;
+    } else if (parsed.troupeNames && parsed.troupeNames.length > 0) {
+      const pendingIds = (
+        await Promise.all(parsed.troupeNames.map((name) => ensureOption("troupe", name, "troupes")))
+      ).filter(Boolean) as string[];
+      if (pendingIds.length > 0) {
+        nextState.troupeIds = pendingIds;
+      }
     }
 
-    if (result.programTitles && result.programTitles.length > 0) {
-      nextState.programDetailed = result.programTitles.map((titleText, index) => ({
-        key: makeClientKey("program"),
-        workEntityId: "",
-        titleOverride: titleText,
-        sequenceNo: String(index + 1),
-        durationMinutes: "",
-        notes: "",
-        casts: []
-      }));
+    const programSource =
+      parsed.programDetailed && parsed.programDetailed.length > 0
+        ? parsed.programDetailed
+        : parsed.programTitles && parsed.programTitles.length > 0
+          ? parsed.programTitles.map((title) => ({ title, casts: [] }))
+          : [];
+
+    if (programSource.length > 0) {
+      const resolvedPrograms = result.resolved?.programDetailed ?? [];
+      const programRows = await Promise.all(
+        programSource.map(async (item, index) => {
+          const resolvedItem = resolvedPrograms[index];
+          let workEntityId = resolvedItem?.workEntityId ?? "";
+          if (!workEntityId && item.title) {
+            const pendingId = await ensureOption("work", item.title, "fullWorks", { workType: "full_play" });
+            if (pendingId) {
+              workEntityId = pendingId;
+            }
+          }
+
+          const castsSource = Array.isArray(item.casts) ? item.casts : [];
+          const resolvedCasts = resolvedItem?.casts ?? [];
+          const casts = await Promise.all(
+            castsSource.map(async (cast, castIndex) => {
+              const resolvedCast = resolvedCasts[castIndex];
+              let roleEntityId = resolvedCast?.roleEntityId ?? "";
+              if (!roleEntityId && cast.roleName) {
+                const pendingRole = await ensureOption("role", cast.roleName, "roleEntities", {
+                  initialData: {
+                    workEntityId: workEntityId || null,
+                    bodyMarkdown: "",
+                    description: ""
+                  }
+                });
+                if (pendingRole) {
+                  roleEntityId = pendingRole;
+                }
+              }
+
+              let personEntityId = resolvedCast?.personEntityId ?? "";
+              if (!personEntityId && cast.personName) {
+                const pendingPerson = await ensureOption("person", cast.personName, "people", {
+                  initialData: {
+                    bodyMarkdown: "",
+                    bio: "",
+                    personTypeNote: ""
+                  }
+                });
+                if (pendingPerson) {
+                  personEntityId = pendingPerson;
+                }
+              }
+
+              return {
+                key: makeClientKey("cast"),
+                roleEntityId: roleEntityId ?? "",
+                personEntityId: personEntityId ?? "",
+                castNote: cast.note ?? ""
+              };
+            })
+          );
+
+          return {
+            key: makeClientKey("program"),
+            workEntityId,
+            titleOverride: workEntityId ? "" : item.title ?? "",
+            sequenceNo: item.sequenceNo ? String(item.sequenceNo) : String(index + 1),
+            durationMinutes: "",
+            notes: "",
+            casts
+          };
+        })
+      );
+      nextState.programDetailed = programRows;
     }
 
     setFormState(nextState);
 
-    if (result.title) {
-      setTitle(result.title);
+    if (parsed.title) {
+      setTitle(parsed.title);
     }
-    if (result.bodyMarkdown) {
-      setBody(result.bodyMarkdown);
-    }
-    if (result.sourceUrl) {
-      setEventLink(result.sourceUrl);
+    if (parsed.bodyMarkdown) {
+      setBody(parsed.bodyMarkdown);
     }
   }
 
@@ -366,9 +488,14 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
     if (!eventParseResult) {
       return;
     }
-    applyParsedEvent(eventParseResult);
-    setEventParseModalOpen(false);
-    setEventParseNotice("已替换为解析结果，请继续检查并补充。");
+    applyParsedEvent(eventParseResult)
+      .then(() => {
+        setEventParseModalOpen(false);
+        setEventParseNotice("已替换为解析结果，请继续检查并补充。");
+      })
+      .catch(() => {
+        setEventParseNotice("解析结果写入失败，请刷新后重试。");
+      });
   }
 
   async function createQuickOption(
@@ -377,15 +504,16 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
     targetList: keyof NonNullable<EditorOptions>,
     extra?: { workType?: WorkType; parentWorkId?: string; initialData?: Record<string, unknown> }
   ) {
-    const created = await createQuickEntityClient({
+    const tempId = `pending:${nextEntityType}:${makeClientKey("pending")}`;
+    const created = { id: tempId, slug: tempId, title: name } as QuickCreatedOption;
+    addPendingEntity({
+      tempId,
       entityType: nextEntityType,
       title: name,
       workType: extra?.workType,
       parentWorkId: extra?.parentWorkId,
       initialData: extra?.initialData
     });
-
-    setDraftEntityIds((current) => (current.includes(created.id) ? current : [...current, created.id]));
     setOptions((current) => {
       if (!current) {
         return current;
@@ -425,6 +553,8 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
       setEventParseNotice(null);
       setEventParseResult(null);
       setEventParseModalOpen(false);
+      setPendingEntities([]);
+      setDraftEntityIds([]);
       setOptions(nextOptions);
       setLoaded(true);
     }
@@ -442,6 +572,8 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
       setEventParseNotice(null);
       setEventParseResult(null);
       setEventParseModalOpen(false);
+      setPendingEntities([]);
+      setDraftEntityIds([]);
 
       const nextState = emptyState(loadedEntity.entityType);
       nextState.coverImageId = loadedEntity.coverImageId ?? "";
@@ -753,11 +885,21 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
         break;
     }
 
+    if (pendingEntities.length > 0) {
+      payload.pendingEntities = pendingEntities.map((item) => ({
+        tempId: item.tempId,
+        entityType: item.entityType,
+        title: item.title,
+        workType: item.workType,
+        parentWorkId: item.parentWorkId,
+        initialData: item.initialData
+      }));
+    }
+
     return payload;
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function performSubmit(skipConfirm = false) {
     if (!activeEntityType) {
       return;
     }
@@ -768,7 +910,7 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
       const confirmMessage = isCreateMode
         ? `确认提交创建提案「${title.trim() || "未命名条目"}」？`
         : `确认提交编辑提案「${title.trim() || entity?.title || "未命名条目"}」？`;
-      if (!window.confirm(confirmMessage)) {
+      if (!skipConfirm && !window.confirm(confirmMessage)) {
         setPending(false);
         return;
       }
@@ -802,6 +944,18 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
     } finally {
       setPending(false);
     }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!activeEntityType) {
+      return;
+    }
+    if (pendingEntities.length > 0) {
+      setSubmitWarningOpen(true);
+      return;
+    }
+    await performSubmit();
   }
 
   async function handleDelete() {
@@ -937,6 +1091,25 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
           <ArticleFields formState={formState} options={options} setField={setField} />
         ) : null}
 
+        {pendingEntities.length > 0 ? (
+          <CollapsibleFormSection
+            title="待创建条目"
+            description="以下名称未在数据库中匹配，将在提交时自动创建占位条目。请确认无误。"
+            summary={`待创建 ${pendingEntities.length} 项`}
+            defaultExpanded={false}
+          >
+            <div className={styles.formGrid}>
+              <div className={styles.fieldSpanFull}>
+                {pendingEntities.map((item) => (
+                  <p key={item.tempId} className={styles.helperText}>
+                    {mapEntityTypeLabel(item.entityType)}：{item.title}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </CollapsibleFormSection>
+        ) : null}
+
         {!isCreateMode ? (
           <CollapsibleFormSection
             title="提交审核"
@@ -970,6 +1143,18 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
           {message ? <p className={styles.statusMessage}>{message}</p> : null}
         </ActionBar>
       </form>
+
+      <WarningModal
+        open={submitWarningOpen}
+        title="将创建新条目"
+        message={`当前表单包含 ${pendingEntities.length} 个尚未创建的条目，提交后会自动创建占位记录并进入审核。请确认继续。`}
+        confirmLabel="继续提交"
+        onCancel={() => setSubmitWarningOpen(false)}
+        onConfirm={async () => {
+          setSubmitWarningOpen(false);
+          await performSubmit(true);
+        }}
+      />
     </div>
   );
 }
