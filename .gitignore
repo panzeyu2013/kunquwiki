@@ -7,3 +7,5 @@ coverage
 apps/api/dev.db
 apps/api/dev.db-journal
 *.tsbuildinfo
+bot/cache
+apps/api/prisma/migrations

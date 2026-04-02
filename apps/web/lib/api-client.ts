@@ -12,6 +12,21 @@ import type {
   WorkType
 } from "@kunquwiki/shared";
 
+export type ParsedEventDraft = {
+  sourceUrl: string;
+  title?: string;
+  bodyMarkdown?: string;
+  startAt?: string;
+  endAt?: string;
+  cityName?: string;
+  venueName?: string;
+  troupeNames?: string[];
+  programTitles?: string[];
+  ticketUrl?: string;
+  noteText?: string;
+  posterImageUrl?: string;
+};
+
 async function request<T>(path: string, init?: RequestInit, useAuth = false): Promise<T> {
   const headers = new Headers(init?.headers);
   headers.set("Content-Type", "application/json");
@@ -209,6 +224,17 @@ export function createQuickEntityClient(input: {
     method: "POST",
     body: JSON.stringify(input)
   }, true);
+}
+
+export function parseEventFromLink(url: string) {
+  return request<ParsedEventDraft>(
+    "/events/parse",
+    {
+      method: "POST",
+      body: JSON.stringify({ url })
+    },
+    true
+  );
 }
 
 export function submitCreateProposal(payload: {

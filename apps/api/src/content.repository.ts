@@ -15,6 +15,7 @@ import {
 } from "./content/content.query";
 import { PrismaService } from "./prisma.service";
 import { SearchIndexService } from "./search-index.service";
+import { parseEventAnnouncementLink } from "./content/event-link.parser";
 
 @Injectable()
 export class ContentRepository {
@@ -97,5 +98,9 @@ export class ContentRepository {
 
   async deleteEntity(entityId: string, actorId: string) {
     return deleteEntity(this.prisma, entityId, actorId);
+  }
+
+  async parseEventLink(url: string) {
+    return parseEventAnnouncementLink(url);
   }
 }

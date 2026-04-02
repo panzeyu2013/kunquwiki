@@ -1,7 +1,14 @@
 import { Body, Controller, Delete, Get, Headers, Param, Patch, Post, Query } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { AppService } from "./app.service";
-import { CreateEntityProposalDto, CreateProposalDto, QuickCreateEntityDto, ReviewProposalDto, UpdateUserAccessDto } from "./dto";
+import {
+  CreateEntityProposalDto,
+  CreateProposalDto,
+  ParseEventLinkDto,
+  QuickCreateEntityDto,
+  ReviewProposalDto,
+  UpdateUserAccessDto
+} from "./dto";
 
 @Controller("api")
 export class AppController {
@@ -94,6 +101,16 @@ export class AppController {
     const user = await this.authService.requireActiveUser(authorization);
     this.authService.assertEditorRole(user.roles);
     return this.appService.createEntityProposal(body, user.id);
+  }
+
+  @Post("events/parse")
+  async parseEventLink(
+    @Headers("authorization") authorization: string | undefined,
+    @Body() body: ParseEventLinkDto
+  ) {
+    const user = await this.authService.requireActiveUser(authorization);
+    this.authService.assertEditorRole(user.roles);
+    return this.appService.parseEventLink(body.url);
   }
 
   @Post("open/entities/:slug/proposals")

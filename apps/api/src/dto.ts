@@ -108,3 +108,9 @@ export class QuickCreateEntityDto {
   @Type(() => Object)
   initialData?: Record<string, unknown>;
 }
+
+export class ParseEventLinkDto {
+  @IsString()
+  @IsNotEmpty()
+  url!: string;
+}

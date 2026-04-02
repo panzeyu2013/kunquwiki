@@ -42,6 +42,13 @@ type EventFieldsProps = {
     extra?: { workType?: WorkType; parentWorkId?: string; initialData?: Record<string, unknown> }
   ) => Promise<QuickCreatedOption | void>;
   isDraftEntity: (id: string) => boolean;
+  parseLinkState?: {
+    value: string;
+    onChange: (value: string) => void;
+    onParse: () => void;
+    pending: boolean;
+    error?: string | null;
+  };
 };
 
 function buildEventSectionSummary(formState: Record<string, unknown>, options: EditorOptions) {
@@ -273,7 +280,8 @@ export function EventFields({
   updateStructuredRow,
   removeStructuredRow,
   createQuickOption,
-  isDraftEntity
+  isDraftEntity,
+  parseLinkState
 }: EventFieldsProps) {
   const programItems = Array.isArray(formState.programDetailed) ? (formState.programDetailed as EventProgramItemRow[]) : [];
 
@@ -285,6 +293,31 @@ export function EventFields({
       accent
       defaultExpanded
     >
+      {parseLinkState ? (
+        <div className={styles.eventParsePanel}>
+          <label className={styles.fieldSpanFull}>
+            演出官宣链接
+            <input
+              value={parseLinkState.value}
+              onChange={(event) => parseLinkState.onChange(event.target.value)}
+              placeholder="粘贴演出官宣或票务页面链接"
+              disabled={parseLinkState.pending}
+            />
+          </label>
+          <div className={styles.eventParseActions}>
+            <button
+              type="button"
+              className={buttonStyles.button}
+              onClick={parseLinkState.onParse}
+              disabled={parseLinkState.pending}
+            >
+              {parseLinkState.pending ? "解析中..." : "解析并填充"}
+            </button>
+            <p className={styles.helperText}>解析结果会覆盖已有内容，提交前请核对。</p>
+          </div>
+          {parseLinkState.error ? <p className={styles.helperText}>{parseLinkState.error}</p> : null}
+        </div>
+      ) : null}
       <div className={`${styles.formGrid} ${styles.formGridWide}`}>
         <label>
           演出类型

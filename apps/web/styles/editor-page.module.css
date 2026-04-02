@@ -491,6 +491,24 @@
     var(--paper-soft);
 }
 
+.eventParsePanel {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.95rem;
+  border-radius: var(--radius-md);
+  border: 1px dashed rgba(126, 44, 36, 0.2);
+  background:
+    linear-gradient(180deg, rgba(255, 245, 236, 0.9), rgba(255, 255, 255, 0.9)),
+    var(--paper-soft);
+}
+
+.eventParseActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+}
+
 .eventTimePanelHead {
   display: grid;
   gap: 0.2rem;

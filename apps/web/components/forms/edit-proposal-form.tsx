@@ -1,7 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { createQuickEntityClient, deleteEntityClient, getEditorOptions, getEntityPublic, submitCreateProposal, submitProposal } from "../../lib/api-client";
+import {
+  createQuickEntityClient,
+  deleteEntityClient,
+  getEditorOptions,
+  getEntityPublic,
+  parseEventFromLink,
+  submitCreateProposal,
+  submitProposal,
+  type ParsedEventDraft
+} from "../../lib/api-client";
 import { getEntityCollectionPath, getEntityDetailPath } from "../../lib/routes";
 import { useAuthUser } from "../auth/use-auth-user";
 import { ActionBar } from "../action-bar";
@@ -145,6 +154,59 @@ function buildEventTitle(input: {
   return `${dateLabel} ${locationLabel} ${troupeLabel} ${programLabel}`;
 }
 
+function normalizeName(value: string) {
+  return value.replace(/\s+/g, "").replace(/[·・\-]/g, "").toLowerCase();
+}
+
+function findOptionByName(options: EntityOption[], name?: string) {
+  if (!name) {
+    return undefined;
+  }
+  const normalized = normalizeName(name);
+  const exact = options.find((item) => normalizeName(item.title) === normalized);
+  if (exact) {
+    return exact;
+  }
+  return options.find((item) => normalizeName(item.title).includes(normalized) || normalized.includes(normalizeName(item.title)));
+}
+
+function toInputDate(value?: string) {
+  if (!value) {
+    return "";
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return "";
+  }
+  return parsed.toISOString().slice(0, 16);
+}
+
+function appendSourceLink(body: string, url: string) {
+  const trimmed = body.trim();
+  if (!url.trim()) {
+    return trimmed;
+  }
+  if (trimmed.includes(url)) {
+    return trimmed;
+  }
+  const prefix = trimmed.length > 0 ? `${trimmed}\n\n` : "";
+  return `${prefix}来源：${url.trim()}`;
+}
+
+function mergeNoteText(base: string, extra?: string) {
+  if (!extra) {
+    return base;
+  }
+  const trimmed = extra.trim();
+  if (!trimmed) {
+    return base;
+  }
+  if (base.includes(trimmed)) {
+    return base;
+  }
+  return base ? `${base}\n${trimmed}` : trimmed;
+}
+
 export function EditProposalForm({ slug, entityType }: { slug?: string; entityType?: string }) {
   const { hasRole } = useAuthUser();
   const [entity, setEntity] = useState<EditableEntity | null>(null);
@@ -157,6 +219,9 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
   const [pending, setPending] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [draftEntityIds, setDraftEntityIds] = useState<string[]>([]);
+  const [eventLink, setEventLink] = useState("");
+  const [eventParsePending, setEventParsePending] = useState(false);
+  const [eventParseError, setEventParseError] = useState<string | null>(null);
 
   const activeEntityType = entity?.entityType ?? entityType ?? "";
   const isCreateMode = !slug;
@@ -213,6 +278,87 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
     return draftEntityIds.includes(id);
   }
 
+  async function handleParseEventLink() {
+    const trimmed = eventLink.trim();
+    if (!trimmed) {
+      setEventParseError("请先填写演出官宣链接。");
+      return;
+    }
+    if (!options) {
+      setEventParseError("表单选项尚未加载完成。");
+      return;
+    }
+    setEventParsePending(true);
+    setEventParseError(null);
+    try {
+      const result = await parseEventFromLink(trimmed);
+      const confirmed = window.confirm("将使用解析结果覆盖当前已填写内容，是否继续？");
+      if (!confirmed) {
+        return;
+      }
+      applyParsedEvent(result);
+    } catch (error) {
+      setEventParseError(error instanceof Error ? error.message : "解析失败，请稍后再试。");
+    } finally {
+      setEventParsePending(false);
+    }
+  }
+
+  function applyParsedEvent(result: ParsedEventDraft) {
+    if (!options || activeEntityType !== "event") {
+      return;
+    }
+
+    const nextState = { ...formState };
+
+    if (result.startAt) nextState.startAt = toInputDate(result.startAt);
+    if (result.endAt) nextState.endAt = toInputDate(result.endAt);
+    if (result.ticketUrl) nextState.ticketUrl = result.ticketUrl;
+    if (result.noteText) nextState.noteText = mergeNoteText(String(nextState.noteText ?? ""), result.noteText);
+
+    const posterNote = result.posterImageUrl ? `海报：${result.posterImageUrl}` : "";
+    if (posterNote) {
+      nextState.noteText = mergeNoteText(String(nextState.noteText ?? ""), posterNote);
+    }
+
+    const cityOption = findOptionByName(options.cities, result.cityName);
+    if (cityOption) nextState.cityId = cityOption.id;
+
+    const venueOption = findOptionByName(options.venues, result.venueName);
+    if (venueOption) nextState.venueEntityId = venueOption.id;
+
+    const troupeOptions = (result.troupeNames ?? [])
+      .map((name) => findOptionByName(options.troupes, name))
+      .filter(Boolean) as EntityOption[];
+    if (troupeOptions.length > 0) {
+      nextState.troupeIds = troupeOptions.map((item) => item.id);
+    }
+
+    if (result.programTitles && result.programTitles.length > 0) {
+      nextState.programDetailed = result.programTitles.map((titleText, index) => ({
+        key: makeClientKey("program"),
+        workEntityId: "",
+        titleOverride: titleText,
+        sequenceNo: String(index + 1),
+        durationMinutes: "",
+        notes: "",
+        casts: []
+      }));
+    }
+
+    setFormState(nextState);
+
+    if (result.title) {
+      setTitle(result.title);
+    }
+    if (result.bodyMarkdown) {
+      setBody(result.bodyMarkdown);
+    }
+    if (result.sourceUrl) {
+      setEventLink(result.sourceUrl);
+    }
+  }
+
   async function createQuickOption(
     nextEntityType: string,
     name: string,
@@ -262,6 +408,8 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
         return;
       }
       setFormState(emptyState(entityType));
+      setEventLink("");
+      setEventParseError(null);
       setOptions(nextOptions);
       setLoaded(true);
     }
@@ -274,6 +422,8 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
       setEntity(loadedEntity);
       setTitle(loadedEntity.title);
       setBody(loadedEntity.body ?? "");
+      setEventLink("");
+      setEventParseError(null);
 
       const nextState = emptyState(loadedEntity.entityType);
       nextState.coverImageId = loadedEntity.coverImageId ?? "";
@@ -485,9 +635,10 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
   const editSummaryFilled = Boolean(editSummary.trim());
   const bodyLength = body.trim().length;
   async function buildPayload() {
+    const bodyMarkdown = activeEntityType === "event" ? appendSourceLink(body, eventLink) : body;
     const payload: Record<string, unknown> = {
       title,
-      bodyMarkdown: body,
+      bodyMarkdown,
       coverImageId: formState.coverImageId || null
     };
 
@@ -738,6 +889,17 @@ export function EditProposalForm({ slug, entityType }: { slug?: string; entityTy
             removeStructuredRow={removeStructuredRow}
             createQuickOption={createQuickOption}
             isDraftEntity={isDraftEntity}
+            parseLinkState={
+              isCreateMode
+                ? {
+                    value: eventLink,
+                    onChange: setEventLink,
+                    onParse: handleParseEventLink,
+                    pending: eventParsePending,
+                    error: eventParseError
+                  }
+                : undefined
+            }
           />
         ) : null}
 
